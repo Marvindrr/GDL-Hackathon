@@ -1,10 +1,3 @@
-# -- coding: utf-8 --
-"""
-Created on Wed Sep 11 12:54:30 2024
-
-@author: JaviyKarla
-"""
-
 import pandas as pd
 import numpy as np
 import folium
