@@ -1,0 +1,34 @@
+# Entorno virtual
+venv/
+env/
+ENV/
+
+# Python cache
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+
+# Archivos temporales
+*.log
+*.tmp
+
+# Archivos del sistema
+.DS_Store
+Thumbs.db
+
+# Jupyter notebooks checkpoints
+.ipynb_checkpoints/
+
+# Variables de entorno
+.env
+
+# VSCode
+.vscode/
+
+# Archivos compilados
+build/
+dist/
+
+# Archivos grandes opcionales (si no quieres subirlos)
+#models/*.pt
