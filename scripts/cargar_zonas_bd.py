@@ -5,7 +5,7 @@ import os
 db_config = {
     "host": "localhost",
     "user": "root",
-    "password": "Xoceandav12",
+    "password": "",      #----------------- Si su BD tiene contraseña ponla ahí mismo ------------------#
     "database": "zona_de_riesgo"
 }
 
