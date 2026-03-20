@@ -1,52 +1,1712 @@
 [
-{
-"nombre_colonia":"Centro Guadalajara",
-"centro":[-103.3475,20.6767],
-"riesgo":75
-},
-{
-"nombre_colonia":"Americana",
-"centro":[-103.3684,20.6736],
-"riesgo":45
-},
-{
-"nombre_colonia":"Providencia",
-"centro":[-103.3750,20.6994],
-"riesgo":30
-},
-{
-"nombre_colonia":"Chapalita",
-"centro":[-103.3956,20.6589],
-"riesgo":25
-},
-{
-"nombre_colonia":"Oblatos",
-"centro":[-103.2960,20.6999],
-"riesgo":65
-},
-{
-"nombre_colonia":"Santa Tere",
-"centro":[-103.3602,20.6802],
-"riesgo":55
-},
-{
-"nombre_colonia":"Analco",
-"centro":[-103.3406,20.6670],
-"riesgo":70
-},
-{
-"nombre_colonia":"Polanco",
-"centro":[-103.3143,20.6520],
-"riesgo":60
-},
-{
-"nombre_colonia":"Miravalle",
-"centro":[-103.3572,20.6238],
-"riesgo":80
-},
-{
-"nombre_colonia":"La Penal",
-"centro":[-103.3002,20.6763],
-"riesgo":85
-}
+  {
+    "nombre_colonia": "1 DE MAYO",
+    "lat": 20.628,
+    "lon": -103.335,
+    "riesgo": 60
+  },
+  {
+    "nombre_colonia": "18 DE MARZO",
+    "lat": 20.635,
+    "lon": -103.342,
+    "riesgo": 55
+  },
+  {
+    "nombre_colonia": "20 DE NOVIEMBRE",
+    "lat": 20.665,
+    "lon": -103.328,
+    "riesgo": 65
+  },
+  {
+    "nombre_colonia": "5 DE MAYO",
+    "lat": 20.695,
+    "lon": -103.345,
+    "riesgo": 70
+  },
+  {
+    "nombre_colonia": "8 DE JULIO",
+    "lat": 20.642,
+    "lon": -103.355,
+    "riesgo": 75
+  },
+  {
+    "nombre_colonia": "AARON JOAQUIN",
+    "lat": 20.682,
+    "lon": -103.285,
+    "riesgo": 40
+  },
+  {
+    "nombre_colonia": "AGRARIA",
+    "lat": 20.678,
+    "lon": -103.312,
+    "riesgo": 35
+  },
+  {
+    "nombre_colonia": "AGUA ESCONDIDA",
+    "lat": 20.715,
+    "lon": -103.31,
+    "riesgo": 50
+  },
+  {
+    "nombre_colonia": "AGUSTIN YAÑEZ",
+    "lat": 20.662,
+    "lon": -103.368,
+    "riesgo": 45
+  },
+  {
+    "nombre_colonia": "ALAMEDA",
+    "lat": 20.676,
+    "lon": -103.332,
+    "riesgo": 55
+  },
+  {
+    "nombre_colonia": "ALAMEDAS DE ZALATITAN",
+    "lat": 20.658,
+    "lon": -103.262,
+    "riesgo": 70
+  },
+  {
+    "nombre_colonia": "ALAMO INDUSTRIAL",
+    "lat": 20.618,
+    "lon": -103.325,
+    "riesgo": 65
+  },
+  {
+    "nombre_colonia": "ALCALDE BARRANQUITAS",
+    "lat": 20.69,
+    "lon": -103.348,
+    "riesgo": 40
+  },
+  {
+    "nombre_colonia": "ALDAMA TETLAN",
+    "lat": 20.662,
+    "lon": -103.285,
+    "riesgo": 60
+  },
+  {
+    "nombre_colonia": "ALTAMIRA",
+    "lat": 20.705,
+    "lon": -103.375,
+    "riesgo": 30
+  },
+  {
+    "nombre_colonia": "ALTOS NORTE",
+    "lat": 20.722,
+    "lon": -103.335,
+    "riesgo": 55
+  },
+  {
+    "nombre_colonia": "ANALCO",
+    "lat": 20.6689,
+    "lon": -103.3381,
+    "riesgo": 70
+  },
+  {
+    "nombre_colonia": "ARANDAS",
+    "lat": 20.695,
+    "lon": -103.275,
+    "riesgo": 65
+  },
+  {
+    "nombre_colonia": "ARCINAS LAS FLORES",
+    "lat": 20.685,
+    "lon": -103.31,
+    "riesgo": 50
+  },
+  {
+    "nombre_colonia": "ARTESANOS",
+    "lat": 20.682,
+    "lon": -103.351,
+    "riesgo": 45
+  },
+  {
+    "nombre_colonia": "ATEMAJAC DEL VALLE",
+    "lat": 20.718,
+    "lon": -103.352,
+    "riesgo": 60
+  },
+  {
+    "nombre_colonia": "ATLAS",
+    "lat": 20.648,
+    "lon": -103.322,
+    "riesgo": 55
+  },
+  {
+    "nombre_colonia": "AUTOCINEMA",
+    "lat": 20.712,
+    "lon": -103.34,
+    "riesgo": 40
+  },
+  {
+    "nombre_colonia": "AYUNTAMIENTO",
+    "lat": 20.692,
+    "lon": -103.355,
+    "riesgo": 45
+  },
+  {
+    "nombre_colonia": "BALCONES DE LA JOYA",
+    "lat": 20.732,
+    "lon": -103.305,
+    "riesgo": 75
+  },
+  {
+    "nombre_colonia": "BALCONES DE OBLATOS",
+    "lat": 20.705,
+    "lon": -103.285,
+    "riesgo": 70
+  },
+  {
+    "nombre_colonia": "BALCONES DE SANTA MARIA",
+    "lat": 20.605,
+    "lon": -103.345,
+    "riesgo": 65
+  },
+  {
+    "nombre_colonia": "BALCONES DEL CUATRO",
+    "lat": 20.608,
+    "lon": -103.365,
+    "riesgo": 75
+  },
+  {
+    "nombre_colonia": "BALCONES Y/O PRADOS DE HUENTITAN",
+    "lat": 20.725,
+    "lon": -103.315,
+    "riesgo": 65
+  },
+  {
+    "nombre_colonia": "BARRANCA DE OBLATOS",
+    "lat": 20.728,
+    "lon": -103.275,
+    "riesgo": 80
+  },
+  {
+    "nombre_colonia": "BEATRIZ HERNANDEZ",
+    "lat": 20.691,
+    "lon": -103.292,
+    "riesgo": 60
+  },
+  {
+    "nombre_colonia": "BELISARIO DOMINGUEZ",
+    "lat": 20.695,
+    "lon": -103.325,
+    "riesgo": 65
+  },
+  {
+    "nombre_colonia": "BENITO JUAREZ",
+    "lat": 20.698,
+    "lon": -103.282,
+    "riesgo": 55
+  },
+  {
+    "nombre_colonia": "BLANCO Y CUELLAR",
+    "lat": 20.682,
+    "lon": -103.318,
+    "riesgo": 60
+  },
+  {
+    "nombre_colonia": "BOSQUES DEL BOULEVARD",
+    "lat": 20.638,
+    "lon": -103.358,
+    "riesgo": 45
+  },
+  {
+    "nombre_colonia": "BRISAS DEL NILO",
+    "lat": 20.645,
+    "lon": -103.302,
+    "riesgo": 50
+  },
+  {
+    "nombre_colonia": "BUENOS AIRES",
+    "lat": 20.595,
+    "lon": -103.352,
+    "riesgo": 65
+  },
+  {
+    "nombre_colonia": "CANTARRANAS",
+    "lat": 20.678,
+    "lon": -103.295,
+    "riesgo": 60
+  },
+  {
+    "nombre_colonia": "CAPILLA DE JESUS",
+    "lat": 20.682,
+    "lon": -103.358,
+    "riesgo": 50
+  },
+  {
+    "nombre_colonia": "CENTRO",
+    "lat": 20.6767,
+    "lon": -103.3467,
+    "riesgo": 60
+  },
+  {
+    "nombre_colonia": "CENTRO BARRANQUITAS",
+    "lat": 20.688,
+    "lon": -103.345,
+    "riesgo": 55
+  },
+  {
+    "nombre_colonia": "CIRCUNVALACION BELISARIO",
+    "lat": 20.705,
+    "lon": -103.325,
+    "riesgo": 65
+  },
+  {
+    "nombre_colonia": "CIRCUNVALACION OBLATOS",
+    "lat": 20.698,
+    "lon": -103.315,
+    "riesgo": 70
+  },
+  {
+    "nombre_colonia": "COLINAS DE HUENTITAN",
+    "lat": 20.732,
+    "lon": -103.315,
+    "riesgo": 60
+  },
+  {
+    "nombre_colonia": "COLINAS DE LA NORMAL",
+    "lat": 20.698,
+    "lon": -103.351,
+    "riesgo": 40
+  },
+  {
+    "nombre_colonia": "COLON",
+    "lat": 20.632,
+    "lon": -103.365,
+    "riesgo": 55
+  },
+  {
+    "nombre_colonia": "COLON INDUSTRIAL",
+    "lat": 20.642,
+    "lon": -103.372,
+    "riesgo": 65
+  },
+  {
+    "nombre_colonia": "COMERCIAL ABASTOS",
+    "lat": 20.658,
+    "lon": -103.375,
+    "riesgo": 70
+  },
+  {
+    "nombre_colonia": "CORRECCIONAL",
+    "lat": 20.665,
+    "lon": -103.315,
+    "riesgo": 85
+  },
+  {
+    "nombre_colonia": "CUAUHTEMOC",
+    "lat": 20.692,
+    "lon": -103.285,
+    "riesgo": 60
+  },
+  {
+    "nombre_colonia": "CUMBRES DEL NILO",
+    "lat": 20.648,
+    "lon": -103.295,
+    "riesgo": 55
+  },
+  {
+    "nombre_colonia": "DE LA PRESA",
+    "lat": 20.725,
+    "lon": -103.325,
+    "riesgo": 60
+  },
+  {
+    "nombre_colonia": "DEL BARRO",
+    "lat": 20.685,
+    "lon": -103.325,
+    "riesgo": 50
+  },
+  {
+    "nombre_colonia": "DEL BOSQUE",
+    "lat": 20.672,
+    "lon": -103.385,
+    "riesgo": 30
+  },
+  {
+    "nombre_colonia": "DEL FRESNO",
+    "lat": 20.658,
+    "lon": -103.362,
+    "riesgo": 75
+  },
+  {
+    "nombre_colonia": "DEL PERIODISTA",
+    "lat": 20.702,
+    "lon": -103.355,
+    "riesgo": 40
+  },
+  {
+    "nombre_colonia": "DEL SOL",
+    "lat": 20.652,
+    "lon": -103.398,
+    "riesgo": 35
+  },
+  {
+    "nombre_colonia": "DEL SUR",
+    "lat": 20.625,
+    "lon": -103.368,
+    "riesgo": 60
+  },
+  {
+    "nombre_colonia": "DIVISION DEL NORTE",
+    "lat": 20.718,
+    "lon": -103.332,
+    "riesgo": 55
+  },
+  {
+    "nombre_colonia": "DOCTORES",
+    "lat": 20.692,
+    "lon": -103.338,
+    "riesgo": 45
+  },
+  {
+    "nombre_colonia": "DR VALENTIN GOMEZ FARIAS",
+    "lat": 20.668,
+    "lon": -103.305,
+    "riesgo": 60
+  },
+  {
+    "nombre_colonia": "ECHEVERRIA",
+    "lat": 20.628,
+    "lon": -103.375,
+    "riesgo": 75
+  },
+  {
+    "nombre_colonia": "EL ALAMO",
+    "lat": 20.625,
+    "lon": -103.322,
+    "riesgo": 65
+  },
+  {
+    "nombre_colonia": "EL BATAN",
+    "lat": 20.725,
+    "lon": -103.345,
+    "riesgo": 60
+  },
+  {
+    "nombre_colonia": "EL BETHEL",
+    "lat": 20.695,
+    "lon": -103.265,
+    "riesgo": 70
+  },
+  {
+    "nombre_colonia": "EL CARMEN",
+    "lat": 20.688,
+    "lon": -103.305,
+    "riesgo": 55
+  },
+  {
+    "nombre_colonia": "EL DEAN",
+    "lat": 20.645,
+    "lon": -103.345,
+    "riesgo": 70
+  },
+  {
+    "nombre_colonia": "EL JAGUEY",
+    "lat": 20.702,
+    "lon": -103.295,
+    "riesgo": 50
+  },
+  {
+    "nombre_colonia": "EL MANANTIAL",
+    "lat": 20.608,
+    "lon": -103.342,
+    "riesgo": 60
+  },
+  {
+    "nombre_colonia": "EL MOLINO",
+    "lat": 20.698,
+    "lon": -103.255,
+    "riesgo": 55
+  },
+  {
+    "nombre_colonia": "EL PINAL",
+    "lat": 20.718,
+    "lon": -103.288,
+    "riesgo": 50
+  },
+  {
+    "nombre_colonia": "EL RASTRO",
+    "lat": 20.652,
+    "lon": -103.335,
+    "riesgo": 75
+  },
+  {
+    "nombre_colonia": "EL RETIRO",
+    "lat": 20.688,
+    "lon": -103.338,
+    "riesgo": 65
+  },
+  {
+    "nombre_colonia": "EL ROCIO",
+    "lat": 20.685,
+    "lon": -103.285,
+    "riesgo": 50
+  },
+  {
+    "nombre_colonia": "EL ROSARIO",
+    "lat": 20.658,
+    "lon": -103.325,
+    "riesgo": 55
+  },
+  {
+    "nombre_colonia": "EL SAUZ",
+    "lat": 20.622,
+    "lon": -103.392,
+    "riesgo": 75
+  },
+  {
+    "nombre_colonia": "EL VERDE (PLANETARIO)",
+    "lat": 20.715,
+    "lon": -103.322,
+    "riesgo": 60
+  },
+  {
+    "nombre_colonia": "EL ZALATE",
+    "lat": 20.668,
+    "lon": -103.265,
+    "riesgo": 80
+  },
+  {
+    "nombre_colonia": "ELECTRICISTAS",
+    "lat": 20.638,
+    "lon": -103.332,
+    "riesgo": 45
+  },
+  {
+    "nombre_colonia": "ESPERANZA",
+    "lat": 20.695,
+    "lon": -103.308,
+    "riesgo": 60
+  },
+  {
+    "nombre_colonia": "FABRICA DE ATEMAJAC",
+    "lat": 20.722,
+    "lon": -103.355,
+    "riesgo": 55
+  },
+  {
+    "nombre_colonia": "FEDERALISMO",
+    "lat": 20.702,
+    "lon": -103.352,
+    "riesgo": 60
+  },
+  {
+    "nombre_colonia": "FERROCARRIL",
+    "lat": 20.658,
+    "lon": -103.342,
+    "riesgo": 80
+  },
+  {
+    "nombre_colonia": "FIDEL VELAZQUEZ",
+    "lat": 20.712,
+    "lon": -103.332,
+    "riesgo": 65
+  },
+  {
+    "nombre_colonia": "FLAMINGO",
+    "lat": 20.648,
+    "lon": -103.365,
+    "riesgo": 50
+  },
+  {
+    "nombre_colonia": "FOVISSSTE ESTADIO",
+    "lat": 20.712,
+    "lon": -103.325,
+    "riesgo": 55
+  },
+  {
+    "nombre_colonia": "FOVISSSTE MIRAVALLE",
+    "lat": 20.615,
+    "lon": -103.342,
+    "riesgo": 65
+  },
+  {
+    "nombre_colonia": "FRANCISCO VILLA",
+    "lat": 20.698,
+    "lon": -103.295,
+    "riesgo": 60
+  },
+  {
+    "nombre_colonia": "GUADALAJARA ORIENTE",
+    "lat": 20.678,
+    "lon": -103.305,
+    "riesgo": 65
+  },
+  {
+    "nombre_colonia": "GUADALUPANA",
+    "lat": 20.718,
+    "lon": -103.338,
+    "riesgo": 60
+  },
+  {
+    "nombre_colonia": "HELIODORO HERNANDEZ LOZA",
+    "lat": 20.715,
+    "lon": -103.262,
+    "riesgo": 85
+  },
+  {
+    "nombre_colonia": "HERMOSA PROVINCIA",
+    "lat": 20.672,
+    "lon": -103.285,
+    "riesgo": 55
+  },
+  {
+    "nombre_colonia": "HERNANDEZ ROMO",
+    "lat": 20.658,
+    "lon": -103.318,
+    "riesgo": 50
+  },
+  {
+    "nombre_colonia": "HIGUERILLAS",
+    "lat": 20.635,
+    "lon": -103.348,
+    "riesgo": 60
+  },
+  {
+    "nombre_colonia": "HORMIGUERO",
+    "lat": 20.695,
+    "lon": -103.328,
+    "riesgo": 55
+  },
+  {
+    "nombre_colonia": "HUENTITAN EL ALTO",
+    "lat": 20.738,
+    "lon": -103.305,
+    "riesgo": 60
+  },
+  {
+    "nombre_colonia": "HUENTITAN EL BAJO",
+    "lat": 20.732,
+    "lon": -103.325,
+    "riesgo": 65
+  },
+  {
+    "nombre_colonia": "HUERTA BAEZA",
+    "lat": 20.642,
+    "lon": -103.335,
+    "riesgo": 50
+  },
+  {
+    "nombre_colonia": "INDEPENDENCIA",
+    "lat": 20.708,
+    "lon": -103.335,
+    "riesgo": 55
+  },
+  {
+    "nombre_colonia": "INDEPENDENCIA ORIENTE",
+    "lat": 20.688,
+    "lon": -103.315,
+    "riesgo": 60
+  },
+  {
+    "nombre_colonia": "INFONAVIT ESTADIO",
+    "lat": 20.705,
+    "lon": -103.322,
+    "riesgo": 60
+  },
+  {
+    "nombre_colonia": "INFONAVIT INDEPENDENCIA",
+    "lat": 20.708,
+    "lon": -103.325,
+    "riesgo": 65
+  },
+  {
+    "nombre_colonia": "INSURGENTES",
+    "lat": 20.655,
+    "lon": -103.275,
+    "riesgo": 70
+  },
+  {
+    "nombre_colonia": "JALISCO I SECC",
+    "lat": 20.698,
+    "lon": -103.255,
+    "riesgo": 85
+  },
+  {
+    "nombre_colonia": "JALISCO II SECC",
+    "lat": 20.702,
+    "lon": -103.252,
+    "riesgo": 90
+  },
+  {
+    "nombre_colonia": "JARDINES ALCALDE",
+    "lat": 20.702,
+    "lon": -103.345,
+    "riesgo": 35
+  },
+  {
+    "nombre_colonia": "JARDINES DE GUADALUPE",
+    "lat": 20.675,
+    "lon": -103.405,
+    "riesgo": 40
+  },
+  {
+    "nombre_colonia": "JARDINES DE LA BARRANCA",
+    "lat": 20.718,
+    "lon": -103.272,
+    "riesgo": 75
+  },
+  {
+    "nombre_colonia": "JARDINES DE LA CRUZ",
+    "lat": 20.635,
+    "lon": -103.385,
+    "riesgo": 55
+  },
+  {
+    "nombre_colonia": "JARDINES DEL BOSQUE",
+    "lat": 20.668,
+    "lon": -103.385,
+    "riesgo": 30
+  },
+  {
+    "nombre_colonia": "JARDINES DE LOS BELENES",
+    "lat": 20.722,
+    "lon": -103.345,
+    "riesgo": 45
+  },
+  {
+    "nombre_colonia": "JARDINES DE SAN FRANCISCO",
+    "lat": 20.662,
+    "lon": -103.275,
+    "riesgo": 60
+  },
+  {
+    "nombre_colonia": "JARDINES DE SAN IGNACIO",
+    "lat": 20.662,
+    "lon": -103.402,
+    "riesgo": 35
+  },
+  {
+    "nombre_colonia": "JARDINES DE SAN JOSE",
+    "lat": 20.612,
+    "lon": -103.385,
+    "riesgo": 70
+  },
+  {
+    "nombre_colonia": "JARDINES DE SANTA ISABEL",
+    "lat": 20.715,
+    "lon": -103.295,
+    "riesgo": 65
+  },
+  {
+    "nombre_colonia": "JARDINES DEL SAUZ",
+    "lat": 20.625,
+    "lon": -103.398,
+    "riesgo": 65
+  },
+  {
+    "nombre_colonia": "JARDINES DEL SUR",
+    "lat": 20.618,
+    "lon": -103.375,
+    "riesgo": 60
+  },
+  {
+    "nombre_colonia": "JOSE CLEMENTE OROZCO",
+    "lat": 20.692,
+    "lon": -103.342,
+    "riesgo": 55
+  },
+  {
+    "nombre_colonia": "JOYAS DEL NILO",
+    "lat": 20.648,
+    "lon": -103.285,
+    "riesgo": 60
+  },
+  {
+    "nombre_colonia": "JUAN MANUEL",
+    "lat": 20.682,
+    "lon": -103.365,
+    "riesgo": 45
+  },
+  {
+    "nombre_colonia": "LA AURORA",
+    "lat": 20.662,
+    "lon": -103.315,
+    "riesgo": 55
+  },
+  {
+    "nombre_colonia": "LA CAMPESINA",
+    "lat": 20.668,
+    "lon": -103.302,
+    "riesgo": 60
+  },
+  {
+    "nombre_colonia": "LA CRUZ",
+    "lat": 20.692,
+    "lon": -103.315,
+    "riesgo": 65
+  },
+  {
+    "nombre_colonia": "LA ESPERANZA",
+    "lat": 20.705,
+    "lon": -103.308,
+    "riesgo": 80
+  },
+  {
+    "nombre_colonia": "LA EXPERIENCIA",
+    "lat": 20.732,
+    "lon": -103.338,
+    "riesgo": 60
+  },
+  {
+    "nombre_colonia": "LA GUADALUPANA",
+    "lat": 20.712,
+    "lon": -103.335,
+    "riesgo": 65
+  },
+  {
+    "nombre_colonia": "LA JOYA",
+    "lat": 20.728,
+    "lon": -103.308,
+    "riesgo": 60
+  },
+  {
+    "nombre_colonia": "LA JOYITA",
+    "lat": 20.685,
+    "lon": -103.292,
+    "riesgo": 55
+  },
+  {
+    "nombre_colonia": "LA LOMA",
+    "lat": 20.655,
+    "lon": -103.312,
+    "riesgo": 65
+  },
+  {
+    "nombre_colonia": "LA MALINCHE",
+    "lat": 20.688,
+    "lon": -103.285,
+    "riesgo": 60
+  },
+  {
+    "nombre_colonia": "LA NOGALERA",
+    "lat": 20.628,
+    "lon": -103.345,
+    "riesgo": 75
+  },
+  {
+    "nombre_colonia": "LA NORMAL",
+    "lat": 20.695,
+    "lon": -103.348,
+    "riesgo": 40
+  },
+  {
+    "nombre_colonia": "LA PAZ",
+    "lat": 20.675,
+    "lon": -103.328,
+    "riesgo": 50
+  },
+  {
+    "nombre_colonia": "LA PENAL",
+    "lat": 20.665,
+    "lon": -103.305,
+    "riesgo": 75
+  },
+  {
+    "nombre_colonia": "LA PERLA",
+    "lat": 20.678,
+    "lon": -103.335,
+    "riesgo": 70
+  },
+  {
+    "nombre_colonia": "LA PILA",
+    "lat": 20.648,
+    "lon": -103.315,
+    "riesgo": 55
+  },
+  {
+    "nombre_colonia": "LAGOS DE ORIENTE",
+    "lat": 20.675,
+    "lon": -103.282,
+    "riesgo": 70
+  },
+  {
+    "nombre_colonia": "LAS CONCHAS",
+    "lat": 20.665,
+    "lon": -103.338,
+    "riesgo": 70
+  },
+  {
+    "nombre_colonia": "LAS HUERTAS",
+    "lat": 20.635,
+    "lon": -103.285,
+    "riesgo": 75
+  },
+  {
+    "nombre_colonia": "LAS JUNTAS",
+    "lat": 20.605,
+    "lon": -103.332,
+    "riesgo": 75
+  },
+  {
+    "nombre_colonia": "LAS TERESAS",
+    "lat": 20.695,
+    "lon": -103.305,
+    "riesgo": 60
+  },
+  {
+    "nombre_colonia": "LAZARO CARDENAS",
+    "lat": 20.635,
+    "lon": -103.362,
+    "riesgo": 65
+  },
+  {
+    "nombre_colonia": "LEYES DE REFORMA",
+    "lat": 20.645,
+    "lon": -103.328,
+    "riesgo": 60
+  },
+  {
+    "nombre_colonia": "LIBERTAD",
+    "lat": 20.682,
+    "lon": -103.302,
+    "riesgo": 70
+  },
+  {
+    "nombre_colonia": "LINDAVISTA",
+    "lat": 20.652,
+    "lon": -103.315,
+    "riesgo": 55
+  },
+  {
+    "nombre_colonia": "LOMA BONITA",
+    "lat": 20.632,
+    "lon": -103.402,
+    "riesgo": 45
+  },
+  {
+    "nombre_colonia": "LOMA LINDA",
+    "lat": 20.605,
+    "lon": -103.355,
+    "riesgo": 50
+  },
+  {
+    "nombre_colonia": "LOMAS DE ATEMAJAC",
+    "lat": 20.712,
+    "lon": -103.355,
+    "riesgo": 55
+  },
+  {
+    "nombre_colonia": "LOMAS DE GUEVARA",
+    "lat": 20.685,
+    "lon": -103.375,
+    "riesgo": 30
+  },
+  {
+    "nombre_colonia": "LOMAS DE INDEPENDENCIA",
+    "lat": 20.712,
+    "lon": -103.315,
+    "riesgo": 65
+  },
+  {
+    "nombre_colonia": "LOMAS DE LA VICTORIA",
+    "lat": 20.628,
+    "lon": -103.385,
+    "riesgo": 55
+  },
+  {
+    "nombre_colonia": "LOMAS DE OBLATOS",
+    "lat": 20.708,
+    "lon": -103.275,
+    "riesgo": 80
+  },
+  {
+    "nombre_colonia": "LOMAS DE POLANCO",
+    "lat": 20.6312,
+    "lon": -103.3654,
+    "riesgo": 80
+  },
+  {
+    "nombre_colonia": "LOMAS DE RIO VERDE",
+    "lat": 20.688,
+    "lon": -103.278,
+    "riesgo": 70
+  },
+  {
+    "nombre_colonia": "LOMAS DE SAN EUGENIO",
+    "lat": 20.692,
+    "lon": -103.268,
+    "riesgo": 75
+  },
+  {
+    "nombre_colonia": "LOMAS DE SAN PEDRO",
+    "lat": 20.648,
+    "lon": -103.308,
+    "riesgo": 70
+  },
+  {
+    "nombre_colonia": "LOMAS DEL BOSQUE",
+    "lat": 20.695,
+    "lon": -103.385,
+    "riesgo": 40
+  },
+  {
+    "nombre_colonia": "LOMAS DEL GALLO",
+    "lat": 20.672,
+    "lon": -103.265,
+    "riesgo": 75
+  },
+  {
+    "nombre_colonia": "LOMAS DEL LAUREL I",
+    "lat": 20.665,
+    "lon": -103.255,
+    "riesgo": 65
+  },
+  {
+    "nombre_colonia": "LOMAS DEL LAUREL II",
+    "lat": 20.668,
+    "lon": -103.253,
+    "riesgo": 65
+  },
+  {
+    "nombre_colonia": "LOMAS DEL PARADERO",
+    "lat": 20.648,
+    "lon": -103.318,
+    "riesgo": 60
+  },
+  {
+    "nombre_colonia": "LOMAS DEL PARAISO I",
+    "lat": 20.728,
+    "lon": -103.325,
+    "riesgo": 85
+  },
+  {
+    "nombre_colonia": "LOMAS DEL PARAISO II",
+    "lat": 20.732,
+    "lon": -103.322,
+    "riesgo": 85
+  },
+  {
+    "nombre_colonia": "LOMAS DEL PARAISO III",
+    "lat": 20.735,
+    "lon": -103.318,
+    "riesgo": 85
+  },
+  {
+    "nombre_colonia": "LOMAS DEL PEDREGAL",
+    "lat": 20.715,
+    "lon": -103.275,
+    "riesgo": 65
+  },
+  {
+    "nombre_colonia": "LOMAS DEL VALLE",
+    "lat": 20.695,
+    "lon": -103.405,
+    "riesgo": 25
+  },
+  {
+    "nombre_colonia": "LOMAS INDEPENDENCIA",
+    "lat": 20.71,
+    "lon": -103.318,
+    "riesgo": 65
+  },
+  {
+    "nombre_colonia": "LOPEZ DE LEGASPI",
+    "lat": 20.635,
+    "lon": -103.368,
+    "riesgo": 70
+  },
+  {
+    "nombre_colonia": "LOPEZ PORTILLO",
+    "lat": 20.618,
+    "lon": -103.365,
+    "riesgo": 70
+  },
+  {
+    "nombre_colonia": "LOS ARCOS",
+    "lat": 20.675,
+    "lon": -103.382,
+    "riesgo": 40
+  },
+  {
+    "nombre_colonia": "LOS COLORINES",
+    "lat": 20.605,
+    "lon": -103.348,
+    "riesgo": 75
+  },
+  {
+    "nombre_colonia": "LOS PORTALES TLAQUEPAQUE",
+    "lat": 20.635,
+    "lon": -103.315,
+    "riesgo": 60
+  },
+  {
+    "nombre_colonia": "MAGAÑA",
+    "lat": 20.655,
+    "lon": -103.322,
+    "riesgo": 65
+  },
+  {
+    "nombre_colonia": "MARGARITA MAZA DE JUAREZ",
+    "lat": 20.718,
+    "lon": -103.335,
+    "riesgo": 60
+  },
+  {
+    "nombre_colonia": "MEDRANO",
+    "lat": 20.662,
+    "lon": -103.318,
+    "riesgo": 65
+  },
+  {
+    "nombre_colonia": "MERIDIANO",
+    "lat": 20.625,
+    "lon": -103.325,
+    "riesgo": 55
+  },
+  {
+    "nombre_colonia": "MEXICALTZINGO",
+    "lat": 20.668,
+    "lon": -103.348,
+    "riesgo": 60
+  },
+  {
+    "nombre_colonia": "MEXICO",
+    "lat": 20.682,
+    "lon": -103.382,
+    "riesgo": 40
+  },
+  {
+    "nombre_colonia": "MEZQUITAN",
+    "lat": 20.692,
+    "lon": -103.352,
+    "riesgo": 60
+  },
+  {
+    "nombre_colonia": "MEZQUITAN COUNTRY",
+    "lat": 20.695,
+    "lon": -103.355,
+    "riesgo": 45
+  },
+  {
+    "nombre_colonia": "MIGUEL HIDALGO",
+    "lat": 20.655,
+    "lon": -103.285,
+    "riesgo": 65
+  },
+  {
+    "nombre_colonia": "MIRADOR",
+    "lat": 20.688,
+    "lon": -103.295,
+    "riesgo": 55
+  },
+  {
+    "nombre_colonia": "MIRADOR ALAMO INDUSTRIAL",
+    "lat": 20.615,
+    "lon": -103.328,
+    "riesgo": 70
+  },
+  {
+    "nombre_colonia": "MIRADOR DEL TESORO",
+    "lat": 20.602,
+    "lon": -103.395,
+    "riesgo": 60
+  },
+  {
+    "nombre_colonia": "MIRAFLORES",
+    "lat": 20.695,
+    "lon": -103.338,
+    "riesgo": 50
+  },
+  {
+    "nombre_colonia": "MIRAVALLE",
+    "lat": 20.612,
+    "lon": -103.345,
+    "riesgo": 75
+  },
+  {
+    "nombre_colonia": "MISION DE LA CANTERA",
+    "lat": 20.695,
+    "lon": -103.272,
+    "riesgo": 45
+  },
+  {
+    "nombre_colonia": "MISION SAN FRANCISCO",
+    "lat": 20.665,
+    "lon": -103.272,
+    "riesgo": 50
+  },
+  {
+    "nombre_colonia": "MODELO",
+    "lat": 20.668,
+    "lon": -103.352,
+    "riesgo": 45
+  },
+  {
+    "nombre_colonia": "MODERNA",
+    "lat": 20.665,
+    "lon": -103.358,
+    "riesgo": 40
+  },
+  {
+    "nombre_colonia": "MOLINO DEL SALVADOR",
+    "lat": 20.675,
+    "lon": -103.262,
+    "riesgo": 60
+  },
+  {
+    "nombre_colonia": "MONRAZ",
+    "lat": 20.682,
+    "lon": -103.395,
+    "riesgo": 25
+  },
+  {
+    "nombre_colonia": "MONUMENTAL",
+    "lat": 20.702,
+    "lon": -103.335,
+    "riesgo": 45
+  },
+  {
+    "nombre_colonia": "MORELOS",
+    "lat": 20.658,
+    "lon": -103.355,
+    "riesgo": 65
+  },
+  {
+    "nombre_colonia": "NIÑOS HEROES",
+    "lat": 20.648,
+    "lon": -103.328,
+    "riesgo": 55
+  },
+  {
+    "nombre_colonia": "NUEVA ESPAÑA",
+    "lat": 20.628,
+    "lon": -103.365,
+    "riesgo": 65
+  },
+  {
+    "nombre_colonia": "NUEVA SANTA MARIA",
+    "lat": 20.618,
+    "lon": -103.338,
+    "riesgo": 55
+  },
+  {
+    "nombre_colonia": "NUEVO ISRAEL",
+    "lat": 20.682,
+    "lon": -103.255,
+    "riesgo": 70
+  },
+  {
+    "nombre_colonia": "OBELISCOS",
+    "lat": 20.662,
+    "lon": -103.288,
+    "riesgo": 50
+  },
+  {
+    "nombre_colonia": "OBLATOS",
+    "lat": 20.692,
+    "lon": -103.298,
+    "riesgo": 80
+  },
+  {
+    "nombre_colonia": "OBLATOS PTE",
+    "lat": 20.695,
+    "lon": -103.305,
+    "riesgo": 75
+  },
+  {
+    "nombre_colonia": "OBRERA",
+    "lat": 20.668,
+    "lon": -103.362,
+    "riesgo": 65
+  },
+  {
+    "nombre_colonia": "OBSERVATORIO",
+    "lat": 20.665,
+    "lon": -103.325,
+    "riesgo": 60
+  },
+  {
+    "nombre_colonia": "OLIMPICA",
+    "lat": 20.655,
+    "lon": -103.315,
+    "riesgo": 65
+  },
+  {
+    "nombre_colonia": "OSORIO COMUNAL",
+    "lat": 20.658,
+    "lon": -103.272,
+    "riesgo": 70
+  },
+  {
+    "nombre_colonia": "PANORAMICA DE HUENTITAN",
+    "lat": 20.735,
+    "lon": -103.312,
+    "riesgo": 65
+  },
+  {
+    "nombre_colonia": "PARQUE INDUSTRIAL EL ALAMO",
+    "lat": 20.618,
+    "lon": -103.322,
+    "riesgo": 65
+  },
+  {
+    "nombre_colonia": "PARQUES DE SAN PEDRO",
+    "lat": 20.622,
+    "lon": -103.315,
+    "riesgo": 60
+  },
+  {
+    "nombre_colonia": "PARQUES DE TLAQUEPAQUE",
+    "lat": 20.625,
+    "lon": -103.318,
+    "riesgo": 65
+  },
+  {
+    "nombre_colonia": "PASEOS DEL NILO I",
+    "lat": 20.645,
+    "lon": -103.288,
+    "riesgo": 60
+  },
+  {
+    "nombre_colonia": "PLUTARCO ELIAS CALLES",
+    "lat": 20.685,
+    "lon": -103.305,
+    "riesgo": 65
+  },
+  {
+    "nombre_colonia": "POLANCO",
+    "lat": 20.635,
+    "lon": -103.368,
+    "riesgo": 75
+  },
+  {
+    "nombre_colonia": "POLANQUITO PONIENTE",
+    "lat": 20.628,
+    "lon": -103.362,
+    "riesgo": 80
+  },
+  {
+    "nombre_colonia": "POPULAR",
+    "lat": 20.645,
+    "lon": -103.375,
+    "riesgo": 65
+  },
+  {
+    "nombre_colonia": "POPULAR HORNOS",
+    "lat": 20.638,
+    "lon": -103.372,
+    "riesgo": 60
+  },
+  {
+    "nombre_colonia": "POPULAR No 9",
+    "lat": 20.642,
+    "lon": -103.375,
+    "riesgo": 60
+  },
+  {
+    "nombre_colonia": "POSTES CUATES",
+    "lat": 20.698,
+    "lon": -103.322,
+    "riesgo": 65
+  },
+  {
+    "nombre_colonia": "PROGRESO",
+    "lat": 20.672,
+    "lon": -103.308,
+    "riesgo": 60
+  },
+  {
+    "nombre_colonia": "QUINTA VELARDE",
+    "lat": 20.658,
+    "lon": -103.332,
+    "riesgo": 55
+  },
+  {
+    "nombre_colonia": "RANCHO BLANCO",
+    "lat": 20.642,
+    "lon": -103.338,
+    "riesgo": 70
+  },
+  {
+    "nombre_colonia": "RANCHO NUEVO",
+    "lat": 20.725,
+    "lon": -103.335,
+    "riesgo": 75
+  },
+  {
+    "nombre_colonia": "REAL",
+    "lat": 20.655,
+    "lon": -103.308,
+    "riesgo": 45
+  },
+  {
+    "nombre_colonia": "REFORMA",
+    "lat": 20.658,
+    "lon": -103.312,
+    "riesgo": 65
+  },
+  {
+    "nombre_colonia": "RESIDENCIAL DE LA BARRANCA",
+    "lat": 20.722,
+    "lon": -103.278,
+    "riesgo": 50
+  },
+  {
+    "nombre_colonia": "REVOLUCION",
+    "lat": 20.652,
+    "lon": -103.305,
+    "riesgo": 65
+  },
+  {
+    "nombre_colonia": "REVOLUCIONARIA",
+    "lat": 20.655,
+    "lon": -103.298,
+    "riesgo": 65
+  },
+  {
+    "nombre_colonia": "RICARDO FLORES MAGON",
+    "lat": 20.675,
+    "lon": -103.288,
+    "riesgo": 60
+  },
+  {
+    "nombre_colonia": "RINCON DE LA AGUA AZUL",
+    "lat": 20.655,
+    "lon": -103.342,
+    "riesgo": 55
+  },
+  {
+    "nombre_colonia": "RIO VERDE",
+    "lat": 20.685,
+    "lon": -103.272,
+    "riesgo": 65
+  },
+  {
+    "nombre_colonia": "ROXY AUTOCINEMA",
+    "lat": 20.708,
+    "lon": -103.338,
+    "riesgo": 50
+  },
+  {
+    "nombre_colonia": "SAN ANDRES",
+    "lat": 20.665,
+    "lon": -103.292,
+    "riesgo": 70
+  },
+  {
+    "nombre_colonia": "SAN ANTONIO",
+    "lat": 20.658,
+    "lon": -103.328,
+    "riesgo": 65
+  },
+  {
+    "nombre_colonia": "SAN BERNARDO",
+    "lat": 20.715,
+    "lon": -103.352,
+    "riesgo": 55
+  },
+  {
+    "nombre_colonia": "SAN CARLOS",
+    "lat": 20.645,
+    "lon": -103.332,
+    "riesgo": 65
+  },
+  {
+    "nombre_colonia": "SAN ELIAS",
+    "lat": 20.678,
+    "lon": -103.272,
+    "riesgo": 60
+  },
+  {
+    "nombre_colonia": "SAN EUGENIO",
+    "lat": 20.688,
+    "lon": -103.265,
+    "riesgo": 75
+  },
+  {
+    "nombre_colonia": "SAN FRANCISCO",
+    "lat": 20.655,
+    "lon": -103.275,
+    "riesgo": 60
+  },
+  {
+    "nombre_colonia": "SAN ISIDRO",
+    "lat": 20.718,
+    "lon": -103.328,
+    "riesgo": 55
+  },
+  {
+    "nombre_colonia": "SAN ISIDRO OBLATOS",
+    "lat": 20.705,
+    "lon": -103.272,
+    "riesgo": 75
+  },
+  {
+    "nombre_colonia": "SAN JOSE",
+    "lat": 20.692,
+    "lon": -103.295,
+    "riesgo": 65
+  },
+  {
+    "nombre_colonia": "SAN JOSE RIO VERDE",
+    "lat": 20.685,
+    "lon": -103.268,
+    "riesgo": 75
+  },
+  {
+    "nombre_colonia": "SAN JUAN",
+    "lat": 20.678,
+    "lon": -103.292,
+    "riesgo": 65
+  },
+  {
+    "nombre_colonia": "SAN JUAN BOSCO",
+    "lat": 20.675,
+    "lon": -103.315,
+    "riesgo": 70
+  },
+  {
+    "nombre_colonia": "SAN JUAN DE DIOS",
+    "lat": 20.675,
+    "lon": -103.338,
+    "riesgo": 85
+  },
+  {
+    "nombre_colonia": "SAN JUAN DE DIOS II",
+    "lat": 20.672,
+    "lon": -103.335,
+    "riesgo": 85
+  },
+  {
+    "nombre_colonia": "SAN MARCOS",
+    "lat": 20.695,
+    "lon": -103.318,
+    "riesgo": 65
+  },
+  {
+    "nombre_colonia": "SAN MARTIN",
+    "lat": 20.685,
+    "lon": -103.282,
+    "riesgo": 60
+  },
+  {
+    "nombre_colonia": "SAN MIGUEL DE HUENTITAN",
+    "lat": 20.725,
+    "lon": -103.295,
+    "riesgo": 70
+  },
+  {
+    "nombre_colonia": "SAN MIGUEL DE MEZQUITAN",
+    "lat": 20.698,
+    "lon": -103.355,
+    "riesgo": 65
+  },
+  {
+    "nombre_colonia": "SAN PANTALEON",
+    "lat": 20.675,
+    "lon": -103.275,
+    "riesgo": 60
+  },
+  {
+    "nombre_colonia": "SAN RAFAEL",
+    "lat": 20.648,
+    "lon": -103.302,
+    "riesgo": 60
+  },
+  {
+    "nombre_colonia": "SAN VICENTE",
+    "lat": 20.702,
+    "lon": -103.315,
+    "riesgo": 65
+  },
+  {
+    "nombre_colonia": "SANTA CECILIA",
+    "lat": 20.705,
+    "lon": -103.265,
+    "riesgo": 85
+  },
+  {
+    "nombre_colonia": "SANTA EDUWIGES",
+    "lat": 20.645,
+    "lon": -103.385,
+    "riesgo": 55
+  },
+  {
+    "nombre_colonia": "SANTA ELENA ALCALDE",
+    "lat": 20.712,
+    "lon": -103.348,
+    "riesgo": 50
+  },
+  {
+    "nombre_colonia": "SANTA ELENA DE LA CRUZ",
+    "lat": 20.718,
+    "lon": -103.338,
+    "riesgo": 60
+  },
+  {
+    "nombre_colonia": "SANTA ELENA ESTADIO",
+    "lat": 20.708,
+    "lon": -103.328,
+    "riesgo": 55
+  },
+  {
+    "nombre_colonia": "SANTA FE",
+    "lat": 20.678,
+    "lon": -103.332,
+    "riesgo": 70
+  },
+  {
+    "nombre_colonia": "SANTA ISABEL",
+    "lat": 20.715,
+    "lon": -103.288,
+    "riesgo": 65
+  },
+  {
+    "nombre_colonia": "SANTA MA DE SILO",
+    "lat": 20.682,
+    "lon": -103.268,
+    "riesgo": 60
+  },
+  {
+    "nombre_colonia": "SANTA MARIA",
+    "lat": 20.695,
+    "lon": -103.328,
+    "riesgo": 65
+  },
+  {
+    "nombre_colonia": "SANTA MONICA",
+    "lat": 20.682,
+    "lon": -103.348,
+    "riesgo": 35
+  },
+  {
+    "nombre_colonia": "SANTA RITA",
+    "lat": 20.658,
+    "lon": -103.398,
+    "riesgo": 30
+  },
+  {
+    "nombre_colonia": "SANTA ROSA",
+    "lat": 20.692,
+    "lon": -103.292,
+    "riesgo": 60
+  },
+  {
+    "nombre_colonia": "SANTOS DEGOLLADO",
+    "lat": 20.645,
+    "lon": -103.335,
+    "riesgo": 55
+  },
+  {
+    "nombre_colonia": "SUTAJ",
+    "lat": 20.642,
+    "lon": -103.308,
+    "riesgo": 65
+  },
+  {
+    "nombre_colonia": "TALPITA",
+    "lat": 20.688,
+    "lon": -103.308,
+    "riesgo": 70
+  },
+  {
+    "nombre_colonia": "TETLAN",
+    "lat": 20.662,
+    "lon": -103.278,
+    "riesgo": 75
+  },
+  {
+    "nombre_colonia": "TETLAN II",
+    "lat": 20.658,
+    "lon": -103.275,
+    "riesgo": 80
+  },
+  {
+    "nombre_colonia": "TIRO A RIO VERDE",
+    "lat": 20.682,
+    "lon": -103.265,
+    "riesgo": 65
+  },
+  {
+    "nombre_colonia": "TORRES ESPAÑA",
+    "lat": 20.635,
+    "lon": -103.298,
+    "riesgo": 55
+  },
+  {
+    "nombre_colonia": "VICENTE GUERRERO",
+    "lat": 20.685,
+    "lon": -103.275,
+    "riesgo": 60
+  },
+  {
+    "nombre_colonia": "VICTOR HUGO",
+    "lat": 20.715,
+    "lon": -103.345,
+    "riesgo": 50
+  },
+  {
+    "nombre_colonia": "VILLA GUERRERO",
+    "lat": 20.622,
+    "lon": -103.375,
+    "riesgo": 70
+  },
+  {
+    "nombre_colonia": "VILLA HERMOSA",
+    "lat": 20.652,
+    "lon": -103.292,
+    "riesgo": 65
+  },
+  {
+    "nombre_colonia": "VILLAS ALCALDE",
+    "lat": 20.715,
+    "lon": -103.348,
+    "riesgo": 45
+  },
+  {
+    "nombre_colonia": "VILLAS DE GUADALUPE",
+    "lat": 20.722,
+    "lon": -103.332,
+    "riesgo": 65
+  },
+  {
+    "nombre_colonia": "VILLAS DE ORIENTE I",
+    "lat": 20.655,
+    "lon": -103.255,
+    "riesgo": 65
+  },
+  {
+    "nombre_colonia": "VILLAS DE SAN JUAN",
+    "lat": 20.718,
+    "lon": -103.298,
+    "riesgo": 60
+  },
+  {
+    "nombre_colonia": "VILLAS DEL ORIENTE II",
+    "lat": 20.652,
+    "lon": -103.252,
+    "riesgo": 65
+  },
+  {
+    "nombre_colonia": "VILLASEÑOR (SANTA TERESITA)",
+    "lat": 20.685,
+    "lon": -103.358,
+    "riesgo": 45
+  },
+  {
+    "nombre_colonia": "VISTAS DEL NILO",
+    "lat": 20.642,
+    "lon": -103.295,
+    "riesgo": 60
+  },
+  {
+    "nombre_colonia": "ZALATITAN CENTRO",
+    "lat": 20.6541,
+    "lon": -103.2678,
+    "riesgo": 75
+  },
+  {
+    "nombre_colonia": "ZONA CENTRO",
+    "lat": 20.676,
+    "lon": -103.346,
+    "riesgo": 65
+  },
+  {
+    "nombre_colonia": "ZONA INDUSTRIAL",
+    "lat": 20.642,
+    "lon": -103.355,
+    "riesgo": 65
+  }
 ]

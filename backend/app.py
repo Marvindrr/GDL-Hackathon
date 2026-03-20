@@ -2,7 +2,6 @@ from flask import Flask, render_template, send_from_directory
 from flask_socketio import SocketIO, emit
 import json
 import re
-from IA_simpd import graficar_datos,obtener_conexion
 import math
 
 app = Flask(__name__)
@@ -203,26 +202,6 @@ def separate_by_street(text):
 def handle_waypoint_dragged(data):
     waypoints = data['waypoints']
     print("Puntos de control actualizados:", waypoints)
-
-@app.route('/estadisticas/<int:opcion>')
-def estadisticas(opcion):
-    try:
-        conexion = obtener_conexion()
-        cursor = conexion.cursor()
-        cursor.execute("SELECT nombre, riesgo FROM zonas order by riesgo desc;")
-        BD = cursor.fetchall()
-        cursor.close()
-        conexion.close()
-    except:
-        print("a la mierda todo")
-    
-    nombres1 = [c[0] for c in BD]
-    riesgos1 = [c[1] for c in BD]
-    combinados = list(zip(nombres1, riesgos1))
-    img1=graficar_datos(opcion)
-        
-        
-    return render_template('estadisticas.html',img=img1,combinados=combinados)
 
 
 @socketio.on('enviar_coordenadas')

@@ -2,63 +2,93 @@ import pandas as pd
 import numpy as np
 import folium
 import webbrowser
-from folium.plugins import MarkerCluster
 from sklearn.model_selection import train_test_split
 from sklearn.metrics import mean_squared_error
 from keras.models import Sequential
 from keras.layers import Dense
 from sklearn.linear_model import LogisticRegression
-from backend.database.conexion import obtener_conexion 
 
-# ZONAS DE GUADALAJARA
+# Coordenadas de las zonas de interés en Aguascalientes
 puntos_zonas = {
-    "Centro Guadalajara": (20.6767, -103.3475),
-    "Americana": (20.6736, -103.3684),
-    "Providencia": (20.6994, -103.3750),
-    "Chapalita": (20.6589, -103.3956),
-    "Oblatos": (20.6999, -103.2960),
-    "Santa Tere": (20.6802, -103.3602),
-    "Analco": (20.6670, -103.3406),
-    "Polanco": (20.6520, -103.3143),
-    "Miravalle": (20.6238, -103.3572),
-    "La Penal": (20.6763, -103.3002),
-    "Mezquitán": (20.6995, -103.3477),
-    "Monraz": (20.7015, -103.3927),
-    "Jardines del Bosque": (20.6557, -103.3844)
+    "Centro": (21.8853, -102.2920),
+    "San Marcos Barrio": (21.8785, -102.2920),
+    "Américas Las Fracc.": (21.8838, -102.2880),
+    "Municipio Libre Fracc.": (21.8950, -102.3090),
+    "Haciendas de Aguascalientes Fracc.": (21.8670, -102.3050),
+    "Morelos I Fracc.": (21.8900, -102.2840),
+    "Gremial Col.": (21.8840, -102.3070),
+    "Ojocaliente I Fracc.": (21.8735, -102.2970),
+    "Flores Las Col.": (21.8830, -102.2750),
+    "Pilar Blanco Infonavit": (21.8930, -102.2920),
+    "San Cayetano Fracc.": (21.8790, -102.2980),
+    "Insurgentes Col. (Las Huertas)": (21.8795, -102.3080),
+    "Guadalupe de Barrio": (21.8820, -102.3010),
+    "Morelos Infonavit": (21.8890, -102.2900),
+    "Circunvalación Norte Fracc.": (21.8955, -102.3055),
+    "San Marcos Col.": (21.8770, -102.2870),
+    "Rodolfo Landeros Fracc.": (21.8630, -102.3070),
+    "Obraje Col.": (21.8845, -102.2760),
+    "Santa Anita 1era Secc. Fracc.": (21.8820, -102.3030),
+    "Trabajo del Col.": (21.8885, -102.2960),
+    "José Guadalupe Peralta Fracc.": (21.8615, -102.3080),
+    "Dorado El 1era Secc. Fracc.": (21.8620, -102.2950),
+    "Purísima La Barrio": (21.8650, -102.3000),
+    "Ojocaliente III Fracc.": (21.8730, -102.3075),
+    "Colinas del Río Fracc.": (21.8690, -102.2875),
+    "España Fracc.": (21.8850, -102.2950),
+    "Industrial Col.": (21.8700, -102.2950),
+    "Arboledas Las Fracc.": (21.8820, -102.2880),
+    "Villas de Ntra. Sra. de la Asunción Sec Estacion Fracc.": (21.8920, -102.3095),
+    "Bosques del Prado Sur Fracc.": (21.8925, -102.3010)
 }
 
-# PUNTOS DE SALIDA      (Salida a garden???)
-puntos_esc = {
-    "Plaza del Sol": (20.6505, -103.3913),
-    "La Gran Plaza": (20.6730, -103.3950),
-    "Parque Metropolitano": (20.6784, -103.4400),
-    "Centro Médico": (20.6745, -103.3440)
-}
-
-# RIESGO
+# Datos de riesgo
 datos_riesgo = {
-    "Centro Guadalajara": 75,
-    "Americana": 45,
-    "Providencia": 30,
-    "Chapalita": 25,
-    "Oblatos": 65,
-    "Santa Tere": 55,
-    "Analco": 70,
-    "Polanco": 60,
-    "Miravalle": 80,
-    "La Penal": 85,
-    "Mezquitán": 50,
-    "Monraz": 20,
-    "Jardines del Bosque": 35
+    "Centro": 60,
+    "San Marcos Barrio": 50,
+    "Américas Las Fracc.": 45,
+    "Municipio Libre Fracc.": 70,
+    "Haciendas de Aguascalientes Fracc.": 30,
+    "Morelos I Fracc.": 40,
+    "Gremial Col.": 35,
+    "Ojocaliente I Fracc.": 65,
+    "Flores Las Col.": 25,
+    "Pilar Blanco Infonavit": 50,
+    "San Cayetano Fracc.": 40,
+    "Insurgentes Col. (Las Huertas)": 60,
+    "Guadalupe de Barrio": 35,
+    "Morelos Infonavit": 55,
+    "Circunvalación Norte Fracc.": 50,
+    "San Marcos Col.": 45,
+    "Rodolfo Landeros Fracc.": 70,
+    "Obraje Col.": 40,
+    "Santa Anita 1era Secc. Fracc.": 55,
+    "Trabajo del Col.": 35,
+    "José Guadalupe Peralta Fracc.": 65,
+    "Dorado El 1era Secc. Fracc.": 45,
+    "Purísima La Barrio": 25,
+    "Ojocaliente III Fracc.": 55,
+    "Colinas del Río Fracc.": 30,
+    "España Fracc.": 60,
+    "Industrial Col.": 50,
+    "Arboledas Las Fracc.": 55,
+    "Villas de Ntra. Sra. de la Asunción Sec Estacion Fracc.": 50,
+    "Bosques del Prado Sur Fracc.": 35
 }
 
-# DATASET
+# Crear dataframe
 data = pd.DataFrame(list(datos_riesgo.items()), columns=['Zona', 'Riesgo'])
 
-X = data['Riesgo'].values.reshape(-1, 1)
+# Asegurar que Riesgo sea numérico
+data['Riesgo'] = pd.to_numeric(data['Riesgo'], errors='coerce')
+
+# Variables para red neuronal
+X = data['Riesgo'].to_numpy(dtype=float).reshape(-1, 1)
 y = np.random.rand(len(X)) * 100
 
-X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
+X_train, X_test, y_train, y_test = train_test_split(
+    X, y, test_size=0.2, random_state=42
+)
 
 # RED NEURONAL
 modelo = Sequential()
@@ -66,53 +96,30 @@ modelo.add(Dense(10, input_dim=1, activation='relu'))
 modelo.add(Dense(1))
 
 modelo.compile(loss='mean_squared_error', optimizer='adam')
-modelo.fit(X_train, y_train, epochs=50, verbose=0)
+modelo.fit(X_train, y_train, epochs=100, verbose=1)
 
 y_pred = modelo.predict(X_test)
-
 mse = mean_squared_error(y_test, y_pred)
-print(f'MSE: {mse:.2f}')
+print(f'Error cuadrático medio: {mse:.2f}')
 
-# LOGISTICA DE REGRESION
+# Regresión logística
+zonas = data['Zona'].to_numpy()
+X_logistic = data['Riesgo'].to_numpy(dtype=float).reshape(-1, 1)
+y_logistic = (data['Riesgo'].to_numpy(dtype=float) > 50).astype(int)
 
-X_logistic = data['Riesgo'].values.reshape(-1, 1)
-y_logistic = (data['Riesgo'].values > 50).astype(int)
+X_train_logistic, X_test_logistic, y_train_logistic, y_test_logistic, zonas_train, zonas_test = train_test_split(
+    X_logistic, y_logistic, zonas, test_size=0.2, random_state=42
+)
 
 modelo_logistico = LogisticRegression()
-modelo_logistico.fit(X_logistic, y_logistic)
+modelo_logistico.fit(X_train_logistic, y_train_logistic)
 
-# MAPA GDL
-mapa = folium.Map(location=[20.6767, -103.3475], zoom_start=13)
+probabilidades = modelo_logistico.predict_proba(X_test_logistic)[:, 1]
 
-cluster = MarkerCluster().add_to(mapa)
+resultados = pd.DataFrame({
+    'Zona': zonas_test,
+    'Probabilidad': probabilidades
+}).sort_values(by='Probabilidad', ascending=False)
 
-for zona, coords in puntos_zonas.items():
-
-    riesgo = datos_riesgo[zona]
-
-    if riesgo >= 70:
-        color = 'red'
-    elif 40 <= riesgo < 70:
-        color = 'orange'
-    else:
-        color = 'green'
-
-    folium.Marker(
-        location=coords,
-        popup=f'{zona} - Riesgo: {riesgo}',
-        icon=folium.Icon(color=color)
-    ).add_to(cluster)
-
-# PUNTOS DE SALIDA (AZUL)
-for nombre, coords in puntos_esc.items():
-    folium.Marker(
-        location=coords,
-        popup=f'Salida: {nombre}',
-        icon=folium.Icon(color='blue', icon='info-sign')
-    ).add_to(mapa)
-
-# GUARDAR MAPA
-nombre_archivo = 'mapa_gdl.html'
-mapa.save(nombre_archivo)
-
-webbrowser.open(nombre_archivo)
+for _, fila in resultados.iterrows():
+    print(f"Zona: {fila['Zona']}, Probabilidad de riesgo alto: {fila['Probabilidad']:.2f}")
