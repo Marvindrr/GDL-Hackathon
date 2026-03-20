@@ -1,19 +1,8 @@
-import mysql.connector
 import json
 import os
-
-db_config = {
-    "host": "localhost",
-    "user": "root",
-    "password": "Xoceandav12",
-    "database": "zona_de_riesgo"
-}
-
-def obtener_conexion():
-    return mysql.connector.connect(**db_config)
+from backend.database.conexion import obtener_conexion
 
 def cargar_json():
-
     ruta = os.path.join(
         os.path.dirname(__file__),
         "..",
@@ -21,39 +10,44 @@ def cargar_json():
         "colonias_gdl.json"
     )
 
-    with open(ruta,"r",encoding="utf-8") as f:
+    with open(ruta, "r", encoding="utf-8") as f:
         return json.load(f)
 
+
 def cargar_zonas():
+    try:
+        datos = cargar_json()
 
-    datos = cargar_json()
+        conexion = obtener_conexion()
+        cursor = conexion.cursor()
 
-    conexion = obtener_conexion()
-    cursor = conexion.cursor()
+        # limpiar tabla
+        cursor.execute("DELETE FROM zonas")
 
-    cursor.execute("DELETE FROM zonas")
+        for colonia in datos:
+            nombre = colonia["nombre_colonia"]
+            lat = colonia["centro"][1]
+            lng = colonia["centro"][0]
+            riesgo = colonia["riesgo"]
 
-    for colonia in datos:
+            query = """
+            INSERT INTO zonas (nombre, riesgo, latitud, longitud)
+            VALUES (%s, %s, %s, %s)
+            """
 
-        nombre = colonia["nombre_colonia"]
-        lat = colonia["centro"][1]
-        lng = colonia["centro"][0]
-        riesgo = colonia["riesgo"]
+            cursor.execute(query, (nombre, riesgo, lat, lng))
 
-        query = """
-        INSERT INTO zonas(nombre,riesgo,latitud,longitud)
-        VALUES(%s,%s,%s,%s)
-        """
+        conexion.commit()
 
-        cursor.execute(query,(nombre,riesgo,lat,lng))
+        print(f"{len(datos)} colonias cargadas correctamente")
 
-    conexion.commit()
+    except Exception as e:
+        print("Error al cargar zonas:", e)
 
-    cursor.close()
-    conexion.close()
+    finally:
+        cursor.close()
+        conexion.close()
 
-    print("Colonias cargadas correctamente")
 
-if __name__ == "__main__":              #---------------------
-    cargar_zonas()                      # BANDIA BANDIA BANDIA
-                                        #---------------------
+if __name__ == "__main__":
+    cargar_zonas()

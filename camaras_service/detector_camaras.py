@@ -5,8 +5,9 @@ from threading import Thread
 import numpy as np
 import time
 from ultralytics import YOLO
+from backend.database.conexion import obtener_conexion
 
-# CARGAR MODELO YOLOv8
+# MODELO
 modelo = YOLO("yolov8n.pt")
 
 
@@ -57,14 +58,34 @@ class AplicacionDetector:
         self.label_secundario = tk.Label(self.ventana_secundaria)
         self.label_secundario.pack()
 
-        # HILOS DE CÁMARAS
+        # HILOS
         self.hilo1 = Thread(target=self.mostrar_camara, args=(0, self.cuadro_camara_1), daemon=True)
         self.hilo2 = Thread(target=self.mostrar_camara, args=(1, self.cuadro_camara_2), daemon=True)
 
         self.hilo1.start()
         self.hilo2.start()
 
-    # CONTROL
+    # ------------------------
+    # GUARDAR EN BD
+    # ------------------------
+    def guardar_evento(self, tipo, camara_id):
+        try:
+            conn = obtener_conexion()
+            cursor = conn.cursor()
+
+            query = "INSERT INTO eventos (tipo_objeto, camara_id) VALUES (%s, %s)"
+            cursor.execute(query, (tipo, camara_id))
+
+            conn.commit()
+
+        except Exception as e:
+            print("Error guardando evento:", e)
+
+        finally:
+            cursor.close()
+            conn.close()
+
+    # ------------------------
     def actualizar_busqueda(self):
         self.detectando = True
 
@@ -73,7 +94,7 @@ class AplicacionDetector:
         self.color_objeto.set("")
         self.detectando = False
 
-    # FILTRO
+    # ------------------------
     def filtrar_objetos(self, detecciones):
         filtrados = []
 
@@ -96,7 +117,7 @@ class AplicacionDetector:
 
         return filtrados
 
-    # COLOR
+    # ------------------------
     def obtener_color_objeto(self, frame, x1, y1, x2, y2):
         roi = frame[y1:y2, x1:x2]
 
@@ -128,7 +149,7 @@ class AplicacionDetector:
             else:
                 return "Gris"
 
-    # CÁMARA 
+    # ------------------------
     def mostrar_camara(self, cam_id, cuadro):
         cap = cv2.VideoCapture(cam_id)
 
@@ -142,65 +163,32 @@ class AplicacionDetector:
                 break
 
             frame_procesado = frame.copy()
-
             self.contador_frames += 1
 
-            if self.detectando and self.tipo_objeto.get() and self.contador_frames % 3 == 0:
+            if self.detectando and self.contador_frames % 3 == 0:
 
                 resultados = modelo(frame_procesado, conf=0.5)
-
-                detecciones = []
 
                 for r in resultados:
                     for box in r.boxes:
                         x1, y1, x2, y2 = map(int, box.xyxy[0])
                         cls = int(box.cls[0])
-                        conf = float(box.conf[0])
                         etiqueta = r.names[cls]
 
-                        det = {
-                            "xmin": x1,
-                            "ymin": y1,
-                            "xmax": x2,
-                            "ymax": y2,
-                            "confidence": conf,
-                            "name": etiqueta
-                        }
+                        # ALERTA SOLO PERSONA
+                        if etiqueta == "person":
+                            print(f"🚨 Persona detectada en cámara {cam_id}")
 
-                        det["color"] = self.obtener_color_objeto(frame_procesado, x1, y1, x2, y2)
-                        detecciones.append(det)
+                            # GUARDAR EN BD
+                            self.guardar_evento("person", cam_id)
 
-                filtradas = self.filtrar_objetos(detecciones)
+                            # GUARDAR IMAGEN
+                            cv2.imwrite(
+                                f"alerta_cam{cam_id}_{int(time.time())}.jpg",
+                                frame_procesado
+                            )
 
-                if filtradas:
-                    self.ultimo_frame = frame_procesado.copy()
-
-                for det in filtradas:
-                    x1, y1, x2, y2 = det["xmin"], det["ymin"], det["xmax"], det["ymax"]
-
-                    cv2.rectangle(frame_procesado, (x1, y1), (x2, y2), (0, 255, 0), 2)
-
-                    cv2.putText(
-                        frame_procesado,
-                        f"{det['name']} ({det['color']}) {det['confidence']:.2f}",
-                        (x1, y1 - 10),
-                        cv2.FONT_HERSHEY_SIMPLEX,
-                        0.5,
-                        (0, 255, 0),
-                        2
-                    )
-
-                    # ALERTA
-                    if det["name"] == "person":
-                        print(f"NIGGERRRRRR  {cam_id}")
-
-                        cv2.imwrite(f"alerta_cam{cam_id}_{int(time.time())}.jpg", frame_procesado)
-
-            # TEXTO CÁMARA
-            cv2.putText(frame_procesado, f"Camara {cam_id}", (10, 30),
-                        cv2.FONT_HERSHEY_SIMPLEX, 1, (255, 255, 255), 2)
-
-            # CONVERSIÓN CORRECTA
+            # MOSTRAR
             img = cv2.resize(frame_procesado, (640, 480))
             img_rgb = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
 
@@ -211,21 +199,9 @@ class AplicacionDetector:
             cuadro.configure(image=photo)
             cuadro.image = photo
 
-            # ÚLTIMA DETECCIÓN
-            if self.ultimo_frame is not None:
-                ult = cv2.resize(self.ultimo_frame, (640, 480))
-                ult_rgb = cv2.cvtColor(ult, cv2.COLOR_BGR2RGB)
-
-                photo2 = tk.PhotoImage(
-                    data=cv2.imencode(".png", ult_rgb)[1].tobytes()
-                )
-
-                self.label_secundario.configure(image=photo2)
-                self.label_secundario.image = photo2
-
         cap.release()
 
-    # DETENER
+    # ------------------------
     def detener(self):
         self.ejecutando = False
         self.root.destroy()
