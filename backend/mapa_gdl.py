@@ -8,6 +8,7 @@ from sklearn.metrics import mean_squared_error
 from keras.models import Sequential
 from keras.layers import Dense
 from sklearn.linear_model import LogisticRegression
+from backend.database.conexion import obtener_conexion 
 
 # ZONAS DE GUADALAJARA
 puntos_zonas = {
