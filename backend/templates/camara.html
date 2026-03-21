@@ -1,70 +1,257 @@
 {% extends "layout2.html" %}
 
-{% block title %}Home{% endblock %}
+{% block title %}Cámaras{% endblock %}
 
 {% block content %}
-<html lang="es">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Mostrar Cámara</title>
-    <style>
+<div class="camera-wrapper">
+  <div class="camera-header">
+    <h1>Detector de cámaras locales</h1>
+    <p>Selecciona una cámara disponible y comienza el streaming en el navegador.</p>
+  </div>
 
+  <div class="controls">
+    <label for="cameraSelect">Cámara:</label>
+    <select id="cameraSelect"></select>
+    <button id="startCamera" class="button">Iniciar</button>
+    <button id="stopCamera" class="button secondary" disabled>Detener</button>
+    <span id="cameraStatus" class="status">Esperando permisos…</span>
+  </div>
 
-        video {
-            width: 100%;
-            height: 100%; 
-            object-fit: cover; 
-            border: 2px solid #333;
-            border-radius: 10px;
-        }
+  <div class="controls detection">
+    <label for="filterSelect">Filtrar objeto:</label>
+    <select id="filterSelect">
+      <option value="Todos">Todos</option>
+      <option value="person">Persona</option>
+      <option value="car">Auto</option>
+      <option value="motorcycle">Moto</option>
+      <option value="bus">Camión</option>
+      <option value="truck">Camión de carga</option>
+      <option value="bicycle">Bicicleta</option>
+    </select>
+    <label for="confRange">Confianza:</label>
+    <input type="range" id="confRange" min="30" max="90" step="5" value="40">
+    <span id="confValue">0.40</span>
+    <button id="startDetect" class="button">Detectar</button>
+    <button id="stopDetect" class="button secondary" disabled>Detener detección</button>
+  </div>
 
-        .button {
-            position: absolute;
-            bottom: 20px;
-            left: 50%; 
-            transform: translateX(-50%);
-            padding: 10px 20px;
-            font-size: 16px;
-            background-color: #007BFF;
-            color: white; 
-            border: none; 
-            border-radius: 5px; 
-            cursor: pointer; 
-            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1); 
-            transition: background-color 0.3s, transform 0.2s; 
-        }
+  <div class="video-frame">
+    <video id="video" autoplay playsinline></video>
+    <canvas id="overlay"></canvas>
+  </div>
+</div>
 
-        .button:hover {
-            background-color: #0056b3;
-            transform: translateY(-2px); 
-        }
+<script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs@4.20.0/dist/tf.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@tensorflow-models/coco-ssd@2.2.2"></script>
 
-        .button:active {
-            transform: translateY(0); 
-            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2); 
-        }
-    </style>
-</head>
-<body>
+<script>
+  const video = document.getElementById('video');
+  const startBtn = document.getElementById('startCamera');
+  const stopBtn = document.getElementById('stopCamera');
+  const selectEl = document.getElementById('cameraSelect');
+  const statusEl = document.getElementById('cameraStatus');
+  const filterEl = document.getElementById('filterSelect');
+  const confRange = document.getElementById('confRange');
+  const confValue = document.getElementById('confValue');
+  const startDetectBtn = document.getElementById('startDetect');
+  const stopDetectBtn = document.getElementById('stopDetect');
+  const overlay = document.getElementById('overlay');
+  const ctx = overlay.getContext('2d');
 
-    <h1>Acceder a la Cámara</h1>
-    <video id="video" autoplay></video>
-    <button class="button" id="startCamera">Iniciar Cámara</button>
+  let currentStream = null;
+  let model = null;
+  let detecting = false;
+  let metadataReady = false;
 
-    <script>
-        const video = document.getElementById('video');
-        const startCameraButton = document.getElementById('startCamera');
+  async function listarCamaras() {
+    const devices = await navigator.mediaDevices.enumerateDevices();
+    const cams = devices.filter(d => d.kind === 'videoinput');
+    selectEl.innerHTML = '';
+    cams.forEach((cam, idx) => {
+      const opt = document.createElement('option');
+      opt.value = cam.deviceId;
+      opt.textContent = cam.label || `Cámara ${idx + 1}`;
+      selectEl.appendChild(opt);
+    });
+    statusEl.textContent = cams.length ? 'Cámaras detectadas' : 'No se detectaron cámaras';
+  }
 
-        startCameraButton.addEventListener('click', async () => {
-            try {
-                const stream = await navigator.mediaDevices.getUserMedia({ video: true });
-                video.srcObject = stream;
-            } catch (error) {
-                console.error('Error al acceder a la cámara: ', error);
-            }
-        });
-    </script>
+  async function iniciarCamara() {
+    try {
+      if (currentStream) detenerCamara();
+      const deviceId = selectEl.value;
+      const constraints = { video: deviceId ? { deviceId } : true };
+      currentStream = await navigator.mediaDevices.getUserMedia(constraints);
+      video.srcObject = currentStream;
+      await video.play();
+      video.onloadedmetadata = () => {
+        metadataReady = true;
+        ajustarOverlay();
+      };
+      startBtn.disabled = true;
+      stopBtn.disabled = false;
+      statusEl.textContent = 'Streaming activo';
+    } catch (err) {
+      console.error('Error al acceder a la cámara:', err);
+      statusEl.textContent = 'Error al acceder a la cámara';
+    }
+  }
 
-</body>
+  function detenerCamara() {
+    if (!currentStream) return;
+    currentStream.getTracks().forEach(track => track.stop());
+    video.srcObject = null;
+    currentStream = null;
+    startBtn.disabled = false;
+    stopBtn.disabled = true;
+    statusEl.textContent = 'Streaming detenido';
+  }
+
+  async function cargarModelo() {
+    if (model) return model;
+    statusEl.textContent = 'Cargando modelo...';
+    model = await cocoSsd.load({ base: 'lite_mobilenet_v2' });
+    statusEl.textContent = 'Modelo listo';
+    return model;
+  }
+
+  function ajustarOverlay() {
+    if (video.videoWidth && video.videoHeight) {
+      overlay.width = video.videoWidth;
+      overlay.height = video.videoHeight;
+    }
+  }
+
+  function obtenerUmbral() {
+    return Number(confRange.value) / 100;
+  }
+
+  async function detectar() {
+    if (!model || !currentStream || !detecting || !metadataReady) {
+      if (detecting) requestAnimationFrame(detectar);
+      return;
+    }
+    ajustarOverlay();
+    ctx.clearRect(0, 0, overlay.width, overlay.height);
+
+    const preds = await model.detect(video);
+    const filtro = filterEl.value;
+    const umbral = obtenerUmbral();
+
+    preds
+      .filter(p => p.score >= umbral)
+      .filter(p => filtro === 'Todos' || p.class === filtro)
+      .forEach(p => {
+        const [x, y, w, h] = p.bbox;
+        ctx.strokeStyle = '#00ff88';
+        ctx.lineWidth = 2;
+        ctx.fillStyle = 'rgba(0,255,136,0.15)';
+        ctx.strokeRect(x, y, w, h);
+        ctx.fillRect(x, y, w, h);
+        ctx.fillStyle = '#00ff88';
+        ctx.font = '14px Poppins, sans-serif';
+        ctx.fillText(`${p.class} ${(p.score*100).toFixed(1)}%`, x + 4, y + 16);
+      });
+
+    if (detecting) requestAnimationFrame(detectar);
+  }
+
+  startDetectBtn.addEventListener('click', async () => {
+    if (!currentStream) {
+      statusEl.textContent = 'Inicia la cámara primero';
+      return;
+    }
+    await cargarModelo();
+    detecting = true;
+    startDetectBtn.disabled = true;
+    stopDetectBtn.disabled = false;
+    detectar();
+  });
+
+  stopDetectBtn.addEventListener('click', () => {
+    detecting = false;
+    startDetectBtn.disabled = false;
+    stopDetectBtn.disabled = true;
+    ctx.clearRect(0, 0, overlay.width, overlay.height);
+  });
+
+  confRange.addEventListener('input', () => {
+    confValue.textContent = (Number(confRange.value) / 100).toFixed(2);
+  });
+
+  startBtn.addEventListener('click', iniciarCamara);
+  stopBtn.addEventListener('click', detenerCamara);
+
+  navigator.mediaDevices.getUserMedia({ video: true })
+    .then(stream => {
+      stream.getTracks().forEach(t => t.stop());
+      listarCamaras();
+      statusEl.textContent = 'Permisos concedidos, listo para iniciar';
+    })
+    .catch(() => {
+      statusEl.textContent = 'Permiso de cámara denegado';
+    });
+</script>
+
+<style>
+  .camera-wrapper {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+  }
+  .camera-header h1 { margin: 0 0 6px; }
+  .camera-header p { margin: 0; color: #555; }
+  .controls {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    align-items: center;
+  }
+  .controls select, .controls button {
+    padding: 10px 12px;
+    border-radius: 8px;
+    border: 1px solid #d7e2ef;
+    font-size: 14px;
+  }
+  .controls button.button {
+    background: #0b6ef7;
+    color: #fff;
+    border: none;
+    cursor: pointer;
+  }
+  .controls button.secondary {
+    background: #e2e8f0;
+    color: #111;
+  }
+  .controls button:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+  }
+  .status { color: #333; font-size: 14px; }
+  .video-frame {
+    position: relative;
+    border: 2px solid #d7e2ef;
+    border-radius: 12px;
+    overflow: hidden;
+    max-width: 960px;
+  }
+  video {
+    width: 100%;
+    height: 540px;
+    object-fit: cover;
+    display: block;
+    background: #000;
+  }
+  #overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    pointer-events: none;
+  }
+  @media (max-width: 768px) {
+    video { height: 360px; }
+  }
+</style>
 {% endblock %}
