@@ -1,0 +1,101 @@
+[
+  {
+    "id": 1,
+    "nombre": "Tonalá",
+    "municipio": "Tonalá",
+    "tipo": "zona_turistica",
+    "lat": 20.633392,
+    "lon": -103.230882,
+    "riesgo": 30.0
+  },
+  {
+    "id": 2,
+    "nombre": "Tlaquepaque",
+    "municipio": "San Pedro Tlaquepaque",
+    "tipo": "zona_turistica",
+    "lat": 20.63962,
+    "lon": -103.311869,
+    "riesgo": 30.0
+  },
+  {
+    "id": 3,
+    "nombre": "Tequila",
+    "municipio": "Tequila",
+    "tipo": "zona_turistica",
+    "lat": 20.87946,
+    "lon": -103.828783,
+    "riesgo": 30.0
+  },
+  {
+    "id": 4,
+    "nombre": "Teatro degollado",
+    "municipio": "Guadalajara",
+    "tipo": "zona_turistica",
+    "lat": 20.677052,
+    "lon": -103.344528,
+    "riesgo": 30.0
+  },
+  {
+    "id": 5,
+    "nombre": "Plaza de armas",
+    "municipio": "Guadalajara",
+    "tipo": "zona_turistica",
+    "lat": 20.676179,
+    "lon": -103.346975,
+    "riesgo": 30.0
+  },
+  {
+    "id": 6,
+    "nombre": "Plaza andares",
+    "municipio": "Zapopan",
+    "tipo": "zona_turistica",
+    "lat": 20.711463,
+    "lon": -103.412076,
+    "riesgo": 30.0
+  },
+  {
+    "id": 7,
+    "nombre": "museo cabañas",
+    "municipio": "Guadalajara",
+    "tipo": "zona_turistica",
+    "lat": 20.677014,
+    "lon": -103.33746,
+    "riesgo": 30.0
+  },
+  {
+    "id": 8,
+    "nombre": "Mercado libertad",
+    "municipio": "Guadalajara",
+    "tipo": "zona_turistica",
+    "lat": 20.67542,
+    "lon": -103.339941,
+    "riesgo": 30.0
+  },
+  {
+    "id": 9,
+    "nombre": "Estadio Akcron",
+    "municipio": "Zapopan",
+    "tipo": "zona_turistica",
+    "lat": 20.682196,
+    "lon": -103.463413,
+    "riesgo": 30.0
+  },
+  {
+    "id": 10,
+    "nombre": "Colonia chapultepec",
+    "municipio": "Guadalajara",
+    "tipo": "zona_turistica",
+    "lat": 20.695553,
+    "lon": -103.366955,
+    "riesgo": 30.0
+  },
+  {
+    "id": 11,
+    "nombre": "Catedral de guadalajara",
+    "municipio": "Guadalajara",
+    "tipo": "zona_turistica",
+    "lat": 20.677055,
+    "lon": -103.347063,
+    "riesgo": 30.0
+  }
+]

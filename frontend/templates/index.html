@@ -21,26 +21,48 @@
       <section class="card">
         <h2>Planear ruta</h2>
 
-        <label for="origen">Origen</label>
-        <input type="text" id="origen" placeholder="Ej. Centro Guadalajara">
-
-        <label for="destino">Destino</label>
-        <input type="text" id="destino" placeholder="Ej. Chapalita">
-
         <label for="municipio">Municipio</label>
         <select id="municipio">
-          <option value="Guadalajara">Guadalajara</option>
+          <option value="Guadalajara" selected>Guadalajara</option>
           <option value="Zapopan">Zapopan</option>
           <option value="Tequila">Tequila</option>
           <option value="El Salto">El Salto</option>
           <option value="Acatlán de Juárez">Acatlán de Juárez</option>
         </select>
 
+        <label for="origenTipo">Tipo de origen</label>
+        <select id="origenTipo">
+          <option value="colonia" selected>Colonia</option>
+          <option value="turistico">Zona turística / hotel</option>
+        </select>
+
+        <label for="origen">Origen</label>
+        <input type="text" id="origen" placeholder="Ej. Centro Guadalajara">
+
+        <label for="origenTuristico">Origen turístico</label>
+        <select id="origenTuristico">
+          <option value="">Selecciona un punto</option>
+        </select>
+
+        <label for="destinoTipo">Tipo de destino</label>
+        <select id="destinoTipo">
+          <option value="colonia" selected>Colonia</option>
+          <option value="turistico">Zona turística / hotel</option>
+        </select>
+
+        <label for="destino">Destino</label>
+        <input type="text" id="destino" placeholder="Ej. Chapalita">
+
+        <label for="destinoTuristico">Destino turístico</label>
+        <select id="destinoTuristico">
+          <option value="">Selecciona un punto</option>
+        </select>
+
         <div class="checks">
           <label><input type="checkbox" id="toggleHex" checked> Mostrar malla de riesgo</label>
           <label><input type="checkbox" id="togglePuntos"> Mostrar centros de colonias</label>
           <label><input type="checkbox" id="toggleCamaras" checked> Mostrar cámaras demo</label>
-          <label><input type="checkbox" id="toggleTurismo" checked> Mostrar zona turística demo</label>
+          <label><input type="checkbox" id="toggleTurismo" checked> Mostrar zonas turísticas</label>
         </div>
 
         <div class="checks">
@@ -66,6 +88,8 @@
         <div class="legend-item"><span class="dot moderado"></span> Moderado (26 - 50)</div>
         <div class="legend-item"><span class="dot alto"></span> Alto (51 - 75)</div>
         <div class="legend-item"><span class="dot muy-alto"></span> Muy alto (76 - 100)</div>
+        <div class="legend-item"><span class="dot sin-dato"></span> Sin dato</div>
+        <div class="legend-item"><span class="dot turismo"></span> Zona turística</div>
       </section>
     </aside>
 
