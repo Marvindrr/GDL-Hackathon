@@ -38,10 +38,6 @@ document.addEventListener('DOMContentLoaded', function () {
         
     }
     
-
-
-
-
     document.getElementById('search_input').oninput = function () {
         var query = document.getElementById('search_input').value;
         socket.emit('search', query); 

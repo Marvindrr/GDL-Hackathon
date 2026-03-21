@@ -5,6 +5,7 @@ from threading import Thread, Lock
 import time
 from ultralytics import YOLO
 from PIL import Image, ImageTk
+import numpy as np
 
 modelo = YOLO("yolov8s.pt")
 
@@ -18,7 +19,7 @@ class AplicacionDetector:
         self.frame_mostrado = None
         self.lock_frame = Lock()
 
-        # Cambia este índice si tu cámara externa no es la 1
+        # Índice fijo de cámara (0 suele ser la integrada, cámbialo si necesitas otra)
         self.indice_camara = 0
 
         # filtro
@@ -78,48 +79,83 @@ class AplicacionDetector:
 
         resultados = modelo.predict(
             source=frame,
-            conf=0.40,
+            conf=0.20,
             imgsz=640,
             verbose=False,
             classes=classes_filtradas
         )
 
-        if not resultados:
-            return frame
+        total_detectados = 0
 
-        resultado = resultados[0]
+        if resultados:
+            resultado = resultados[0]
 
-        if resultado.boxes is None:
-            return frame
+            if resultado.boxes is not None:
+                for box in resultado.boxes:
+                    cls_id = int(box.cls[0].item())
+                    conf = float(box.conf[0].item())
+                    x1, y1, x2, y2 = map(int, box.xyxy[0].tolist())
 
-        for box in resultado.boxes:
-            cls_id = int(box.cls[0].item())
-            conf = float(box.conf[0].item())
-            x1, y1, x2, y2 = map(int, box.xyxy[0].tolist())
+                    nombre = modelo.names[cls_id]
 
-            nombre = modelo.names[cls_id]
+                    cv2.rectangle(frame, (x1, y1), (x2, y2), (0, 255, 0), 2)
+                    cv2.putText(
+                        frame,
+                        f"{nombre} {conf:.2f}",
+                        (x1, max(y1 - 10, 20)),
+                        cv2.FONT_HERSHEY_SIMPLEX,
+                        0.6,
+                        (0, 255, 0),
+                        2
+                    )
+                    total_detectados += 1
 
-            cv2.rectangle(frame, (x1, y1), (x2, y2), (0, 255, 0), 2)
-            cv2.putText(
-                frame,
-                f"{nombre} {conf:.2f}",
-                (x1, max(y1 - 10, 20)),
-                cv2.FONT_HERSHEY_SIMPLEX,
-                0.6,
-                (0, 255, 0),
-                2
-            )
+        filtro_txt = self.filtro_objeto.get()
+        cv2.putText(
+            frame,
+            f"Filtro: {filtro_txt} | Detectados: {total_detectados}",
+            (10, 25),
+            cv2.FONT_HERSHEY_SIMPLEX,
+            0.7,
+            (0, 255, 255),
+            2,
+            cv2.LINE_AA,
+        )
 
         return frame
 
     def guardar_ultimo_frame(self, frame):
         cv2.imwrite("ultimo_frame.jpg", frame)
 
+    def crear_frame_mensaje(self, texto):
+        """Genera un frame negro con un mensaje centrado para mostrar en UI."""
+        frame = np.zeros((480, 640, 3), dtype=np.uint8)
+        cv2.putText(
+            frame,
+            texto,
+            (25, 240),
+            cv2.FONT_HERSHEY_SIMPLEX,
+            0.9,
+            (0, 255, 255),
+            2,
+            cv2.LINE_AA,
+        )
+        return frame
+
     def capturar_y_detectar(self):
         cap = cv2.VideoCapture(self.indice_camara, cv2.CAP_DSHOW)
 
+        # Si DirectShow falla, probamos backend genérico
         if not cap.isOpened():
-            print(f"No se pudo abrir la cámara externa en índice {self.indice_camara}")
+            cap.release()
+            cap = cv2.VideoCapture(self.indice_camara, cv2.CAP_ANY)
+
+        if not cap.isOpened():
+            print(f"No se pudo abrir la cámara en índice {self.indice_camara}")
+            with self.lock_frame:
+                self.frame_mostrado = self.crear_frame_mensaje(
+                    f"Camara {self.indice_camara} no disponible"
+                )
             return
 
         cap.set(cv2.CAP_PROP_FRAME_WIDTH, 640)
@@ -132,6 +168,8 @@ class AplicacionDetector:
             ret, frame = cap.read()
 
             if not ret:
+                with self.lock_frame:
+                    self.frame_mostrado = self.crear_frame_mensaje("Sin señal de camara")
                 continue
 
             frame_detectado = self.detectar_y_dibujar(frame.copy())

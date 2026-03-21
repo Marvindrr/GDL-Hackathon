@@ -29,8 +29,8 @@
       <option value="bicycle">Bicicleta</option>
     </select>
     <label for="confRange">Confianza:</label>
-    <input type="range" id="confRange" min="30" max="90" step="5" value="40">
-    <span id="confValue">0.40</span>
+    <input type="range" id="confRange" min="5" max="90" step="5" value="20">
+    <span id="confValue">0.20</span>
     <button id="startDetect" class="button">Detectar</button>
     <button id="stopDetect" class="button secondary" disabled>Detener detección</button>
   </div>
@@ -73,6 +73,8 @@
       opt.textContent = cam.label || `Cámara ${idx + 1}`;
       selectEl.appendChild(opt);
     });
+    // Selecciona la primera cámara por defecto si existe
+    if (cams.length) selectEl.value = cams[0].deviceId;
     statusEl.textContent = cams.length ? 'Cámaras detectadas' : 'No se detectaron cámaras';
   }
 
@@ -80,7 +82,7 @@
     try {
       if (currentStream) detenerCamara();
       const deviceId = selectEl.value;
-      const constraints = { video: deviceId ? { deviceId } : true };
+      const constraints = { video: deviceId ? { deviceId: { exact: deviceId } } : true };
       currentStream = await navigator.mediaDevices.getUserMedia(constraints);
       video.srcObject = currentStream;
       await video.play();
@@ -138,20 +140,31 @@
     const filtro = filterEl.value;
     const umbral = obtenerUmbral();
 
-    preds
+    const hallazgos = preds
       .filter(p => p.score >= umbral)
-      .filter(p => filtro === 'Todos' || p.class === filtro)
-      .forEach(p => {
-        const [x, y, w, h] = p.bbox;
-        ctx.strokeStyle = '#00ff88';
-        ctx.lineWidth = 2;
-        ctx.fillStyle = 'rgba(0,255,136,0.15)';
-        ctx.strokeRect(x, y, w, h);
-        ctx.fillRect(x, y, w, h);
-        ctx.fillStyle = '#00ff88';
-        ctx.font = '14px Poppins, sans-serif';
-        ctx.fillText(`${p.class} ${(p.score*100).toFixed(1)}%`, x + 4, y + 16);
-      });
+      .filter(p => filtro === 'Todos' || p.class === filtro);
+
+    hallazgos.forEach(p => {
+      const [x, y, w, h] = p.bbox;
+      ctx.strokeStyle = '#00ff88';
+      ctx.lineWidth = 2;
+      ctx.fillStyle = 'rgba(0,255,136,0.15)';
+      ctx.strokeRect(x, y, w, h);
+      ctx.fillRect(x, y, w, h);
+      ctx.fillStyle = '#00ff88';
+      ctx.font = '14px Poppins, sans-serif';
+      ctx.fillText(`${p.class} ${(p.score*100).toFixed(1)}%`, x + 4, y + 16);
+    });
+
+    statusEl.textContent = `Detectando (${filtro}): ${hallazgos.length} hallazgos (umbral ${umbral.toFixed(2)})`;
+
+    if (!hallazgos.length) {
+      ctx.fillStyle = 'rgba(0,0,0,0.45)';
+      ctx.fillRect(0, 0, overlay.width, 36);
+      ctx.fillStyle = '#ffd54f';
+      ctx.font = '16px Poppins, sans-serif';
+      ctx.fillText('Sin detecciones > umbral', 12, 24);
+    }
 
     if (detecting) requestAnimationFrame(detectar);
   }
