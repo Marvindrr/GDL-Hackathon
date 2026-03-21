@@ -1,52 +1,65 @@
 import json
-import os
+from pathlib import Path
 from backend.database.conexion import obtener_conexion
 
-def cargar_json():
-    ruta = os.path.join(
-        os.path.dirname(__file__),
-        "..",
-        "data",
-        "colonias_gdl.json"
-    )
+
+def cargar_json(nombre_archivo="colonias_jalisco.json"):
+    ruta = Path(__file__).resolve().parent.parent / "data" / nombre_archivo
 
     with open(ruta, "r", encoding="utf-8") as f:
         return json.load(f)
 
 
-def cargar_zonas():
+def cargar_zonas(nombre_archivo="colonias_jalisco.json"):
+    conexion = None
+    cursor = None
+
     try:
-        datos = cargar_json()
+        datos = cargar_json(nombre_archivo)
 
         conexion = obtener_conexion()
         cursor = conexion.cursor()
 
-        # limpiar tabla
         cursor.execute("DELETE FROM zonas")
 
+        query = """
+        INSERT INTO zonas (
+            id,
+            estado,
+            municipio,
+            nombre,
+            riesgo,
+            latitud,
+            longitud
+        )
+        VALUES (%s, %s, %s, %s, %s, %s, %s)
+        """
+
         for colonia in datos:
-            nombre = colonia["nombre_colonia"]
-            lat = colonia["centro"][1]
-            lng = colonia["centro"][0]
-            riesgo = colonia["riesgo"]
-
-            query = """
-            INSERT INTO zonas (nombre, riesgo, latitud, longitud)
-            VALUES (%s, %s, %s, %s)
-            """
-
-            cursor.execute(query, (nombre, riesgo, lat, lng))
+            cursor.execute(
+                query,
+                (
+                    int(colonia["id"]),
+                    colonia["estado"],
+                    colonia["municipio"],
+                    colonia["nombre_colonia"],
+                    float(colonia["riesgo"]),
+                    float(colonia["lat"]),
+                    float(colonia["lon"]),
+                ),
+            )
 
         conexion.commit()
-
         print(f"{len(datos)} colonias cargadas correctamente")
 
     except Exception as e:
         print("Error al cargar zonas:", e)
 
     finally:
-        cursor.close()
-        conexion.close()
+        if cursor:
+            cursor.close()
+        if conexion:
+            conexion.close()
 
 
 if __name__ == "__main__":

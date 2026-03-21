@@ -1,0 +1,133 @@
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  font-family: Arial, sans-serif;
+  background: #f5f7fb;
+  color: #1f2937;
+}
+
+.topbar {
+  height: 72px;
+  background: #0f172a;
+  color: white;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 24px;
+}
+
+.topbar h1 {
+  margin: 0;
+  font-size: 24px;
+}
+
+.topbar p {
+  margin: 4px 0 0;
+  font-size: 13px;
+  opacity: 0.85;
+}
+
+.topbar button {
+  background: #2563eb;
+  color: white;
+  border: none;
+  padding: 10px 16px;
+  border-radius: 10px;
+  cursor: pointer;
+}
+
+.layout {
+  display: grid;
+  grid-template-columns: 340px 1fr;
+  height: calc(100vh - 72px);
+}
+
+.sidebar {
+  padding: 16px;
+  overflow-y: auto;
+  border-right: 1px solid #e5e7eb;
+  background: #ffffff;
+}
+
+.card {
+  background: #ffffff;
+  border: 1px solid #e5e7eb;
+  border-radius: 16px;
+  padding: 16px;
+  margin-bottom: 16px;
+  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.04);
+}
+
+.card h2 {
+  margin-top: 0;
+  font-size: 18px;
+}
+
+.card label {
+  display: block;
+  margin: 10px 0 6px;
+  font-size: 14px;
+}
+
+.card input,
+.card select,
+.card button {
+  width: 100%;
+  padding: 10px 12px;
+  border-radius: 10px;
+  border: 1px solid #cbd5e1;
+  margin-bottom: 10px;
+}
+
+.card button {
+  background: #0f172a;
+  color: white;
+  border: none;
+  cursor: pointer;
+}
+
+.checks label {
+  display: block;
+  font-size: 14px;
+  margin-bottom: 8px;
+}
+
+.summary-item {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 10px;
+}
+
+.map-panel {
+  padding: 16px;
+}
+
+#map {
+  width: 100%;
+  height: 100%;
+  border-radius: 18px;
+  overflow: hidden;
+  border: 1px solid #dbe2ea;
+}
+
+.legend-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 8px;
+}
+
+.dot {
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+  display: inline-block;
+}
+
+.bajo { background: #22c55e; }
+.moderado { background: #f59e0b; }
+.alto { background: #ef4444; }
+.muy-alto { background: #7f1d1d; }

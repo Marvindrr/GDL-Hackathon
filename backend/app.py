@@ -1,42 +1,48 @@
-from flask import Flask, render_template
+from flask import Flask, render_template, request, jsonify
 from flask_socketio import SocketIO
 import json
 import re
 import math
 from pathlib import Path
 
-from data.validators.colonias_loader import cargar_colonias_desde_json
+from data.validators import cargar_colonias_desde_json
 
-app = Flask(__name__)
-app.config['SECRET_KEY'] = 'mysecret'
+PROJECT_ROOT = Path(__file__).resolve().parent.parent
+FRONTEND_DIR = PROJECT_ROOT / "frontend"
+DATA_DIR = PROJECT_ROOT / "data"
+
+app = Flask(
+    __name__,
+    template_folder=str(FRONTEND_DIR / "templates"),
+    static_folder=str(FRONTEND_DIR / "static"),
+)
+app.config["SECRET_KEY"] = "mysecret"
 
 socketio = SocketIO(app)
 
-BASE_DIR = Path(__file__).resolve().parent
-DATA_DIR = BASE_DIR / "data"
+ARCHIVO_COLONIAS = "colonias_jalisco.json"
 
 
 def ubicaciones_camaras():
     ruta = DATA_DIR / "ubicaciones_camaras.json"
-    with open(ruta, 'r', encoding='utf-8') as archivo:
+    with open(ruta, "r", encoding="utf-8") as archivo:
         return json.load(archivo)
 
 
-# Cambia aquí el archivo o el municipio según necesites
 puntos_zonas = cargar_colonias_desde_json(
-    "colonias_jalisco.json",
-    municipio="Guadalajara"   # o "Zapopan", "Tequila", etc.
+    ARCHIVO_COLONIAS,
+    municipio="Guadalajara"
 )
 
 
-@app.route('/')
+@app.route("/")
 def index():
-    return render_template('index.html')
+    return render_template("index.html")
 
 
-@app.route('/camara')
+@app.route("/camara")
 def camara():
-    return render_template('camara.html')
+    return render_template("camara.html")
 
 
 def clasificar_zonas(colonias):
@@ -47,18 +53,18 @@ def clasificar_zonas(colonias):
     muy_alto = []
 
     for colonia in colonias:
-        nombre = colonia['nombre_colonia']
-        lat = colonia['lat']
-        lng = colonia['lon']
-        riesgo = colonia['riesgo']
+        nombre = colonia["nombre_colonia"]
+        lat = colonia["lat"]
+        lng = colonia["lon"]
+        riesgo = colonia["riesgo"]
 
         item = {
-            'nombre': nombre,
-            'lat': lat,
-            'lng': lng,
-            'riesgo': riesgo,
-            'municipio': colonia.get('municipio'),
-            'estado': colonia.get('estado')
+            "nombre": nombre,
+            "lat": lat,
+            "lng": lng,
+            "riesgo": riesgo,
+            "municipio": colonia.get("municipio"),
+            "estado": colonia.get("estado"),
         }
 
         zonas_con_riesgo.append(item)
@@ -73,12 +79,6 @@ def clasificar_zonas(colonias):
             muy_alto.append(item)
 
     return zonas_con_riesgo, bajo, moderado, alto, muy_alto
-
-
-@socketio.on('mostrar_zonas_riesgo')
-def handle_mostrar_zonas_riesgo():
-    zonas_con_riesgo, bajo, moderado, alto, muy_alto = clasificar_zonas(puntos_zonas)
-    socketio.emit('zonas_riesgo', zonas_con_riesgo)
 
 
 def calcular_distancia(coord1, coord2):
@@ -100,87 +100,128 @@ def calcular_distancia(coord1, coord2):
     return R * c
 
 
-@app.route('/mapa/<int:opcion>')
+@app.route("/mapa/<int:opcion>")
 def mapa(opcion):
     zonas_con_riesgo, bajo, moderado, alto, muy_alto = clasificar_zonas(puntos_zonas)
 
     if opcion == 1:
-        return render_template('mapa.html', lista=bajo)
+        return render_template("mapa_gdl.html", lista=bajo)
     elif opcion == 2:
-        return render_template('mapa.html', lista=moderado)
+        return render_template("mapa_gdl.html", lista=moderado)
     elif opcion == 3:
-        return render_template('mapa.html', lista=alto)
+        return render_template("mapa_gdl.html", lista=alto)
     elif opcion == 4:
-        return render_template('mapa.html', lista=muy_alto)
+        return render_template("mapa_gdl.html", lista=muy_alto)
     else:
-        return render_template('mapa.html', lista=zonas_con_riesgo)
+        return render_template("mapa_gdl.html", lista=zonas_con_riesgo)
 
 
-@socketio.on('search')
+@app.route("/api/colonias", methods=["GET"])
+def api_colonias():
+    municipio = request.args.get("municipio")
+
+    colonias = cargar_colonias_desde_json(
+        ARCHIVO_COLONIAS,
+        municipio=municipio
+    )
+
+    return jsonify(colonias)
+
+
+@app.route("/api/ruta", methods=["POST"])
+def api_ruta():
+    data = request.get_json()
+
+    origen = data.get("origen")
+    destino = data.get("destino")
+    municipio = data.get("municipio")
+    tipo_ruta = data.get("tipo_ruta")
+
+    return jsonify({
+        "origen": origen,
+        "destino": destino,
+        "municipio": municipio,
+        "tipo_ruta": tipo_ruta,
+        "riesgo_total": "Medio",
+        "distancia": "4.2 km",
+        "tiempo": "11 min",
+        "camaras_cercanas": 5,
+        "colonias_criticas": ["Analco", "Oblatos"],
+        "ruta": [
+            [20.6767, -103.3475],
+            [20.6730, -103.3400],
+            [20.6680, -103.3350]
+        ]
+    })
+
+
+@socketio.on("mostrar_zonas_riesgo")
+def handle_mostrar_zonas_riesgo():
+    zonas_con_riesgo, _, _, _, _ = clasificar_zonas(puntos_zonas)
+    socketio.emit("zonas_riesgo", zonas_con_riesgo)
+
+
+@socketio.on("search")
 def handle_search(query):
     query = query.strip().lower()
     results = [
         colonia for colonia in puntos_zonas
-        if query in colonia['nombre_colonia'].lower()
+        if query in colonia["nombre_colonia"].lower()
     ]
-    socketio.emit('search_results', results)
+    socketio.emit("search_results", results)
 
 
-@socketio.on('ruta_cambiada')
+@socketio.on("ruta_cambiada")
 def handle_ruta_cambiada(data):
-    distancia = data.get('distancia')
-    duracion = data.get('duracion')
-    waypoints = data.get('waypoints')
-    calles = data.get('calles', [])
+    calles = data.get("calles", [])
 
     calles_str = "Calles por las que pasa la ruta:\n"
     for calle in calles:
-        calles_str += calle + '\n'
+        calles_str += calle + "\n"
 
     print(calles_str)
 
 
 def separate_by_street(text):
-    lines = text.strip().split('\n')
+    lines = text.strip().split("\n")
     streets = []
 
     for line in lines:
-        match = re.search(r'\b(C|A)\w+.*', line)
+        match = re.search(r"\b(C|A)\w+.*", line)
         if match:
-            street = match.group(0)
-            streets.append(street)
+            streets.append(match.group(0))
 
     return streets
 
 
-@socketio.on('waypoint_dragged')
+@socketio.on("waypoint_dragged")
 def handle_waypoint_dragged(data):
-    waypoints = data['waypoints']
+    waypoints = data["waypoints"]
     print("Puntos de control actualizados:", waypoints)
 
 
-@socketio.on('enviar_coordenadas')
+@socketio.on("enviar_coordenadas")
 def handle_coordinates(data):
-    lat = data['lat']
-    lon = data['lng']
+    lat = data["lat"]
+    lon = data["lng"]
     radio = 1
 
     camaras = ubicaciones_camaras()
-
     camaras_cercanas = []
+
     for camara in camaras:
         try:
-            camara_coord = (camara['lat'], camara['lon'])
+            camara_coord = (camara["lat"], camara["lon"])
             distancia = calcular_distancia((lat, lon), camara_coord)
 
             if distancia <= radio:
                 camaras_cercanas.append(camara)
         except KeyError:
-            print(f"Cámara con id {camara.get('id')} no tiene coordenadas válidas.")
+            print(f'Cámara con id {camara.get("id")} no tiene coordenadas válidas.')
             continue
 
-    socketio.emit('camaras_cercanas', camaras_cercanas)
+    socketio.emit("camaras_cercanas", camaras_cercanas)
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     socketio.run(app, debug=True, allow_unsafe_werkzeug=True)

@@ -1,262 +1,354 @@
-document.addEventListener('DOMContentLoaded', function () {
-    var socket = io.connect(location.protocol + '//' + document.domain + ':' + location.port);
+document.addEventListener("DOMContentLoaded", async function () {
+  const map = L.map("map").setView([20.6767, -103.3475], 12);
 
-    var map = L.map('map').setView([21.8853, -102.2916], 12);
+  L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
+    attribution: "&copy; OpenStreetMap contributors"
+  }).addTo(map);
 
-    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-        attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
-    }).addTo(map);
+  const municipioSelect = document.getElementById("municipio");
+  const btnCalcular = document.getElementById("btnCalcular");
+  const btnReiniciar = document.getElementById("btnReiniciar");
 
-    var currentMarker = null;
-    var currentCircle = null;
-    var allMarkers = [];
-    var allCircles = [];
-    var routingControl = null;  
+  const origenInput = document.getElementById("origen");
+  const destinoInput = document.getElementById("destino");
 
+  const riesgoRuta = document.getElementById("riesgoRuta");
+  const distanciaRuta = document.getElementById("distanciaRuta");
+  const tiempoRuta = document.getElementById("tiempoRuta");
+  const camarasRuta = document.getElementById("camarasRuta");
+  const coloniasCriticas = document.getElementById("coloniasCriticas");
 
-    function clearMap() {
-        if (allMarkers.length > 0) {
-            allMarkers.forEach(function(marker) {
-                map.removeLayer(marker);  
-            });
-            allMarkers = [];  
-        }
-    
-        if (allCircles.length > 0) {
-            allCircles.forEach(function(circle) {
-                map.removeLayer(circle);  
-            });
-            allCircles = [];  
-        }
-    
-        if (routingControl) {
-            map.removeControl(routingControl); 
-            routingControl = null;  
-        }
-    
-        
-    }
-    
+  const toggleHex = document.getElementById("toggleHex");
+  const togglePuntos = document.getElementById("togglePuntos");
+  const toggleCamaras = document.getElementById("toggleCamaras");
+  const toggleTurismo = document.getElementById("toggleTurismo");
 
+  const hexLayer = L.geoJSON(null).addTo(map);
+  const puntosLayer = L.featureGroup().addTo(map);
+  const rutaLayer = L.featureGroup().addTo(map);
+  const camarasLayer = L.featureGroup().addTo(map);
+  const turismoLayer = L.featureGroup().addTo(map);
 
+  let coloniasActuales = [];
 
+  function getColorByRisk(riesgo) {
+    if (riesgo === null || riesgo === undefined) return "#9ca3af"; // gris
+    if (riesgo <= 25) return "#22c55e";
+    if (riesgo <= 50) return "#f59e0b";
+    if (riesgo <= 75) return "#ef4444";
+    return "#7f1d1d";
+  }
 
-    document.getElementById('search_input').oninput = function () {
-        var query = document.getElementById('search_input').value;
-        socket.emit('search', query); 
-    };
+  function limpiarResumen() {
+    riesgoRuta.textContent = "--";
+    distanciaRuta.textContent = "--";
+    tiempoRuta.textContent = "--";
+    camarasRuta.textContent = "--";
+    coloniasCriticas.textContent = "--";
+  }
 
-    socket.on('search_results', function (results) {
-        clearMap(); 
+  function limpiarRuta() {
+    rutaLayer.clearLayers();
+    camarasLayer.clearLayers();
+    turismoLayer.clearLayers();
+  }
 
-        var resultsDiv = document.getElementById('search_results');
-        resultsDiv.innerHTML = '';  
+  function limpiarVisualizacionColonias() {
+    hexLayer.clearLayers();
+    puntosLayer.clearLayers();
+  }
 
-        if (results.length === 0) {
-            resultsDiv.innerHTML = '<p>No se encontraron colonias.</p>';
-        } else {
-            var ul = document.createElement('ul');
-            results.forEach(function (colonia) {
-                var li = document.createElement('li');
-                li.textContent = colonia.nombre_colonia; 
-                ul.appendChild(li);
+  function calcularBBox(colonias) {
+    const lats = colonias.map(c => c.lat);
+    const lons = colonias.map(c => c.lon);
 
-                li.addEventListener('click', function () {
-                    var lat = colonia.centro[1]; 
-                    var lng = colonia.centro[0];
-                    var riesgo =colonia.riesgo;
+    const margen = 0.01;
 
-                    clearMap();
-                    let randomNumber = Math.floor(Math.random() * 101);
-                    currentMarker = L.marker([lat, lng]).addTo(map)
-                    
-                        .bindPopup(colonia.nombre_colonia + "<br>Riesgo: " + riesgo + "%")
-                        .openPopup();
+    return [
+      Math.min(...lons) - margen,
+      Math.min(...lats) - margen,
+      Math.max(...lons) + margen,
+      Math.max(...lats) + margen
+    ];
+  }
 
-                    map.setView([lat, lng], 16);
-                    allMarkers.push(currentMarker);
+  function distanciaEnKm(lat1, lon1, lat2, lon2) {
+    const from = turf.point([lon1, lat1]);
+    const to = turf.point([lon2, lat2]);
+    return turf.distance(from, to, { units: "kilometers" });
+  }
 
-                    document.getElementById('route_button').style.display = 'block';
+  function generarHexGrid(colonias) {
+    const bbox = calcularBBox(colonias);
+    const cellSide = 0.45; // prueba 0.35 o 0.50 si quieres más/menos detalle
 
-                    currentMarker.latlng = [lat, lng];
-                });
-            });
-            resultsDiv.appendChild(ul);
-        }
+    const grid = turf.hexGrid(bbox, cellSide, { units: "kilometers" });
+
+    // Todo empieza en gris
+    grid.features.forEach((feature, index) => {
+      feature.properties = {
+        id: index + 1,
+        riesgo: null,
+        colonia_ref: "Sin dato",
+        municipio: "",
+        distancia_ref_km: Infinity
+      };
     });
 
-    function LatLng(a) {
-        const lat = a[1];  // latitud
-        const lon =a[2];  // longitud
+    colonias.forEach(colonia => {
+      const hexOrdenados = grid.features
+        .map(feature => {
+          const centro = turf.centroid(feature);
+          const [lon, lat] = centro.geometry.coordinates;
 
-           
-        const coordenadas = { lat: lat, lon: lon };
-        return coordenadas;
-    }
-    var maxMaps = 4; 
+          return {
+            feature,
+            distancia: distanciaEnKm(lat, lon, colonia.lat, colonia.lon)
+          };
+        })
+        .sort((a, b) => a.distancia - b.distancia);
 
-    document.getElementById('route_button').onclick = function () {
-        if (currentMarker) {
-            var latlng = currentMarker.getLatLng(); 
-    
-            clearMap();
-    
-            currentCircle = L.circle(latlng, {
-                color: 'red',
-                fillColor: '#ff0000',
-                fillOpacity: 0.3,
-                radius: 1000
-            }).addTo(map);
-    
-            allCircles.push(currentCircle);
-            //console.log(latlng+"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa")
-           
-           
-            coordenadas=LatLng(latlng);
-           
-    
-            
-            socket.emit('enviar_coordenadas', latlng);
-            
-    
-            socket.on('camaras_cercanas', function(camaras) {
+      // 7 más cercanos = aprox centro + 6 alrededor
+      // Si lo quieres más estricto, cambia 7 por 6 o 5
+      const hexCercanos = hexOrdenados.slice(0, 7);
 
-                console.log('Cámaras cercanas:', camaras);
-               
-                socket.on('camaras_cercanas', (camaras) => {
-                    camaras.forEach(camara => {
-                        if (camara.lat !== undefined && camara.lon !== undefined) {
-                           
-                            const lat = camara.lat;
-                            const lng = camara.lon;
-                
-                        
-                            if (lat && lng) {
-                                let marker = L.marker([lat, lng], {
-                                    icon: L.icon({
-                                        iconUrl: 'https://cdn-icons-png.freepik.com/512/8335/8335224.png',
-                                        iconSize: [30, 30],
-                                        iconAnchor: [15, 30]
-                                    })
-                                }).addTo(map).bindPopup(`<b><a href="/camara" >${camara.id}</a></b>`);
+      hexCercanos.forEach(item => {
+        const actual = item.feature.properties.distancia_ref_km ?? Infinity;
 
-                                allMarkers.push(marker);  // Asegúrate de añadir el marcador a allMarkers
-                            } else {
-                                console.error("Cámara no tiene coordenadas válidas:", camara);
-                            }
-
-                        } else {
-                            console.error("Cámara no tiene coordenadas válidas:", camara);
-                        }
-                    });
-                });
-                
-            });
-    
-           
-            var destinos = [
-                {lat: latlng.lat + 0.01, lng: latlng.lng + 0.01},  
-                {lat: latlng.lat - 0.01, lng: latlng.lng - 0.01},  
-                {lat: latlng.lat + 0.01, lng: latlng.lng - 0.01},  
-                {lat: latlng.lat - 0.01, lng: latlng.lng + 0.01}   
-            ];
-    
-            for (let i = 0; i < destinos.length; i++) {
-                generateRoute(latlng, destinos[i], i + 1);
-            }
-        } else {
-            console.log("No hay marcador actual.");
+        // Solo actualiza si esta colonia está más cerca que la que ya tenía el hex
+        if (item.distancia < actual) {
+          item.feature.properties.riesgo = colonia.riesgo;
+          item.feature.properties.colonia_ref = colonia.nombre_colonia;
+          item.feature.properties.municipio = colonia.municipio;
+          item.feature.properties.distancia_ref_km = item.distancia;
         }
-    };
-
-    
-    function generateRoute(latlng, destino, mapIndex) {
-        var mapDivId = "map" + mapIndex;
-        var directionsDivId = "directions" + mapIndex;
-        
-        var mapDiv = document.getElementById(mapDivId);
-        var directionsDiv = document.getElementById(directionsDivId);
-        var tabla = document.getElementById('mapTable');
-    
-           
-        mapDiv.innerHTML = '';
-        directionsDiv.innerHTML = '';
-    
-        var newMap = L.map(mapDivId).setView([latlng.lat, latlng.lng], 13);
-    
-        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-            attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
-        }).addTo(newMap);
-    
-        var routingControl = L.Routing.control({
-            waypoints: [
-                L.latLng(latlng.lat, latlng.lng), 
-                L.latLng(destino.lat, destino.lng) 
-            ],
-            routeWhileDragging: true,
-            createMarker: function() { return null; }, 
-        }).addTo(newMap);
-    
-        routingControl.on('routesfound', function (e) {
-            var routes = e.routes;
-            var instructions = routes[0].instructions;
-                
-    
-            directionsDiv.innerHTML = '';
-    
-            instructions.forEach(instruction => {
-                var directionItem = document.createElement('div');
-                directionItem.innerText = instruction.text;
-                directionsDiv.appendChild(directionItem);
-            });
-    
-            var summary = routes[0].summary;
-            
-            
-            socket.emit('ruta_cambiada', {
-                distancia: summary.totalDistance,  
-                duracion: summary.totalTime,  
-                waypoints: routes[0].coordinates, 
-                calles: routes[0].instructions.map(instruction => instruction.text) 
-            });
-        });
-    }
-    
-    
-
-    document.getElementById('show_risk_areas_button').onclick = function () {
-        clearMap();
-        socket.emit('mostrar_zonas_riesgo');
-    };
-
-    socket.on('zonas_riesgo', function (zonas) {
-        clearMap();
-        zonas.forEach(function (zona) {
-            
-            let randomNumber = Math.floor(Math.random() * 101);
-            const { nombre, lat, lng, riesgo } = zona;
-            const color = obtenerColorRiesgo(riesgo);
-        
-            
-            
-            var circle = L.circle([lat, lng], {
-                color: color,
-                radius: 500,
-                fillColor: color,
-                fillOpacity: 0.5
-            }).addTo(map);
-
-            var marker = L.marker([lat, lng]).addTo(map)
-                .bindPopup(`<b>${nombre}</b><br>Riesgo: ${riesgo}%`).openPopup();
-
-            allCircles.push(circle);
-            allMarkers.push(marker);
-        });
+      });
     });
 
-    function obtenerColorRiesgo(riesgo) {
-        if (riesgo <= 30) return 'green';
-        if (riesgo <= 60) return 'yellow';
-        return 'red';
+    return grid;
+  }
+
+  function renderHexGrid(colonias) {
+    hexLayer.clearLayers();
+
+    if (!toggleHex.checked || !colonias.length) return;
+
+    const grid = generarHexGrid(colonias);
+    hexLayer.addData(grid);
+
+    hexLayer.eachLayer(layer => {
+      const riesgo = layer.feature.properties.riesgo;
+      const coloniaRef = layer.feature.properties.colonia_ref;
+      const distanciaRef = layer.feature.properties.distancia_ref_km;
+      const textoRiesgo = riesgo === null ? "Sin dato" : riesgo;
+
+      layer.setStyle({
+        color: getColorByRisk(riesgo),
+        weight: 1,
+        fillColor: getColorByRisk(riesgo),
+        fillOpacity: riesgo === null ? 0.18 : 0.35
+      });
+
+      layer.bindPopup(`
+        <strong>Hexágono de riesgo</strong><br>
+        Riesgo: ${textoRiesgo}<br>
+        Colonia de referencia: ${coloniaRef}<br>
+        Distancia al dato: ${Number.isFinite(distanciaRef) ? distanciaRef.toFixed(2) + " km" : "--"}
+      `);
+    });
+  }
+
+  function renderPuntos(colonias) {
+    puntosLayer.clearLayers();
+
+    if (!togglePuntos.checked) return;
+
+    colonias.forEach((colonia) => {
+      L.circleMarker([colonia.lat, colonia.lon], {
+        radius: 4,
+        color: "#111827",
+        fillColor: getColorByRisk(colonia.riesgo),
+        fillOpacity: 0.9,
+        weight: 1
+      })
+        .bindPopup(`
+          <strong>${colonia.nombre_colonia}</strong><br>
+          Municipio: ${colonia.municipio}<br>
+          Riesgo: ${colonia.riesgo}
+        `)
+        .addTo(puntosLayer);
+    });
+  }
+
+  function renderColonias() {
+    renderHexGrid(coloniasActuales);
+    renderPuntos(coloniasActuales);
+  }
+
+  async function cargarColonias() {
+    const municipio = municipioSelect.value;
+
+    const response = await fetch(`/api/colonias?municipio=${encodeURIComponent(municipio)}`);
+    const data = await response.json();
+
+    coloniasActuales = data;
+    limpiarVisualizacionColonias();
+    renderColonias();
+
+    if (hexLayer.getBounds().isValid()) {
+      map.fitBounds(hexLayer.getBounds(), { padding: [20, 20] });
+    } else if (puntosLayer.getBounds().isValid()) {
+      map.fitBounds(puntosLayer.getBounds(), { padding: [20, 20] });
     }
+  }
+
+  function buscarColoniaPorNombre(nombre) {
+    const texto = nombre.trim().toLowerCase();
+    return coloniasActuales.find((c) =>
+      c.nombre_colonia.toLowerCase().includes(texto)
+    );
+  }
+
+  function renderCamarasDemo(origenColonia, destinoColonia) {
+    camarasLayer.clearLayers();
+
+    if (!toggleCamaras.checked) return 0;
+
+    const camarasDemo = [
+      { id: 1, lat: origenColonia.lat + 0.004, lon: origenColonia.lon + 0.004 },
+      { id: 2, lat: destinoColonia.lat - 0.003, lon: destinoColonia.lon - 0.003 }
+    ];
+
+    camarasDemo.forEach((camara) => {
+      L.marker([camara.lat, camara.lon])
+        .bindPopup(`Cámara ${camara.id}`)
+        .addTo(camarasLayer);
+    });
+
+    return camarasDemo.length;
+  }
+
+  function renderTurismoDemo() {
+    turismoLayer.clearLayers();
+
+    if (!toggleTurismo.checked) return;
+
+    const poligonoDemo = [
+      [20.6795, -103.3515],
+      [20.6795, -103.3435],
+      [20.6745, -103.3435],
+      [20.6745, -103.3515]
+    ];
+
+    L.polygon(poligonoDemo, {
+      color: "gold",
+      fillColor: "gold",
+      fillOpacity: 0.2
+    })
+      .bindPopup("Zona turística demo")
+      .addTo(turismoLayer);
+  }
+
+  btnCalcular.addEventListener("click", async function () {
+    const origen = origenInput.value.trim();
+    const destino = destinoInput.value.trim();
+    const municipio = municipioSelect.value;
+    const tipoRuta = document.querySelector('input[name="tipoRuta"]:checked')?.value || "segura";
+
+    if (!origen || !destino) {
+      alert("Ingresa origen y destino");
+      return;
+    }
+
+    const origenColonia = buscarColoniaPorNombre(origen);
+    const destinoColonia = buscarColoniaPorNombre(destino);
+
+    if (!origenColonia || !destinoColonia) {
+      alert("No se encontró el origen o el destino en las colonias cargadas");
+      return;
+    }
+
+    const response = await fetch("/api/ruta", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json"
+      },
+      body: JSON.stringify({
+        origen,
+        destino,
+        municipio,
+        tipo_ruta: tipoRuta
+      })
+    });
+
+    const data = await response.json();
+
+    limpiarRuta();
+
+    const puntosRuta = [
+      [origenColonia.lat, origenColonia.lon],
+      ...(data.ruta || []),
+      [destinoColonia.lat, destinoColonia.lon]
+    ];
+
+    const polyline = L.polyline(puntosRuta, {
+      color: tipoRuta === "segura" ? "blue" : "purple",
+      weight: 5
+    }).addTo(rutaLayer);
+
+    L.marker([origenColonia.lat, origenColonia.lon])
+      .bindPopup(`Origen: ${origenColonia.nombre_colonia}`)
+      .addTo(rutaLayer);
+
+    L.marker([destinoColonia.lat, destinoColonia.lon])
+      .bindPopup(`Destino: ${destinoColonia.nombre_colonia}`)
+      .addTo(rutaLayer);
+
+    const totalCamaras = renderCamarasDemo(origenColonia, destinoColonia);
+    renderTurismoDemo();
+
+    riesgoRuta.textContent = data.riesgo_total ?? "--";
+    distanciaRuta.textContent = data.distancia ?? "--";
+    tiempoRuta.textContent = data.tiempo ?? "--";
+    camarasRuta.textContent = totalCamaras || data.camaras_cercanas || "--";
+    coloniasCriticas.textContent = (data.colonias_criticas || []).join(", ") || "--";
+
+    map.fitBounds(polyline.getBounds(), { padding: [30, 30] });
+  });
+
+  btnReiniciar.addEventListener("click", async function () {
+    limpiarVisualizacionColonias();
+    limpiarRuta();
+    limpiarResumen();
+
+    origenInput.value = "";
+    destinoInput.value = "";
+
+    map.setView([20.6767, -103.3475], 12);
+    await cargarColonias();
+  });
+
+  municipioSelect.addEventListener("change", async function () {
+    limpiarRuta();
+    limpiarResumen();
+    await cargarColonias();
+  });
+
+  toggleHex.addEventListener("change", renderColonias);
+  togglePuntos.addEventListener("change", renderColonias);
+
+  toggleCamaras.addEventListener("change", function () {
+    if (!toggleCamaras.checked) {
+      camarasLayer.clearLayers();
+    }
+  });
+
+  toggleTurismo.addEventListener("change", function () {
+    if (!toggleTurismo.checked) {
+      turismoLayer.clearLayers();
+    }
+  });
+
+  limpiarResumen();
+  await cargarColonias();
 });
