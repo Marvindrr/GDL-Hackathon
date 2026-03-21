@@ -94,9 +94,8 @@ X_train, X_test, y_train, y_test = train_test_split(
 modelo = Sequential()
 modelo.add(Dense(10, input_dim=1, activation='relu'))
 modelo.add(Dense(1))
-
 modelo.compile(loss='mean_squared_error', optimizer='adam')
-modelo.fit(X_train, y_train, epochs=100, verbose=1)
+modelo.fit(X_train, y_train, epochs=100, verbose="1")
 
 y_pred = modelo.predict(X_test)
 mse = mean_squared_error(y_test, y_pred)
