@@ -17,7 +17,7 @@
             <meta name="viewport" content="width=device-width,
                 initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
             <style>
-                #map_270b7675fd14d541d9977fe1a48b1257 {
+                #map_841e61e92f25be6f94d8620d35ac5e2f {
                     position: relative;
                     width: 100.0%;
                     height: 100.0%;
@@ -54,14 +54,14 @@
 <body>
     
     
-            <div class="folium-map" id="map_270b7675fd14d541d9977fe1a48b1257" ></div>
+            <div class="folium-map" id="map_841e61e92f25be6f94d8620d35ac5e2f" ></div>
         
 </body>
 <script>
     
     
-            var map_270b7675fd14d541d9977fe1a48b1257 = L.map(
-                "map_270b7675fd14d541d9977fe1a48b1257",
+            var map_841e61e92f25be6f94d8620d35ac5e2f = L.map(
+                "map_841e61e92f25be6f94d8620d35ac5e2f",
                 {
                     center: [20.6736, -103.344],
                     crs: L.CRS.EPSG3857,
@@ -78,7 +78,7 @@
 
         
     
-            var tile_layer_f875b1c0f4b04a7ae91a73e2073dfd7f = L.tileLayer(
+            var tile_layer_f6606c366b5ad40c109e480212e9413b = L.tileLayer(
                 "https://tile.openstreetmap.org/{z}/{x}/{y}.png",
                 {
   "minZoom": 0,
@@ -95,267 +95,285 @@
             );
         
     
-            tile_layer_f875b1c0f4b04a7ae91a73e2073dfd7f.addTo(map_270b7675fd14d541d9977fe1a48b1257);
+            tile_layer_f6606c366b5ad40c109e480212e9413b.addTo(map_841e61e92f25be6f94d8620d35ac5e2f);
         
     
-            var circle_4be92c76500acf238d0797ff585dff8b = L.circle(
+            var marker_281afef25dce668dee311c331a9aad20 = L.marker(
                 [20.6767, -103.3476],
-                {"bubblingMouseEvents": true, "color": "red", "dashArray": null, "dashOffset": null, "fill": true, "fillColor": "red", "fillOpacity": 0.2, "fillRule": "evenodd", "lineCap": "round", "lineJoin": "round", "opacity": 1.0, "radius": 450, "stroke": true, "weight": 3}
-            ).addTo(map_270b7675fd14d541d9977fe1a48b1257);
+                {
+}
+            ).addTo(map_841e61e92f25be6f94d8620d35ac5e2f);
         
     
-        var popup_d19036dbbf92062226f77dbf305370cc = L.popup({
+            var icon_a05519d2fd2847230db9da607f06dc8d = L.AwesomeMarkers.icon(
+                {
+  "markerColor": "red",
+  "iconColor": "white",
+  "icon": "info-sign",
+  "prefix": "glyphicon",
+  "extraClasses": "fa-rotate-0",
+}
+            );
+        
+    
+        var popup_d3c06d9d76ef4eebfbc9ce27e92df6d2 = L.popup({
   "maxWidth": "100%",
 });
 
         
             
-                var html_ecfcdb553d6663e5d8d9a811340f94e6 = $(`<div id="html_ecfcdb553d6663e5d8d9a811340f94e6" style="width: 100.0%; height: 100.0%;">Centro - Riesgo: 65 (Prob. alto: 1.00)</div>`)[0];
-                popup_d19036dbbf92062226f77dbf305370cc.setContent(html_ecfcdb553d6663e5d8d9a811340f94e6);
+                var html_789eb870babab3ba598a27fe6cad199c = $(`<div id="html_789eb870babab3ba598a27fe6cad199c" style="width: 100.0%; height: 100.0%;">Centro - Riesgo: 65</div>`)[0];
+                popup_d3c06d9d76ef4eebfbc9ce27e92df6d2.setContent(html_789eb870babab3ba598a27fe6cad199c);
             
         
 
-        circle_4be92c76500acf238d0797ff585dff8b.bindPopup(popup_d19036dbbf92062226f77dbf305370cc)
+        marker_281afef25dce668dee311c331a9aad20.bindPopup(popup_d3c06d9d76ef4eebfbc9ce27e92df6d2)
         ;
 
         
     
     
-            var poly_line_c6adfd28af701609337826e360c41945 = L.polyline(
-                [[20.6767, -103.3476], [20.6775, -103.3471]],
-                {"bubblingMouseEvents": true, "color": "blue", "dashArray": null, "dashOffset": null, "fill": false, "fillColor": "blue", "fillOpacity": 0.2, "fillRule": "evenodd", "lineCap": "round", "lineJoin": "round", "noClip": false, "opacity": 1.0, "smoothFactor": 1.0, "stroke": true, "weight": 3}
-            ).addTo(map_270b7675fd14d541d9977fe1a48b1257);
-        
+                marker_281afef25dce668dee311c331a9aad20.setIcon(icon_a05519d2fd2847230db9da607f06dc8d);
+            
     
-            poly_line_c6adfd28af701609337826e360c41945.bindTooltip(
-                `<div>
-                     Ruta de escape a Parque Revolución (~0.1 km)
-                 </div>`,
-                {
-  "sticky": true,
-}
-            );
-        
-    
-            var circle_409501c315ea9ab7e2b4e67f563d510b = L.circle(
+            var marker_58d4b249920c5a440af3170cb74a08fb = L.marker(
                 [20.7, -103.3735],
-                {"bubblingMouseEvents": true, "color": "green", "dashArray": null, "dashOffset": null, "fill": true, "fillColor": "green", "fillOpacity": 0.2, "fillRule": "evenodd", "lineCap": "round", "lineJoin": "round", "opacity": 1.0, "radius": 250, "stroke": true, "weight": 3}
-            ).addTo(map_270b7675fd14d541d9977fe1a48b1257);
+                {
+}
+            ).addTo(map_841e61e92f25be6f94d8620d35ac5e2f);
         
     
-        var popup_c1f48d00ca605ca7613ab62cabc2028b = L.popup({
+            var icon_384681af1fbb8f0889de2535c757d39d = L.AwesomeMarkers.icon(
+                {
+  "markerColor": "green",
+  "iconColor": "white",
+  "icon": "info-sign",
+  "prefix": "glyphicon",
+  "extraClasses": "fa-rotate-0",
+}
+            );
+        
+    
+        var popup_bcf8852f785b1e3c1e411893cb9dc834 = L.popup({
   "maxWidth": "100%",
 });
 
         
             
-                var html_ee388a789d390682c82225eba8168245 = $(`<div id="html_ee388a789d390682c82225eba8168245" style="width: 100.0%; height: 100.0%;">Providencia - Riesgo: 35 (Prob. alto: 0.00)</div>`)[0];
-                popup_c1f48d00ca605ca7613ab62cabc2028b.setContent(html_ee388a789d390682c82225eba8168245);
+                var html_c7aa457a998363d74f6ea35ec75655c0 = $(`<div id="html_c7aa457a998363d74f6ea35ec75655c0" style="width: 100.0%; height: 100.0%;">Providencia - Riesgo: 35</div>`)[0];
+                popup_bcf8852f785b1e3c1e411893cb9dc834.setContent(html_c7aa457a998363d74f6ea35ec75655c0);
             
         
 
-        circle_409501c315ea9ab7e2b4e67f563d510b.bindPopup(popup_c1f48d00ca605ca7613ab62cabc2028b)
+        marker_58d4b249920c5a440af3170cb74a08fb.bindPopup(popup_bcf8852f785b1e3c1e411893cb9dc834)
         ;
 
         
     
     
-            var circle_7625ba0aa4f2e5ab08721d28e08f52fd = L.circle(
+                marker_58d4b249920c5a440af3170cb74a08fb.setIcon(icon_384681af1fbb8f0889de2535c757d39d);
+            
+    
+            var marker_978f90589159c6e3da303ad5474aab6d = L.marker(
                 [20.7236, -103.385],
-                {"bubblingMouseEvents": true, "color": "orange", "dashArray": null, "dashOffset": null, "fill": true, "fillColor": "orange", "fillOpacity": 0.2, "fillRule": "evenodd", "lineCap": "round", "lineJoin": "round", "opacity": 1.0, "radius": 350, "stroke": true, "weight": 3}
-            ).addTo(map_270b7675fd14d541d9977fe1a48b1257);
+                {
+}
+            ).addTo(map_841e61e92f25be6f94d8620d35ac5e2f);
         
     
-        var popup_1c0585d7cb0c7e3cdbcd31df32b38b90 = L.popup({
+            var icon_797409f90afc5318d32450a1e73dea05 = L.AwesomeMarkers.icon(
+                {
+  "markerColor": "orange",
+  "iconColor": "white",
+  "icon": "info-sign",
+  "prefix": "glyphicon",
+  "extraClasses": "fa-rotate-0",
+}
+            );
+        
+    
+        var popup_32b486a13f1cdc27c182af0a0b9d042e = L.popup({
   "maxWidth": "100%",
 });
 
         
             
-                var html_0ee8bf99d4218925cc45bd7cea58a4df = $(`<div id="html_0ee8bf99d4218925cc45bd7cea58a4df" style="width: 100.0%; height: 100.0%;">Zapopan Centro - Riesgo: 45 (Prob. alto: 0.06)</div>`)[0];
-                popup_1c0585d7cb0c7e3cdbcd31df32b38b90.setContent(html_0ee8bf99d4218925cc45bd7cea58a4df);
+                var html_b1cef48ae780c9b326523ea1759294fa = $(`<div id="html_b1cef48ae780c9b326523ea1759294fa" style="width: 100.0%; height: 100.0%;">Zapopan Centro - Riesgo: 45</div>`)[0];
+                popup_32b486a13f1cdc27c182af0a0b9d042e.setContent(html_b1cef48ae780c9b326523ea1759294fa);
             
         
 
-        circle_7625ba0aa4f2e5ab08721d28e08f52fd.bindPopup(popup_1c0585d7cb0c7e3cdbcd31df32b38b90)
+        marker_978f90589159c6e3da303ad5474aab6d.bindPopup(popup_32b486a13f1cdc27c182af0a0b9d042e)
         ;
 
         
     
     
-            var circle_0792b40c5b4c40f73828c2226826c121 = L.circle(
+                marker_978f90589159c6e3da303ad5474aab6d.setIcon(icon_797409f90afc5318d32450a1e73dea05);
+            
+    
+            var marker_87b10e54ac8a65025cc854b8c9de142a = L.marker(
                 [20.6407, -103.2931],
-                {"bubblingMouseEvents": true, "color": "red", "dashArray": null, "dashOffset": null, "fill": true, "fillColor": "red", "fillOpacity": 0.2, "fillRule": "evenodd", "lineCap": "round", "lineJoin": "round", "opacity": 1.0, "radius": 450, "stroke": true, "weight": 3}
-            ).addTo(map_270b7675fd14d541d9977fe1a48b1257);
+                {
+}
+            ).addTo(map_841e61e92f25be6f94d8620d35ac5e2f);
         
     
-        var popup_dccd65b862caf602414dc69f68083076 = L.popup({
+            var icon_6f7dabb9e691e7807e2d456c3d773071 = L.AwesomeMarkers.icon(
+                {
+  "markerColor": "red",
+  "iconColor": "white",
+  "icon": "info-sign",
+  "prefix": "glyphicon",
+  "extraClasses": "fa-rotate-0",
+}
+            );
+        
+    
+        var popup_546e4968e94f3f7a0c25c179b7c51a0e = L.popup({
   "maxWidth": "100%",
 });
 
         
             
-                var html_79847176d81329399752c343c959d25e = $(`<div id="html_79847176d81329399752c343c959d25e" style="width: 100.0%; height: 100.0%;">Tlaquepaque Centro - Riesgo: 70 (Prob. alto: 1.00)</div>`)[0];
-                popup_dccd65b862caf602414dc69f68083076.setContent(html_79847176d81329399752c343c959d25e);
+                var html_5629ec233df05835d01dca89556e3230 = $(`<div id="html_5629ec233df05835d01dca89556e3230" style="width: 100.0%; height: 100.0%;">Tlaquepaque Centro - Riesgo: 70</div>`)[0];
+                popup_546e4968e94f3f7a0c25c179b7c51a0e.setContent(html_5629ec233df05835d01dca89556e3230);
             
         
 
-        circle_0792b40c5b4c40f73828c2226826c121.bindPopup(popup_dccd65b862caf602414dc69f68083076)
+        marker_87b10e54ac8a65025cc854b8c9de142a.bindPopup(popup_546e4968e94f3f7a0c25c179b7c51a0e)
         ;
 
         
     
     
-            var poly_line_b86615e451422a3a118293ed23e60b6d = L.polyline(
-                [[20.6407, -103.2931], [20.6565, -103.2637]],
-                {"bubblingMouseEvents": true, "color": "blue", "dashArray": null, "dashOffset": null, "fill": false, "fillColor": "blue", "fillOpacity": 0.2, "fillRule": "evenodd", "lineCap": "round", "lineJoin": "round", "noClip": false, "opacity": 1.0, "smoothFactor": 1.0, "stroke": true, "weight": 3}
-            ).addTo(map_270b7675fd14d541d9977fe1a48b1257);
-        
+                marker_87b10e54ac8a65025cc854b8c9de142a.setIcon(icon_6f7dabb9e691e7807e2d456c3d773071);
+            
     
-            poly_line_b86615e451422a3a118293ed23e60b6d.bindTooltip(
-                `<div>
-                     Ruta de escape a Parque Solidaridad (~3.5 km)
-                 </div>`,
-                {
-  "sticky": true,
-}
-            );
-        
-    
-            var circle_ae4f6bbfd431f4d6203b7574170357c1 = L.circle(
+            var marker_154e2059cf42dd37f81525aa4e9d8794 = L.marker(
                 [20.662, -103.3925],
-                {"bubblingMouseEvents": true, "color": "green", "dashArray": null, "dashOffset": null, "fill": true, "fillColor": "green", "fillOpacity": 0.2, "fillRule": "evenodd", "lineCap": "round", "lineJoin": "round", "opacity": 1.0, "radius": 250, "stroke": true, "weight": 3}
-            ).addTo(map_270b7675fd14d541d9977fe1a48b1257);
+                {
+}
+            ).addTo(map_841e61e92f25be6f94d8620d35ac5e2f);
         
     
-        var popup_9a11a75bf3ca638c45a6cc079cc97566 = L.popup({
+            var icon_e880e5b27b76fc63964395ac265f606b = L.AwesomeMarkers.icon(
+                {
+  "markerColor": "green",
+  "iconColor": "white",
+  "icon": "info-sign",
+  "prefix": "glyphicon",
+  "extraClasses": "fa-rotate-0",
+}
+            );
+        
+    
+        var popup_c302f1a3d3a8c8a65f1b0152dac67893 = L.popup({
   "maxWidth": "100%",
 });
 
         
             
-                var html_898d9c16d286edb4a1886c2a03e10f86 = $(`<div id="html_898d9c16d286edb4a1886c2a03e10f86" style="width: 100.0%; height: 100.0%;">Chapalita - Riesgo: 30 (Prob. alto: 0.00)</div>`)[0];
-                popup_9a11a75bf3ca638c45a6cc079cc97566.setContent(html_898d9c16d286edb4a1886c2a03e10f86);
+                var html_8cd93b9e0b55d3dc9dbb4864c7ca272c = $(`<div id="html_8cd93b9e0b55d3dc9dbb4864c7ca272c" style="width: 100.0%; height: 100.0%;">Chapalita - Riesgo: 30</div>`)[0];
+                popup_c302f1a3d3a8c8a65f1b0152dac67893.setContent(html_8cd93b9e0b55d3dc9dbb4864c7ca272c);
             
         
 
-        circle_ae4f6bbfd431f4d6203b7574170357c1.bindPopup(popup_9a11a75bf3ca638c45a6cc079cc97566)
+        marker_154e2059cf42dd37f81525aa4e9d8794.bindPopup(popup_c302f1a3d3a8c8a65f1b0152dac67893)
         ;
 
         
     
     
-            var circle_e29f82446637ee8ab0193c5b0044b93a = L.circle(
+                marker_154e2059cf42dd37f81525aa4e9d8794.setIcon(icon_e880e5b27b76fc63964395ac265f606b);
+            
+    
+            var marker_a4b1cb772645362fb5a8aec43a521c32 = L.marker(
                 [20.6248, -103.2341],
-                {"bubblingMouseEvents": true, "color": "red", "dashArray": null, "dashOffset": null, "fill": true, "fillColor": "red", "fillOpacity": 0.2, "fillRule": "evenodd", "lineCap": "round", "lineJoin": "round", "opacity": 1.0, "radius": 450, "stroke": true, "weight": 3}
-            ).addTo(map_270b7675fd14d541d9977fe1a48b1257);
+                {
+}
+            ).addTo(map_841e61e92f25be6f94d8620d35ac5e2f);
         
     
-        var popup_fd2a88d6949af0d27d3fcdbae65e519a = L.popup({
+            var icon_b83436d55fa0fa8261a813f73eafbf49 = L.AwesomeMarkers.icon(
+                {
+  "markerColor": "red",
+  "iconColor": "white",
+  "icon": "info-sign",
+  "prefix": "glyphicon",
+  "extraClasses": "fa-rotate-0",
+}
+            );
+        
+    
+        var popup_d6f8f8c7824c68b21a2a1646f80282c7 = L.popup({
   "maxWidth": "100%",
 });
 
         
             
-                var html_8920a866905a8cad593e2a2952b76866 = $(`<div id="html_8920a866905a8cad593e2a2952b76866" style="width: 100.0%; height: 100.0%;">Tonalá Centro - Riesgo: 60 (Prob. alto: 1.00)</div>`)[0];
-                popup_fd2a88d6949af0d27d3fcdbae65e519a.setContent(html_8920a866905a8cad593e2a2952b76866);
+                var html_c0cb2e83ab59796cbea11960d895c58f = $(`<div id="html_c0cb2e83ab59796cbea11960d895c58f" style="width: 100.0%; height: 100.0%;">Tonalá Centro - Riesgo: 60</div>`)[0];
+                popup_d6f8f8c7824c68b21a2a1646f80282c7.setContent(html_c0cb2e83ab59796cbea11960d895c58f);
             
         
 
-        circle_e29f82446637ee8ab0193c5b0044b93a.bindPopup(popup_fd2a88d6949af0d27d3fcdbae65e519a)
+        marker_a4b1cb772645362fb5a8aec43a521c32.bindPopup(popup_d6f8f8c7824c68b21a2a1646f80282c7)
         ;
 
         
     
     
-            var poly_line_003e576d849a3a9024d5637fd93afa41 = L.polyline(
-                [[20.6248, -103.2341], [20.6565, -103.2637]],
-                {"bubblingMouseEvents": true, "color": "blue", "dashArray": null, "dashOffset": null, "fill": false, "fillColor": "blue", "fillOpacity": 0.2, "fillRule": "evenodd", "lineCap": "round", "lineJoin": "round", "noClip": false, "opacity": 1.0, "smoothFactor": 1.0, "stroke": true, "weight": 3}
-            ).addTo(map_270b7675fd14d541d9977fe1a48b1257);
-        
+                marker_a4b1cb772645362fb5a8aec43a521c32.setIcon(icon_b83436d55fa0fa8261a813f73eafbf49);
+            
     
-            poly_line_003e576d849a3a9024d5637fd93afa41.bindTooltip(
-                `<div>
-                     Ruta de escape a Parque Solidaridad (~4.7 km)
-                 </div>`,
-                {
-  "sticky": true,
-}
-            );
-        
-    
-            var circle_f32f63350103570188034d9708bed92a = L.circle(
+            var marker_ad3055c3a36ba4ea31dcc5f95de2693e = L.marker(
                 [20.6733, -103.3631],
-                {"bubblingMouseEvents": true, "color": "orange", "dashArray": null, "dashOffset": null, "fill": true, "fillColor": "orange", "fillOpacity": 0.2, "fillRule": "evenodd", "lineCap": "round", "lineJoin": "round", "opacity": 1.0, "radius": 350, "stroke": true, "weight": 3}
-            ).addTo(map_270b7675fd14d541d9977fe1a48b1257);
+                {
+}
+            ).addTo(map_841e61e92f25be6f94d8620d35ac5e2f);
         
     
-        var popup_d37ae2a16b3993e65b356d669719324e = L.popup({
+            var icon_fffd0a973b0ade3dbe27f81827daa5e0 = L.AwesomeMarkers.icon(
+                {
+  "markerColor": "orange",
+  "iconColor": "white",
+  "icon": "info-sign",
+  "prefix": "glyphicon",
+  "extraClasses": "fa-rotate-0",
+}
+            );
+        
+    
+        var popup_ceb07be6e1eba3a2731b10127ce7f46b = L.popup({
   "maxWidth": "100%",
 });
 
         
             
-                var html_9830af9c9bc7c7d39e27d7d6c03dd522 = $(`<div id="html_9830af9c9bc7c7d39e27d7d6c03dd522" style="width: 100.0%; height: 100.0%;">Colonia Americana - Riesgo: 55 (Prob. alto: 0.94)</div>`)[0];
-                popup_d37ae2a16b3993e65b356d669719324e.setContent(html_9830af9c9bc7c7d39e27d7d6c03dd522);
+                var html_d1788f8b8cc44f3230cecf251933c21a = $(`<div id="html_d1788f8b8cc44f3230cecf251933c21a" style="width: 100.0%; height: 100.0%;">Colonia Americana - Riesgo: 55</div>`)[0];
+                popup_ceb07be6e1eba3a2731b10127ce7f46b.setContent(html_d1788f8b8cc44f3230cecf251933c21a);
             
         
 
-        circle_f32f63350103570188034d9708bed92a.bindPopup(popup_d37ae2a16b3993e65b356d669719324e)
+        marker_ad3055c3a36ba4ea31dcc5f95de2693e.bindPopup(popup_ceb07be6e1eba3a2731b10127ce7f46b)
         ;
 
         
     
     
-            var circle_23f9797045246d118c22157ff37e861e = L.circle(
+                marker_ad3055c3a36ba4ea31dcc5f95de2693e.setIcon(icon_fffd0a973b0ade3dbe27f81827daa5e0);
+            
+    
+            var marker_ba8fc52bb6623a6aab31a2edc3e0d8ae = L.marker(
                 [20.6905, -103.2975],
-                {"bubblingMouseEvents": true, "color": "red", "dashArray": null, "dashOffset": null, "fill": true, "fillColor": "red", "fillOpacity": 0.2, "fillRule": "evenodd", "lineCap": "round", "lineJoin": "round", "opacity": 1.0, "radius": 450, "stroke": true, "weight": 3}
-            ).addTo(map_270b7675fd14d541d9977fe1a48b1257);
-        
-    
-        var popup_f35f58612d17467cf68a92ac67f4ddb1 = L.popup({
-  "maxWidth": "100%",
-});
-
-        
-            
-                var html_837380cd2b918c3ca2699bab6fbea036 = $(`<div id="html_837380cd2b918c3ca2699bab6fbea036" style="width: 100.0%; height: 100.0%;">Oblatos - Riesgo: 75 (Prob. alto: 1.00)</div>`)[0];
-                popup_f35f58612d17467cf68a92ac67f4ddb1.setContent(html_837380cd2b918c3ca2699bab6fbea036);
-            
-        
-
-        circle_23f9797045246d118c22157ff37e861e.bindPopup(popup_f35f58612d17467cf68a92ac67f4ddb1)
-        ;
-
-        
-    
-    
-            var poly_line_b9c2940a1d6f50ec214a732901ee4cc3 = L.polyline(
-                [[20.6905, -103.2975], [20.6565, -103.2637]],
-                {"bubblingMouseEvents": true, "color": "blue", "dashArray": null, "dashOffset": null, "fill": false, "fillColor": "blue", "fillOpacity": 0.2, "fillRule": "evenodd", "lineCap": "round", "lineJoin": "round", "noClip": false, "opacity": 1.0, "smoothFactor": 1.0, "stroke": true, "weight": 3}
-            ).addTo(map_270b7675fd14d541d9977fe1a48b1257);
-        
-    
-            poly_line_b9c2940a1d6f50ec214a732901ee4cc3.bindTooltip(
-                `<div>
-                     Ruta de escape a Parque Solidaridad (~5.2 km)
-                 </div>`,
-                {
-  "sticky": true,
-}
-            );
-        
-    
-            var marker_5d9b530d614ff0a55520e0323d843d68 = L.marker(
-                [20.7046, -103.3657],
                 {
 }
-            ).addTo(map_270b7675fd14d541d9977fe1a48b1257);
+            ).addTo(map_841e61e92f25be6f94d8620d35ac5e2f);
         
     
-            var icon_b05f9af66896e1db66258e6a0adb1923 = L.AwesomeMarkers.icon(
+            var icon_cdd2fa6689cb58148aacf0234b7dbf93 = L.AwesomeMarkers.icon(
                 {
-  "markerColor": "blue",
+  "markerColor": "red",
   "iconColor": "white",
   "icon": "info-sign",
   "prefix": "glyphicon",
@@ -364,176 +382,24 @@
             );
         
     
-        var popup_1be0c4bdb38eda1fc076f5815e8c68d0 = L.popup({
+        var popup_f845ffd36a31be862b22db47f30e3f64 = L.popup({
   "maxWidth": "100%",
 });
 
         
             
-                var html_ef8b46e49818844e9430dfc06dffcada = $(`<div id="html_ef8b46e49818844e9430dfc06dffcada" style="width: 100.0%; height: 100.0%;">Unidad Deportiva Ávila Camacho (escape)</div>`)[0];
-                popup_1be0c4bdb38eda1fc076f5815e8c68d0.setContent(html_ef8b46e49818844e9430dfc06dffcada);
+                var html_cde2cbf7a69960359069b097aca29934 = $(`<div id="html_cde2cbf7a69960359069b097aca29934" style="width: 100.0%; height: 100.0%;">Oblatos - Riesgo: 75</div>`)[0];
+                popup_f845ffd36a31be862b22db47f30e3f64.setContent(html_cde2cbf7a69960359069b097aca29934);
             
         
 
-        marker_5d9b530d614ff0a55520e0323d843d68.bindPopup(popup_1be0c4bdb38eda1fc076f5815e8c68d0)
+        marker_ba8fc52bb6623a6aab31a2edc3e0d8ae.bindPopup(popup_f845ffd36a31be862b22db47f30e3f64)
         ;
 
         
     
     
-                marker_5d9b530d614ff0a55520e0323d843d68.setIcon(icon_b05f9af66896e1db66258e6a0adb1923);
-            
-    
-            var marker_57c3d84a08a43a8d1c3e7d3e4831fd03 = L.marker(
-                [20.6908, -103.3565],
-                {
-}
-            ).addTo(map_270b7675fd14d541d9977fe1a48b1257);
-        
-    
-            var icon_72546aec61582c10de472853eda54f5e = L.AwesomeMarkers.icon(
-                {
-  "markerColor": "blue",
-  "iconColor": "white",
-  "icon": "info-sign",
-  "prefix": "glyphicon",
-  "extraClasses": "fa-rotate-0",
-}
-            );
-        
-    
-        var popup_54d81eed864aeb08a6f41c64f12efa7f = L.popup({
-  "maxWidth": "100%",
-});
-
-        
-            
-                var html_5fdcff27caa4f90818d4f8c5b2231227 = $(`<div id="html_5fdcff27caa4f90818d4f8c5b2231227" style="width: 100.0%; height: 100.0%;">Parque Alcalde (escape)</div>`)[0];
-                popup_54d81eed864aeb08a6f41c64f12efa7f.setContent(html_5fdcff27caa4f90818d4f8c5b2231227);
-            
-        
-
-        marker_57c3d84a08a43a8d1c3e7d3e4831fd03.bindPopup(popup_54d81eed864aeb08a6f41c64f12efa7f)
-        ;
-
-        
-    
-    
-                marker_57c3d84a08a43a8d1c3e7d3e4831fd03.setIcon(icon_72546aec61582c10de472853eda54f5e);
-            
-    
-            var marker_1f163c57e6d6055296f83abbf0f309eb = L.marker(
-                [20.6775, -103.3471],
-                {
-}
-            ).addTo(map_270b7675fd14d541d9977fe1a48b1257);
-        
-    
-            var icon_ece51054471447eae35d33f9334153a9 = L.AwesomeMarkers.icon(
-                {
-  "markerColor": "blue",
-  "iconColor": "white",
-  "icon": "info-sign",
-  "prefix": "glyphicon",
-  "extraClasses": "fa-rotate-0",
-}
-            );
-        
-    
-        var popup_7a866bb15836a7d5e453584d6d8aec0b = L.popup({
-  "maxWidth": "100%",
-});
-
-        
-            
-                var html_79c853b49909908f03259ddafd3fdd1c = $(`<div id="html_79c853b49909908f03259ddafd3fdd1c" style="width: 100.0%; height: 100.0%;">Parque Revolución (escape)</div>`)[0];
-                popup_7a866bb15836a7d5e453584d6d8aec0b.setContent(html_79c853b49909908f03259ddafd3fdd1c);
-            
-        
-
-        marker_1f163c57e6d6055296f83abbf0f309eb.bindPopup(popup_7a866bb15836a7d5e453584d6d8aec0b)
-        ;
-
-        
-    
-    
-                marker_1f163c57e6d6055296f83abbf0f309eb.setIcon(icon_ece51054471447eae35d33f9334153a9);
-            
-    
-            var marker_7ccfcc790fbb696514355791a0dec5ee = L.marker(
-                [20.6565, -103.2637],
-                {
-}
-            ).addTo(map_270b7675fd14d541d9977fe1a48b1257);
-        
-    
-            var icon_8293e83171ce1de0cdcdc06b8364fe87 = L.AwesomeMarkers.icon(
-                {
-  "markerColor": "blue",
-  "iconColor": "white",
-  "icon": "info-sign",
-  "prefix": "glyphicon",
-  "extraClasses": "fa-rotate-0",
-}
-            );
-        
-    
-        var popup_690de2680d0b2ae461a78dd961ac7fb5 = L.popup({
-  "maxWidth": "100%",
-});
-
-        
-            
-                var html_e9c503d94a092b69b28cd78eda90b36b = $(`<div id="html_e9c503d94a092b69b28cd78eda90b36b" style="width: 100.0%; height: 100.0%;">Parque Solidaridad (escape)</div>`)[0];
-                popup_690de2680d0b2ae461a78dd961ac7fb5.setContent(html_e9c503d94a092b69b28cd78eda90b36b);
-            
-        
-
-        marker_7ccfcc790fbb696514355791a0dec5ee.bindPopup(popup_690de2680d0b2ae461a78dd961ac7fb5)
-        ;
-
-        
-    
-    
-                marker_7ccfcc790fbb696514355791a0dec5ee.setIcon(icon_8293e83171ce1de0cdcdc06b8364fe87);
-            
-    
-            var marker_b564e0159042d2c2d19ebdcee1b537b6 = L.marker(
-                [20.7247, -103.3878],
-                {
-}
-            ).addTo(map_270b7675fd14d541d9977fe1a48b1257);
-        
-    
-            var icon_c308dcc0fbe3fbc4e0ec005982a61e3c = L.AwesomeMarkers.icon(
-                {
-  "markerColor": "blue",
-  "iconColor": "white",
-  "icon": "info-sign",
-  "prefix": "glyphicon",
-  "extraClasses": "fa-rotate-0",
-}
-            );
-        
-    
-        var popup_b07aa67c110bd0c9a4673bfafe43a3d0 = L.popup({
-  "maxWidth": "100%",
-});
-
-        
-            
-                var html_a3a699aaaa294e1f62d347cc39e062bf = $(`<div id="html_a3a699aaaa294e1f62d347cc39e062bf" style="width: 100.0%; height: 100.0%;">Auditorio Benito Juárez (escape)</div>`)[0];
-                popup_b07aa67c110bd0c9a4673bfafe43a3d0.setContent(html_a3a699aaaa294e1f62d347cc39e062bf);
-            
-        
-
-        marker_b564e0159042d2c2d19ebdcee1b537b6.bindPopup(popup_b07aa67c110bd0c9a4673bfafe43a3d0)
-        ;
-
-        
-    
-    
-                marker_b564e0159042d2c2d19ebdcee1b537b6.setIcon(icon_c308dcc0fbe3fbc4e0ec005982a61e3c);
+                marker_ba8fc52bb6623a6aab31a2edc3e0d8ae.setIcon(icon_cdd2fa6689cb58148aacf0234b7dbf93);
             
 </script>
 </html>

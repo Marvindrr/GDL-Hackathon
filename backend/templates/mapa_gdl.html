@@ -1,0 +1,51 @@
+{% extends "layout2.html" %}
+
+{% block title %}Zonas de Riesgo GDL{% endblock %}
+
+{% block content %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/zonas_hex.css') }}">
+<link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
+
+<div class="risk-page">
+  <div class="page-header">
+    <h1>Zonas de riesgo · Guadalajara</h1>
+    <p>Visualización hexagonal de colonias según el nivel de riesgo detectado.</p>
+  </div>
+
+  <div class="toolbar">
+    <div class="toolbar-group">
+      <label for="municipio">Municipio</label>
+      <select id="municipio">
+        <option value="Guadalajara" selected>Guadalajara</option>
+        <option value="Zapopan">Zapopan</option>
+        <option value="Tequila">Tequila</option>
+        <option value="El Salto">El Salto</option>
+        <option value="Acatlán de Juárez">Acatlán de Juárez</option>
+      </select>
+    </div>
+
+    <div class="toolbar-group">
+      <label><input type="checkbox" id="toggleHex" checked> Malla de riesgo</label>
+      <label><input type="checkbox" id="togglePuntos"> Centros de colonias</label>
+      <button id="btnRecargar">Actualizar mapa</button>
+    </div>
+  </div>
+
+  <div class="map-card">
+    <div id="map"></div>
+
+    <div class="legend">
+      <h3>Nivel de riesgo</h3>
+      <div><span class="dot green"></span> Bajo (0–25)</div>
+      <div><span class="dot yellow"></span> Moderado (26–50)</div>
+      <div><span class="dot orange"></span> Alto (51–75)</div>
+      <div><span class="dot red"></span> Muy alto (76–100)</div>
+      <div><span class="dot gray"></span> Sin dato</div>
+    </div>
+  </div>
+</div>
+
+<script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
+<script src="https://unpkg.com/@turf/turf@6/turf.min.js"></script>
+<script src="{{ url_for('static', filename='js/zonas_hex.js') }}"></script>
+{% endblock %}

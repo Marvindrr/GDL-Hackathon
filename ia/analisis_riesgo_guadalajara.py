@@ -18,6 +18,7 @@ puntos_zonas = {
     "Tonalá Centro": (20.6248, -103.2341),
     "Colonia Americana": (20.6733, -103.3631),
     "Oblatos": (20.6905, -103.2975),
+    
 }
 
 # Índice de riesgo (0-100) por zona
