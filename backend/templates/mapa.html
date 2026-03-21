@@ -1,0 +1,222 @@
+{% extends "layout2.html" %}
+
+{% block title %}Zonas de Riesgo GDL{% endblock %}
+
+{% block content %}
+<div class="risk-page">
+  <div class="page-header">
+    <h1>Zonas de riesgo · Guadalajara</h1>
+    <p>Visualización de colonias según el nivel de riesgo detectado.</p>
+  </div>
+
+  <div class="map-card">
+    <div id="map"></div>
+
+    <div class="legend">
+      <h3>Nivel de riesgo</h3>
+      <div><span class="dot green"></span> Bajo (0–25)</div>
+      <div><span class="dot yellow"></span> Moderado (26–50)</div>
+      <div><span class="dot orange"></span> Alto (51–75)</div>
+      <div><span class="dot red"></span> Muy alto (76–100)</div>
+    </div>
+  </div>
+</div>
+
+<!-- Aquí Flask/Jinja mete la lista como JSON seguro -->
+<script id="zonas-json" type="application/json">
+  {{ lista | tojson }}
+</script>
+
+<script>
+  let allCircles = [];
+  let allMarkers = [];
+
+  document.addEventListener('DOMContentLoaded', function () {
+    const map = L.map('map', {
+      zoomControl: true
+    }).setView([20.6736, -103.3440], 12);
+
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+      attribution: '&copy; OpenStreetMap contributors'
+    }).addTo(map);
+
+    const zonas = JSON.parse(document.getElementById('zonas-json').textContent);
+
+    function clearMap() {
+      allCircles.forEach(circle => map.removeLayer(circle));
+      allMarkers.forEach(marker => map.removeLayer(marker));
+      allCircles = [];
+      allMarkers = [];
+    }
+
+    function obtenerColorRiesgo(riesgo) {
+      if (riesgo <= 25) return '#22c55e';
+      if (riesgo <= 50) return '#eab308';
+      if (riesgo <= 75) return '#f97316';
+      return '#ef4444';
+    }
+
+    function obtenerRadio(riesgo) {
+      if (riesgo >= 76) return 550;
+      if (riesgo >= 51) return 450;
+      if (riesgo >= 26) return 350;
+      return 250;
+    }
+
+    function mostrarZonasRiesgo(zonas) {
+      clearMap();
+
+      if (!zonas || zonas.length === 0) {
+        console.warn('No hay zonas para mostrar');
+        return;
+      }
+
+      const bounds = [];
+
+      zonas.forEach(function (zona) {
+        const { nombre, lat, lng, riesgo } = zona;
+
+        if (lat == null || lng == null || riesgo == null) return;
+
+        const color = obtenerColorRiesgo(riesgo);
+        const radius = obtenerRadio(riesgo);
+
+        const circle = L.circle([lat, lng], {
+          color: color,
+          weight: 1.5,
+          radius: radius,
+          fillColor: color,
+          fillOpacity: 0.28
+        }).addTo(map);
+
+        const marker = L.circleMarker([lat, lng], {
+          radius: 6,
+          color: '#ffffff',
+          weight: 2,
+          fillColor: color,
+          fillOpacity: 1
+        }).addTo(map).bindPopup(`
+          <div style="min-width: 160px;">
+            <strong>${nombre}</strong><br>
+            Riesgo detectado: <strong>${riesgo}%</strong>
+          </div>
+        `);
+
+        allCircles.push(circle);
+        allMarkers.push(marker);
+        bounds.push([lat, lng]);
+      });
+
+      if (bounds.length > 0) {
+        map.fitBounds(bounds, { padding: [40, 40] });
+      }
+    }
+
+    mostrarZonasRiesgo(zonas);
+  });
+</script>
+
+<style>
+  .risk-page {
+    padding: 20px 24px;
+    background: #f8fafc;
+    min-height: 100vh;
+  }
+
+  .page-header {
+    margin-bottom: 16px;
+  }
+
+  .page-header h1 {
+    margin: 0 0 6px;
+    font-size: 28px;
+    font-weight: 700;
+    color: #0f172a;
+  }
+
+  .page-header p {
+    margin: 0;
+    font-size: 14px;
+    color: #475569;
+  }
+
+  .map-card {
+    position: relative;
+    background: #ffffff;
+    border: 1px solid #e2e8f0;
+    border-radius: 16px;
+    overflow: hidden;
+    box-shadow: 0 8px 24px rgba(15, 23, 42, 0.08);
+  }
+
+  #map {
+    width: 100%;
+    height: 620px;
+  }
+
+  .legend {
+    position: absolute;
+    bottom: 16px;
+    left: 16px;
+    z-index: 1000;
+    background: rgba(255, 255, 255, 0.96);
+    border: 1px solid #e2e8f0;
+    border-radius: 12px;
+    padding: 12px 14px;
+    box-shadow: 0 8px 20px rgba(15, 23, 42, 0.10);
+    font-size: 13px;
+    color: #334155;
+  }
+
+  .legend h3 {
+    margin: 0 0 10px;
+    font-size: 14px;
+    color: #0f172a;
+  }
+
+  .legend div {
+    display: flex;
+    align-items: center;
+    margin-bottom: 6px;
+  }
+
+  .legend div:last-child {
+    margin-bottom: 0;
+  }
+
+  .dot {
+    display: inline-block;
+    width: 12px;
+    height: 12px;
+    border-radius: 50%;
+    margin-right: 8px;
+    flex-shrink: 0;
+  }
+
+  .dot.green { background: #22c55e; }
+  .dot.yellow { background: #eab308; }
+  .dot.orange { background: #f97316; }
+  .dot.red { background: #ef4444; }
+
+  @media (max-width: 768px) {
+    .risk-page {
+      padding: 14px;
+    }
+
+    #map {
+      height: 420px;
+    }
+
+    .legend {
+      left: 12px;
+      right: 12px;
+      bottom: 12px;
+      width: auto;
+    }
+
+    .page-header h1 {
+      font-size: 22px;
+    }
+  }
+</style>
+{% endblock %}

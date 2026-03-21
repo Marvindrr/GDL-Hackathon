@@ -2,7 +2,6 @@ from flask import Flask, render_template, send_from_directory
 from flask_socketio import SocketIO, emit
 import json
 import re
-from IA_simpd import graficar_datos,obtener_conexion
 import math
 
 app = Flask(__name__)
@@ -11,50 +10,36 @@ app.config['SECRET_KEY'] = 'mysecret'
 socketio = SocketIO(app)
 
 
-
 def cargar_puntos_zonas():
-    with open(r'C:\Users\hiram\OneDrive\Pictures\SeguryTechs\colonias_modificado.json', 'r') as archivo:
+    with open(r"data\colonias_gdl.json", "r") as archivo:
         return json.load(archivo)
-    
+
 def ubicaciones_camaras():
-    with open(r'C:\Users\hiram\OneDrive\Pictures\SeguryTechs\ubicaciones_camaras.json   ', 'r') as archivo:
+    with open(r"data\ubicaciones_camaras.json", "r") as archivo:
         return json.load(archivo)
+
+def clasificar_por_riesgo(colonias):
+    """Divide colonias según rango de riesgo."""
+    bajo, moderado, alto, muy_alto = [], [], [], []
+    for colonia in colonias:
+        nombre = colonia["nombre_colonia"]
+        lat = colonia["centro"][1]
+        lng = colonia["centro"][0]
+        riesgo = colonia["riesgo"]
+
+        item = {"nombre": nombre, "lat": lat, "lng": lng, "riesgo": riesgo}
+
+        if 0 <= riesgo <= 25:
+            bajo.append(item)
+        elif 26 <= riesgo <= 50:
+            moderado.append(item)
+        elif 51 <= riesgo <= 75:
+            alto.append(item)
+        elif 76 <= riesgo <= 100:
+            muy_alto.append(item)
+    return bajo, moderado, alto, muy_alto
 
 puntos_zonas = cargar_puntos_zonas()
-
-
-datos_riesgo = {
-    "Centro": 60,
-    "San Marcos Barrio": 50,
-    "Américas Las Fracc.": 45,
-    "Municipio Libre Fracc.": 70,
-    "Haciendas de Aguascalientes Fracc.": 30,
-    "Morelos I Fracc.": 40,
-    "Gremial Col.": 35,
-    "Ojocaliente I Fracc.": 65,
-    "Flores Las Col.": 25,
-    "Pilar Blanco Infonavit": 50,
-    "San Cayetano Fracc.": 40,
-    "Insurgentes Col. (Las Huertas)": 60,
-    "Guadalupe de Barrio": 35,
-    "Morelos Infonavit": 55,
-    "Circunvalación Norte Fracc.": 50,
-    "San Marcos Col.": 45,
-    "Rodolfo Landeros Fracc.": 70,
-    "Obraje Col.": 40,
-    "Santa Anita 1era Secc. Fracc.": 55,
-    "Trabajo del Col.": 35,
-    "José Guadalupe Peralta Fracc.": 65,
-    "Dorado El 1era Secc. Fracc.": 45,
-    "Purísima La Barrio": 25,
-    "Ojocaliente III Fracc.": 55,
-    "Colinas del Río Fracc.": 30,
-    "España Fracc.": 60,
-    "Industrial Col.": 50,
-    "Arboledas Las Fracc.": 55,
-    "Villas de Ntra. Sra. de la Asunción Sec Estacion Fracc.": 35,
-    "Bosques del Prado Sur Fracc.": 35
-}
 
 @app.route('/')
 def index():
@@ -66,49 +51,17 @@ def camara():
 
 @socketio.on('mostrar_zonas_riesgo')
 def handle_mostrar_zonas_riesgo():
-    zonas_con_riesgo = []
-    for colonia in puntos_zonas:
-        nombre = colonia['nombre_colonia']
-        lat = colonia['centro'][1]  
-        lng = colonia['centro'][0]  
-        riesgo = colonia['riesgo']
-        zonas_con_riesgo.append({'nombre': nombre, 'lat': lat, 'lng': lng, 'riesgo': riesgo})
-        
+    zonas_con_riesgo = [
+        {
+            "nombre": c["nombre_colonia"],
+            "lat": c["centro"][1],
+            "lng": c["centro"][0],
+            "riesgo": c["riesgo"],
+        }
+        for c in puntos_zonas
+    ]
 
-    bajo = []
-    moderado = []
-    alto = []
-    muy_alto = []
-
-
-    for colonia in puntos_zonas:
-        nombre = colonia['nombre_colonia']
-        lat = colonia['centro'][1]  
-        lng = colonia['centro'][0]  
-        riesgo = colonia['riesgo']  
-
-    
-        if 0 <= riesgo <= 25:
-            bajo.append({'nombre': nombre, 'lat': lat, 'lng': lng, 'riesgo': riesgo})
-        elif 26 <= riesgo <= 50:
-            moderado.append({'nombre': nombre, 'lat': lat, 'lng': lng, 'riesgo': riesgo})
-        elif 51 <= riesgo <= 75:
-            alto.append({'nombre': nombre, 'lat': lat, 'lng': lng, 'riesgo': riesgo})
-        elif 76 <= riesgo <= 100:
-            muy_alto.append({'nombre': nombre, 'lat': lat, 'lng': lng, 'riesgo': riesgo})
-
- 
-    
-    print("Bajo:")
-    print("Moderado:")
-    print("Alto:")
-    print("Muy Alto:")
-
-
-    
     socketio.emit('zonas_riesgo', zonas_con_riesgo)
-    
-import math
 
 def calcular_distancia(coord1, coord2):
     R = 6371 
@@ -126,44 +79,26 @@ def calcular_distancia(coord1, coord2):
     
 @app.route('/mapa/<int:opcion>')
 def mapa(opcion):
-    
-    zonas_con_riesgo = []
-    for colonia in puntos_zonas:
-        nombre = colonia['nombre_colonia']
-        lat = colonia['centro'][1]  
-        lng = colonia['centro'][0]
-        riesgo = colonia['riesgo']
-        zonas_con_riesgo.append({'nombre': nombre, 'lat': lat, 'lng': lng, 'riesgo': riesgo})
-        
+    zonas_con_riesgo = [
+        {
+            "nombre": c["nombre_colonia"],
+            "lat": c["centro"][1],
+            "lng": c["centro"][0],
+            "riesgo": c["riesgo"],
+        }
+        for c in puntos_zonas
+    ]
 
-    bajo = []
-    moderado = []
-    alto = []
-    muy_alto = []
-
-    for colonia in puntos_zonas:
-        nombre = colonia['nombre_colonia']
-        lat = colonia['centro'][1] 
-        lng = colonia['centro'][0]  
-        riesgo = colonia['riesgo']  
-
-        if 0 <= riesgo <= 25:
-            bajo.append({'nombre': nombre, 'lat': lat, 'lng': lng, 'riesgo': riesgo})
-        elif 26 <= riesgo <= 50:
-            moderado.append({'nombre': nombre, 'lat': lat, 'lng': lng, 'riesgo': riesgo})
-        elif 51 <= riesgo <= 75:
-            alto.append({'nombre': nombre, 'lat': lat, 'lng': lng, 'riesgo': riesgo})
-        elif 76 <= riesgo <= 100:
-            muy_alto.append({'nombre': nombre, 'lat': lat, 'lng': lng, 'riesgo': riesgo})
+    bajo, moderado, alto, muy_alto = clasificar_por_riesgo(puntos_zonas)
 
     if opcion == 1:
         return render_template('mapa.html', lista=bajo)
-    elif opcion==2:
+    elif opcion == 2:
         return render_template('mapa.html', lista=moderado)
-    elif opcion==3:
+    elif opcion == 3:
         return render_template('mapa.html', lista=alto)
-    elif opcion==4:
-        return render_template('mapa.html', lista=alto)
+    elif opcion == 4:
+        return render_template('mapa.html', lista=muy_alto)
     else:
         return render_template('mapa.html', lista=zonas_con_riesgo)
         
@@ -213,9 +148,10 @@ def estadisticas(opcion):
         BD = cursor.fetchall()
         cursor.close()
         conexion.close()
-    except:
-        print("a la mierda todo")
-    
+    except Exception as e:
+        print(f"Error al consultar BD: {e}")
+        BD = []
+
     nombres1 = [c[0] for c in BD]
     riesgos1 = [c[1] for c in BD]
     combinados = list(zip(nombres1, riesgos1))

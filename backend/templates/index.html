@@ -1,0 +1,127 @@
+{% extends "layout2.html" %}
+
+{% block title %}Mapa GDL{% endblock %}
+
+{% block content %}
+<div class="container">
+    <div id="map"></div>
+    <div class="search-section">
+        <h1>Mapa de Riesgo · GDL</h1>
+        <p>Busca una colonia, visualiza su riesgo y traza rutas de salida.</p>
+
+        <div class="search_bar">
+            <input type="text" id="search_input" placeholder="Colonia o código postal">
+        </div>
+
+        <button id="show_risk_areas_button">Mostrar zonas de riesgo</button>
+        <button id="route_button">Calcular ruta</button>
+
+        <div id="search_results"></div>
+
+        <div class="legend">
+            <div><span class="dot green"></span> Bajo (0–25)</div>
+            <div><span class="dot yellow"></span> Moderado (26–50)</div>
+            <div><span class="dot orange"></span> Alto (51–75)</div>
+            <div><span class="dot red"></span> Muy alto (76–100)</div>
+        </div>
+    </div>
+</div>
+
+<table id="mapTable" class="maping">
+    <tr>
+        <td id="mapCell1">
+            <div class="texto-verde">Ruta por menor riesgo reportado</div>
+            <div class="minimap" id="map1" style="width: 100%; height: 200px;"></div>
+            <div id="directions1" class="directions"></div>
+        </td>
+        <td id="mapCell2">
+            <div class="texto-rojo">Ruta de escape más rápida</div>
+            <div class="minimap" id="map2" style="width: 100%; height: 200px;"></div>
+            <div id="directions2" class="directions"></div>
+        </td>
+    </tr>
+    <tr>
+        <td id="mapCell3">
+            <div class="texto-azul">Datos de referencia</div>
+            <div class="minimap" id="map3" style="width: 100%; height: 200px;"></div>
+            <div id="directions3" class="directions"></div>
+        </td>
+        <td id="mapCell4">
+            <div class="texto-naranja">Sitios de información</div>
+            <div class="minimap" id="map4" style="width: 100%; height: 200px;"></div>
+            <div id="directions4" class="directions"></div>
+        </td>
+    </tr>
+</table>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.0.0/socket.io.js"></script>
+<script src="https://unpkg.com/leaflet@1.7.1/dist/leaflet.js"></script>
+<script src="https://unpkg.com/leaflet-routing-machine/dist/leaflet-routing-machine.js"></script>
+<script src="{{ url_for('static', filename='js/main.js') }}"></script>
+
+<style>
+    .container {
+        display: flex;
+        justify-content: space-between;
+        align-items: flex-start;
+        margin-top: 10px;
+        gap: 16px;
+    }
+    #map {
+        flex: 1;
+        height: 600px;
+        border: 2px solid #ccc;
+        border-radius: 10px;
+    }
+    .search-section {
+        width: 32%;
+        font-family: 'Arial', sans-serif;
+    }
+    #search_results {
+        margin-top: 10px;
+        padding: 10px;
+        background-color: #f8f9fa;
+        border: 1px solid #ddd;
+        border-radius: 5px;
+        max-height: 400px;
+        overflow-y: auto;
+        box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+    }
+    #search_results div {
+        padding: 8px;
+        border-bottom: 1px solid #ddd;
+        cursor: pointer;
+    }
+    #search_results div:last-child { border-bottom: none; }
+    #search_results div:hover { background-color: #e9ecef; }
+    #route_button, #show_risk_areas_button {
+        margin-top: 10px;
+        padding: 10px;
+        color: white;
+        border: none;
+        border-radius: 5px;
+        cursor: pointer;
+        width: 100%;
+    }
+    #route_button { background-color: #007bff; display: none; }
+    #route_button:hover { background-color: #0056b3; }
+    #show_risk_areas_button { background-color: #28a745; }
+    #show_risk_areas_button:hover { background-color: #218838; }
+    .legend { margin-top: 12px; font-size: 14px; }
+    .legend .dot {
+        display: inline-block;
+        width: 12px; height: 12px;
+        border-radius: 50%;
+        margin-right: 8px;
+    }
+    .legend .green { background: green; }
+    .legend .yellow { background: yellow; }
+    .legend .orange { background: orange; }
+    .legend .red { background: red; }
+    @media (max-width: 768px) {
+        .container { flex-direction: column; }
+        #map { width: 100%; height: 400px; }
+        .search-section { width: 100%; }
+    }
+</style>
+{% endblock %}

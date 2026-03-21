@@ -1,15 +1,14 @@
 
-<html lang="en">
+<html lang="es">
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <link href="https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css" rel="stylesheet" />
-    <title>Side Navigation Bar in HTML CSS JavaScript</title>
+    <title>{% block title %}Mapa de Riesgo GDL{% endblock %}</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='css/style2.css') }}">
+    <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
+    <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
     <script src="https://unpkg.com/leaflet-google@latest/leaflet-google.js"></script>
-<link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
-<script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
-
   </head>
   <body>
 
@@ -53,7 +52,7 @@
               <a href="/mapa/2" class="nav_link sublink">Riesgo Moderado</a>
               <a href="/mapa/3" class="nav_link sublink">Riesgo Alto</a>
               <a href="/mapa/4" class="nav_link sublink">Riesgo Muy Alto</a>
-              <a href="/mapa/5" class="nav_link sublink">todas las Colonias</a>
+              <a href="/mapa/5" class="nav_link sublink">Todas las colonias</a>
               
             </ul>
           </li>

@@ -1,213 +1,169 @@
 import cv2
 import tkinter as tk
-from tkinter import StringVar
-from threading import Thread
-import numpy as np
+from tkinter import StringVar, ttk
+from threading import Thread, Lock
 import time
 from ultralytics import YOLO
-from backend.database.conexion import obtener_conexion
+from PIL import Image, ImageTk
 
-# MODELO
-modelo = YOLO("yolov8n.pt")
+modelo = YOLO("yolov8s.pt")
 
 
 class AplicacionDetector:
     def __init__(self, root):
         self.root = root
-        self.root.title("Sistema de Detección - Multi Cámara")
+        self.root.title("Detector Cámara Externa")
 
-        # VARIABLES
-        self.tipo_objeto = StringVar(value="auto")
-        self.color_objeto = StringVar(value="")
         self.ejecutando = True
-        self.detectando = True
-        self.contador_frames = 0
-        self.ultimo_frame = None
+        self.frame_mostrado = None
+        self.lock_frame = Lock()
 
-        # INTERFAZ
-        self.cuadro_camara_1 = tk.Label(self.root)
-        self.cuadro_camara_1.grid(row=0, column=0)
+        # Cambia este índice si tu cámara externa no es la 1
+        self.indice_camara = 0
 
-        self.cuadro_camara_2 = tk.Label(self.root)
-        self.cuadro_camara_2.grid(row=0, column=1)
+        # filtro
+        self.filtro_objeto = StringVar(value="Todos")
 
-        tk.Label(self.root, text="Tipo de objeto").grid(row=1, column=0)
-
-        tk.OptionMenu(
-            self.root,
-            self.tipo_objeto,
-            "auto", "moto", "autobus", "persona"
-        ).grid(row=1, column=1)
-
-        tk.Label(self.root, text="Color").grid(row=2, column=0)
-
-        tk.OptionMenu(
-            self.root,
-            self.color_objeto,
-            "Rojo", "Naranja", "Amarillo", "Verde",
-            "Azul", "Morado", "Negro", "Blanco", "Gris"
-        ).grid(row=2, column=1)
-
-        tk.Button(self.root, text="Actualizar", command=self.actualizar_busqueda).grid(row=3, column=0)
-        tk.Button(self.root, text="Limpiar", command=self.limpiar_busqueda).grid(row=3, column=1)
-
-        # VENTANA SECUNDARIA
-        self.ventana_secundaria = tk.Toplevel(self.root)
-        self.ventana_secundaria.title("Última detección")
-
-        self.label_secundario = tk.Label(self.ventana_secundaria)
-        self.label_secundario.pack()
-
-        # HILOS
-        self.hilo1 = Thread(target=self.mostrar_camara, args=(0, self.cuadro_camara_1), daemon=True)
-        self.hilo2 = Thread(target=self.mostrar_camara, args=(1, self.cuadro_camara_2), daemon=True)
-
-        self.hilo1.start()
-        self.hilo2.start()
-
-    # ------------------------
-    # GUARDAR EN BD
-    # ------------------------
-    def guardar_evento(self, tipo, camara_id):
-        try:
-            conn = obtener_conexion()
-            cursor = conn.cursor()
-
-            query = "INSERT INTO eventos (tipo_objeto, camara_id) VALUES (%s, %s)"
-            cursor.execute(query, (tipo, camara_id))
-
-            conn.commit()
-
-        except Exception as e:
-            print("Error guardando evento:", e)
-
-        finally:
-            cursor.close()
-            conn.close()
-
-    # ------------------------
-    def actualizar_busqueda(self):
-        self.detectando = True
-
-    def limpiar_busqueda(self):
-        self.tipo_objeto.set("")
-        self.color_objeto.set("")
-        self.detectando = False
-
-    # ------------------------
-    def filtrar_objetos(self, detecciones):
-        filtrados = []
-
-        tipo = self.tipo_objeto.get().lower()
-        color = self.color_objeto.get().lower()
-
-        mapeo = {
-            "auto": ["car", "truck"],
-            "moto": ["motorcycle"],
-            "autobus": ["bus"],
-            "persona": ["person"]
+        self.clases_interes = {
+            "person",
+            "car",
+            "motorcycle",
+            "bus",
+            "truck",
+            "bicycle",
         }
 
-        etiquetas = mapeo.get(tipo, [])
+        self.nombre_a_id = {
+            nombre: class_id
+            for class_id, nombre in modelo.names.items()
+            if nombre in self.clases_interes
+        }
 
-        for det in detecciones:
-            if det["name"] in etiquetas:
-                if not color or color == det["color"].lower():
-                    filtrados.append(det)
+        # UI filtro
+        frame_filtros = tk.Frame(root)
+        frame_filtros.pack(pady=10)
 
-        return filtrados
+        tk.Label(frame_filtros, text="Buscar objeto:").pack(side="left", padx=5)
 
-    # ------------------------
-    def obtener_color_objeto(self, frame, x1, y1, x2, y2):
-        roi = frame[y1:y2, x1:x2]
+        self.combo_filtro = ttk.Combobox(
+            frame_filtros,
+            textvariable=self.filtro_objeto,
+            state="readonly",
+            values=["Todos", "person", "car", "motorcycle", "bus", "truck", "bicycle"],
+            width=15
+        )
+        self.combo_filtro.pack(side="left", padx=5)
 
-        if roi.size == 0:
-            return "Desconocido"
+        self.cuadro_camara = tk.Label(root)
+        self.cuadro_camara.pack()
 
-        hsv = cv2.cvtColor(roi, cv2.COLOR_BGR2HSV)
-        hist = cv2.calcHist([hsv], [0], None, [180], [0, 180])
-        tono = np.argmax(hist)
+        self.hilo_camara = Thread(target=self.capturar_y_detectar, daemon=True)
+        self.hilo_camara.start()
 
-        if 0 <= tono <= 10 or 160 <= tono <= 180:
-            return "Rojo"
-        elif 11 <= tono <= 25:
-            return "Naranja"
-        elif 26 <= tono <= 34:
-            return "Amarillo"
-        elif 35 <= tono <= 85:
-            return "Verde"
-        elif 86 <= tono <= 125:
-            return "Azul"
-        elif 126 <= tono <= 159:
-            return "Morado"
-        else:
-            brillo = np.mean(roi)
-            if brillo < 60:
-                return "Negro"
-            elif brillo > 180:
-                return "Blanco"
-            else:
-                return "Gris"
+        self.actualizar_ui()
 
-    # ------------------------
-    def mostrar_camara(self, cam_id, cuadro):
-        cap = cv2.VideoCapture(cam_id)
+    def obtener_classes_filtradas(self):
+        filtro = self.filtro_objeto.get()
+
+        if filtro == "Todos":
+            return list(self.nombre_a_id.values())
+
+        if filtro in self.nombre_a_id:
+            return [self.nombre_a_id[filtro]]
+
+        return list(self.nombre_a_id.values())
+
+    def detectar_y_dibujar(self, frame):
+        classes_filtradas = self.obtener_classes_filtradas()
+
+        resultados = modelo.predict(
+            source=frame,
+            conf=0.40,
+            imgsz=640,
+            verbose=False,
+            classes=classes_filtradas
+        )
+
+        if not resultados:
+            return frame
+
+        resultado = resultados[0]
+
+        if resultado.boxes is None:
+            return frame
+
+        for box in resultado.boxes:
+            cls_id = int(box.cls[0].item())
+            conf = float(box.conf[0].item())
+            x1, y1, x2, y2 = map(int, box.xyxy[0].tolist())
+
+            nombre = modelo.names[cls_id]
+
+            cv2.rectangle(frame, (x1, y1), (x2, y2), (0, 255, 0), 2)
+            cv2.putText(
+                frame,
+                f"{nombre} {conf:.2f}",
+                (x1, max(y1 - 10, 20)),
+                cv2.FONT_HERSHEY_SIMPLEX,
+                0.6,
+                (0, 255, 0),
+                2
+            )
+
+        return frame
+
+    def guardar_ultimo_frame(self, frame):
+        cv2.imwrite("ultimo_frame.jpg", frame)
+
+    def capturar_y_detectar(self):
+        cap = cv2.VideoCapture(self.indice_camara, cv2.CAP_DSHOW)
 
         if not cap.isOpened():
-            print(f"Cámara {cam_id} no disponible")
+            print(f"No se pudo abrir la cámara externa en índice {self.indice_camara}")
             return
+
+        cap.set(cv2.CAP_PROP_FRAME_WIDTH, 640)
+        cap.set(cv2.CAP_PROP_FRAME_HEIGHT, 480)
+        cap.set(cv2.CAP_PROP_BUFFERSIZE, 1)
+
+        ultimo_guardado = 0
 
         while self.ejecutando:
             ret, frame = cap.read()
+
             if not ret:
-                break
+                continue
 
-            frame_procesado = frame.copy()
-            self.contador_frames += 1
+            frame_detectado = self.detectar_y_dibujar(frame.copy())
 
-            if self.detectando and self.contador_frames % 3 == 0:
+            if time.time() - ultimo_guardado >= 2:
+                self.guardar_ultimo_frame(frame_detectado)
+                ultimo_guardado = time.time()
 
-                resultados = modelo(frame_procesado, conf=0.5)
-
-                for r in resultados:
-                    for box in r.boxes:
-                        x1, y1, x2, y2 = map(int, box.xyxy[0])
-                        cls = int(box.cls[0])
-                        etiqueta = r.names[cls]
-
-                        # ALERTA SOLO PERSONA
-                        if etiqueta == "person":
-                            print(f"🚨 Persona detectada en cámara {cam_id}")
-
-                            # GUARDAR EN BD
-                            self.guardar_evento("person", cam_id)
-
-                            # GUARDAR IMAGEN
-                            cv2.imwrite(
-                                f"alerta_cam{cam_id}_{int(time.time())}.jpg",
-                                frame_procesado
-                            )
-
-            # MOSTRAR
-            img = cv2.resize(frame_procesado, (640, 480))
-            img_rgb = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
-
-            photo = tk.PhotoImage(
-                data=cv2.imencode(".png", img_rgb)[1].tobytes()
-            )
-
-            cuadro.configure(image=photo)
-            cuadro.image = photo
+            with self.lock_frame:
+                self.frame_mostrado = frame_detectado
 
         cap.release()
 
-    # ------------------------
+    def actualizar_ui(self):
+        with self.lock_frame:
+            frame = self.frame_mostrado
+
+        if frame is not None:
+            img = cv2.resize(frame, (800, 600))
+            img = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
+            img = ImageTk.PhotoImage(Image.fromarray(img))
+
+            self.cuadro_camara.configure(image=img)
+            self.cuadro_camara.image = img
+
+        self.root.after(30, self.actualizar_ui)
+
     def detener(self):
         self.ejecutando = False
         self.root.destroy()
 
 
-# MAIN
 if __name__ == "__main__":
     root = tk.Tk()
     app = AplicacionDetector(root)

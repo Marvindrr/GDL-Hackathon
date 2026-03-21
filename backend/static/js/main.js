@@ -1,7 +1,8 @@
 document.addEventListener('DOMContentLoaded', function () {
     var socket = io.connect(location.protocol + '//' + document.domain + ':' + location.port);
 
-    var map = L.map('map').setView([21.8853, -102.2916], 12);
+    // Centro inicial en Guadalajara
+    var map = L.map('map').setView([20.6736, -103.3440], 12);
 
     L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
         attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
@@ -64,10 +65,9 @@ document.addEventListener('DOMContentLoaded', function () {
                 li.addEventListener('click', function () {
                     var lat = colonia.centro[1]; 
                     var lng = colonia.centro[0];
-                    var riesgo =colonia.riesgo;
+                    var riesgo = colonia.riesgo;
 
                     clearMap();
-                    let randomNumber = Math.floor(Math.random() * 101);
                     currentMarker = L.marker([lat, lng]).addTo(map)
                     
                         .bindPopup(colonia.nombre_colonia + "<br>Riesgo: " + riesgo + "%")
@@ -86,12 +86,8 @@ document.addEventListener('DOMContentLoaded', function () {
     });
 
     function LatLng(a) {
-        const lat = a[1];  // latitud
-        const lon =a[2];  // longitud
-
-           
-        const coordenadas = { lat: lat, lon: lon };
-        return coordenadas;
+        // recibe Leaflet LatLng
+        return { lat: a.lat, lon: a.lng };
     }
     var maxMaps = 4; 
 
@@ -109,7 +105,6 @@ document.addEventListener('DOMContentLoaded', function () {
             }).addTo(map);
     
             allCircles.push(currentCircle);
-            //console.log(latlng+"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa")
            
            
             coordenadas=LatLng(latlng);
@@ -233,7 +228,6 @@ document.addEventListener('DOMContentLoaded', function () {
         clearMap();
         zonas.forEach(function (zona) {
             
-            let randomNumber = Math.floor(Math.random() * 101);
             const { nombre, lat, lng, riesgo } = zona;
             const color = obtenerColorRiesgo(riesgo);
         
@@ -255,8 +249,9 @@ document.addEventListener('DOMContentLoaded', function () {
     });
 
     function obtenerColorRiesgo(riesgo) {
-        if (riesgo <= 30) return 'green';
-        if (riesgo <= 60) return 'yellow';
+        if (riesgo <= 25) return 'green';
+        if (riesgo <= 50) return 'yellow';
+        if (riesgo <= 75) return 'orange';
         return 'red';
     }
 });
