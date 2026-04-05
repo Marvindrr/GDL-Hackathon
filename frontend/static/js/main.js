@@ -5,12 +5,11 @@ document.addEventListener("DOMContentLoaded", async function () {
     attribution: "&copy; OpenStreetMap contributors"
   }).addTo(map);
 
-  // Polígono de Guadalajara / ZMG (ajústalo si luego lo refinan)
   const POLIGONO_GDL_COORDS = [
     [-103.7677643620951, 20.66055488916858],
     [-103.6263847360454, 20.49401408206751],
     [-103.5904436084843, 20.47304947023955],
-    [-103.5430248547833, 20.4338907612765],
+    [-103.5430248547833, 20.4338907612765], 
     [-103.5033193223697, 20.42213949556241],
     [-103.4675877369297, 20.41871066543661],
     [-103.4164014028743, 20.42022940065636],
@@ -178,7 +177,7 @@ document.addEventListener("DOMContentLoaded", async function () {
       });
 
       layer.bindPopup(`
-        <strong>Hexágono de riesgo</strong><br>
+        <strong>Zona de riesgo</strong><br>
         Riesgo: ${textoRiesgo}<br>
         Colonia de referencia: ${coloniaRef}<br>
         Distancia al dato: ${Number.isFinite(distanciaRef) ? distanciaRef.toFixed(2) + " km" : "--"}
@@ -234,23 +233,25 @@ document.addEventListener("DOMContentLoaded", async function () {
 
     try {
       const response = await fetch("/static/data/zonas_turisticas_normalizadas.json");
+      if (!response.ok) throw new Error(`HTTP ${response.status}`);
       zonasTuristicas = await response.json();
     } catch (error) {
-      console.warn("No se pudieron cargar zonas_turisticas_normalizadas.json");
+      console.warn("No se pudieron cargar zonas_turisticas_normalizadas.json", error);
       zonasTuristicas = [];
+      return;
     }
 
     zonasTuristicas.forEach((zona) => {
       if (zona.poligono && zona.poligono.length >= 3) {
-        const gridTurismo = generarHexagonosDentroDePoligono(zona.poligono, 0.06);
+        const gridTurismo = generarHexagonosDentroDePoligono(zona.poligono, 0.02);
 
         const capaHex = L.geoJSON(gridTurismo, {
           style: {
-          color: "#7c3aed",
-          weight: 1,
-          fillColor: "#a78bfa",
-          fillOpacity: 0.22
-        }
+            color: "#7c3aed",
+            weight: 1,
+            fillColor: "#a78bfa",
+            fillOpacity: 0.22
+          }
         }).addTo(turismoHexLayer);
 
         capaHex.eachLayer((layer) => {
@@ -260,7 +261,6 @@ document.addEventListener("DOMContentLoaded", async function () {
             Riesgo: ${zona.riesgo}
           `);
         });
-
       } else if (zona.centro) {
         L.circleMarker([zona.centro.lat, zona.centro.lon], {
           radius: 6,
@@ -279,16 +279,18 @@ document.addEventListener("DOMContentLoaded", async function () {
   }
 
   async function cargarPuntosTuristicos() {
-    try {
-      const response = await fetch("/static/data/puntos_turisticos_ruta.json");
-      puntosTuristicos = await response.json();
-    } catch (error) {
-      console.warn("No se pudieron cargar puntos_turisticos_ruta.json");
-      puntosTuristicos = [];
-    }
-
     origenTuristico.innerHTML = '<option value="">Selecciona un punto</option>';
     destinoTuristico.innerHTML = '<option value="">Selecciona un punto</option>';
+
+    try {
+      const response = await fetch("/static/data/puntos_turisticos_ruta.json");
+      if (!response.ok) throw new Error(`HTTP ${response.status}`);
+      puntosTuristicos = await response.json();
+    } catch (error) {
+      console.warn("No se pudieron cargar puntos_turisticos_ruta.json", error);
+      puntosTuristicos = [];
+      return;
+    }
 
     puntosTuristicos.forEach((punto, index) => {
       const option1 = document.createElement("option");
@@ -303,11 +305,32 @@ document.addEventListener("DOMContentLoaded", async function () {
     });
   }
 
+  function llenarListaColonias(colonias) {
+    const datalist = document.getElementById("coloniasList");
+    if (!datalist) return;
+
+    datalist.innerHTML = "";
+
+    colonias.forEach((colonia) => {
+      const option = document.createElement("option");
+      option.value = colonia.nombre_colonia;
+      datalist.appendChild(option);
+    });
+  }
+
   async function cargarColonias() {
     const municipio = municipioSelect.value;
-    const response = await fetch(`/api/colonias?municipio=${encodeURIComponent(municipio)}`);
-    coloniasActuales = await response.json();
 
+    try {
+      const response = await fetch(`/api/colonias?municipio=${encodeURIComponent(municipio)}`);
+      if (!response.ok) throw new Error(`HTTP ${response.status}`);
+      coloniasActuales = await response.json();
+    } catch (error) {
+      console.warn("No se pudieron cargar colonias", error);
+      coloniasActuales = [];
+    }
+
+    llenarListaColonias(coloniasActuales);
     renderHexGrid(coloniasActuales);
     renderPuntos(coloniasActuales);
     await cargarZonasTuristicas();
@@ -317,24 +340,27 @@ document.addEventListener("DOMContentLoaded", async function () {
     }
   }
 
-    function zoomAPunto(lat, lon, nombre = "Punto seleccionado") {
-      map.flyTo([lat, lon], 16, { duration: 1.2 });
+  function zoomAPunto(lat, lon, nombre = "Punto seleccionado") {
+    rutaLayer.clearLayers();
 
-      L.circleMarker([lat, lon], {
-        radius: 8,
-        color: "#0f172a",
-        fillColor: "#38bdf8",
-        fillOpacity: 0.95,
-        weight: 2
-      })
-        .bindPopup(nombre)
-        .addTo(rutaLayer)
-        .openPopup();
-    }
+    map.flyTo([lat, lon], 16, { duration: 1.2 });
+
+    L.circleMarker([lat, lon], {
+      radius: 8,
+      color: "#0f172a",
+      fillColor: "#38bdf8",
+      fillOpacity: 0.95,
+      weight: 2
+    })
+      .bindPopup(nombre)
+      .addTo(rutaLayer)
+      .openPopup();
+  }
 
   function buscarColoniaPorNombre(nombre) {
     const texto = nombre.trim().toLowerCase();
     return coloniasActuales.find((c) =>
+      c.nombre_colonia.toLowerCase() === texto ||
       c.nombre_colonia.toLowerCase().includes(texto)
     );
   }
@@ -380,7 +406,6 @@ document.addEventListener("DOMContentLoaded", async function () {
   function construirRutaDemo(origen, destino, tipoRuta) {
     const midLat = (origen.lat + destino.lat) / 2;
     const midLon = (origen.lon + destino.lon) / 2;
-
     const offset = tipoRuta === "segura" ? 0.015 : -0.008;
 
     return [
@@ -409,7 +434,13 @@ document.addEventListener("DOMContentLoaded", async function () {
     destinoTuristico.disabled = !destinoEsTuristico;
   }
 
-  btnCalcular.addEventListener("click", async function () {
+  function manejarCambioColonia(input, prefijo) {
+    const colonia = buscarColoniaPorNombre(input.value);
+    if (!colonia) return;
+    zoomAPunto(colonia.lat, colonia.lon, `${prefijo}: ${colonia.nombre_colonia}`);
+  }
+
+  btnCalcular.addEventListener("click", function () {
     const tipoRuta = document.querySelector('input[name="tipoRuta"]:checked')?.value || "segura";
 
     const origen = obtenerPuntoDesdeUI(origenTipo, origenInput, origenTuristico);
@@ -461,22 +492,22 @@ document.addEventListener("DOMContentLoaded", async function () {
     destinoTuristico.value = "";
     origenTipo.value = "colonia";
     destinoTipo.value = "colonia";
-    actualizarCamposSegunTipo();
 
+    actualizarCamposSegunTipo();
     map.setView([20.6736, -103.3440], 11);
 
     await cargarColonias();
   });
 
-  function limpiarCapasDatos() {
-    hexLayer.clearLayers();
-    puntosLayer.clearLayers();
-    turismoHexLayer.clearLayers();
-  }
-
   municipioSelect.addEventListener("change", async function () {
     limpiarCapasRuta();
     limpiarResumen();
+
+    origenInput.value = "";
+    destinoInput.value = "";
+    origenTuristico.value = "";
+    destinoTuristico.value = "";
+
     await cargarColonias();
   });
 
@@ -492,44 +523,12 @@ document.addEventListener("DOMContentLoaded", async function () {
     }
   });
 
-  origenTipo.addEventListener("change", actualizarCamposSegunTipo);
-  destinoTipo.addEventListener("change", actualizarCamposSegunTipo);
-
-  origenTuristico.addEventListener("change", function () {
-  if (origenTipo.value !== "turistico") return;
-
-  const idx = origenTuristico.value;
-  if (idx === "") return;
-
-  const punto = puntosTuristicos[Number(idx)];
-  if (!punto) return;
-
-  rutaLayer.clearLayers();
-  zoomAPunto(punto.lat, punto.lon, `Origen turístico: ${punto.nombre}`);
-});
-
-destinoTuristico.addEventListener("change", function () {
-  if (destinoTipo.value !== "turistico") return;
-
-  const idx = destinoTuristico.value;
-  if (idx === "") return;
-
-  const punto = puntosTuristicos[Number(idx)];
-  if (!punto) return;
-
-  rutaLayer.clearLayers();
-  zoomAPunto(punto.lat, punto.lon, `Destino turístico: ${punto.nombre}`);
-});
-
   origenTipo.addEventListener("change", function () {
     actualizarCamposSegunTipo();
 
     if (origenTipo.value === "turistico" && origenTuristico.value !== "") {
       const punto = puntosTuristicos[Number(origenTuristico.value)];
-      if (punto) {
-        rutaLayer.clearLayers();
-        zoomAPunto(punto.lat, punto.lon, `Origen turístico: ${punto.nombre}`);
-      }
+      if (punto) zoomAPunto(punto.lat, punto.lon, `Origen turístico: ${punto.nombre}`);
     }
   });
 
@@ -538,13 +537,41 @@ destinoTuristico.addEventListener("change", function () {
 
     if (destinoTipo.value === "turistico" && destinoTuristico.value !== "") {
       const punto = puntosTuristicos[Number(destinoTuristico.value)];
-      if (punto) {
-        rutaLayer.clearLayers();
-        zoomAPunto(punto.lat, punto.lon, `Destino turístico: ${punto.nombre}`);
-      }
+      if (punto) zoomAPunto(punto.lat, punto.lon, `Destino turístico: ${punto.nombre}`);
     }
   });
 
+  origenTuristico.addEventListener("change", function () {
+    if (origenTipo.value !== "turistico") return;
+    const idx = origenTuristico.value;
+    if (idx === "") return;
+
+    const punto = puntosTuristicos[Number(idx)];
+    if (!punto) return;
+
+    zoomAPunto(punto.lat, punto.lon, `Origen turístico: ${punto.nombre}`);
+  });
+
+  destinoTuristico.addEventListener("change", function () {
+    if (destinoTipo.value !== "turistico") return;
+    const idx = destinoTuristico.value;
+    if (idx === "") return;
+
+    const punto = puntosTuristicos[Number(idx)];
+    if (!punto) return;
+
+    zoomAPunto(punto.lat, punto.lon, `Destino turístico: ${punto.nombre}`);
+  });
+
+  origenInput.addEventListener("change", function () {
+    if (origenTipo.value !== "colonia") return;
+    manejarCambioColonia(origenInput, "Origen");
+  });
+
+  destinoInput.addEventListener("change", function () {
+    if (destinoTipo.value !== "colonia") return;
+    manejarCambioColonia(destinoInput, "Destino");
+  });
 
   actualizarCamposSegunTipo();
   limpiarResumen();
