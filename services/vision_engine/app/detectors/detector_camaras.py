@@ -5,7 +5,7 @@ from threading import Thread
 import numpy as np
 import time
 from ultralytics import YOLO
-from backend.database.conexion import obtener_conexion
+from apps.backend_api.app.infrastructure.db.conexion import obtener_conexion
 
 # MODELO
 modelo = YOLO("yolov8n.pt")

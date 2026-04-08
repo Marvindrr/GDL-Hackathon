@@ -1,6 +1,6 @@
 import json
 from pathlib import Path
-from backend.database.conexion import obtener_conexion
+from apps.backend_api.app.infrastructure.db.conexion import obtener_conexion
 
 
 def cargar_json(nombre_archivo="colonias_jalisco.json"):

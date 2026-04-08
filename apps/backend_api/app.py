@@ -5,7 +5,7 @@ import re
 import math
 from pathlib import Path
 
-from data.validators import cargar_colonias_desde_json
+from apps.backend_api.app.applications.services import cargar_colonias_desde_json
 
 PROJECT_ROOT = Path(__file__).resolve().parent.parent
 FRONTEND_DIR = PROJECT_ROOT / "frontend"

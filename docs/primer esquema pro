@@ -1,0 +1,43 @@
+GDL-HACKATHON/
+├── backend_api/
+│   ├── main.py
+│   ├── db/
+│   │   └── conexion.py
+│   ├── services/
+│   │   ├── mapa_gdl.py
+│   │   └── colonias_loader.py
+│   └── routes/
+│
+├── frontend_web/
+│   ├── static/
+│   │   ├── css/
+│   │   ├── data/
+│   │   ├── img/
+│   │   └── js/
+│   └── templates/
+│
+├── services/
+│   ├── vision_engine/
+│   │   ├── main.py
+│   │   └── detector_camaras.py
+│   ├── risk_engine/
+│   │   ├── main.py
+│   │   ├── analisis_de_riesgo_guadalajara.py
+│   │   └── analisis_riesgo_v2.py
+│   └── camera_ingestion_service/
+│       └── main.py
+│
+├── data/
+│   ├── geo/
+│   ├── processed/
+│   └── samples/
+│
+├── infra/
+│   ├── nginx/
+│   └── scripts/
+│
+├── docs/
+├── examples/
+├── requirements.txt
+├── .gitignore
+└── .venv/
