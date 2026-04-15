@@ -14,13 +14,14 @@ class AplicacionDetector:
     def __init__(self, root):
         self.root = root
         self.root.title("Detector Cámara Externa")
-
+    
         self.ejecutando = True
         self.frame_mostrado = None
         self.lock_frame = Lock()
 
-        # Índice fijo de cámara (0 suele ser la integrada, cámbialo si necesitas otra)
-        self.indice_camara = 0
+        # Índice de cámara configurable 
+        self.indice_camara_var = tk.IntVar(value=1)
+        self.indice_camara = self.indice_camara_var.get()
 
         # filtro
         self.filtro_objeto = StringVar(value="Todos")
@@ -54,6 +55,17 @@ class AplicacionDetector:
             width=15
         )
         self.combo_filtro.pack(side="left", padx=5)
+
+        # Selector de cámara
+        tk.Label(frame_filtros, text="Camara #").pack(side="left", padx=5)
+        self.spin_camara = tk.Spinbox(
+            frame_filtros, from_=0, to=5, width=3, textvariable=self.indice_camara_var, command=self.cambiar_camara
+        )
+        self.spin_camara.pack(side="left", padx=5)
+
+        # Estado detecciones
+        self.label_estado = tk.Label(root, text="Inicializando...")
+        self.label_estado.pack(pady=4)
 
         self.cuadro_camara = tk.Label(root)
         self.cuadro_camara.pack()
@@ -111,6 +123,7 @@ class AplicacionDetector:
                     total_detectados += 1
 
         filtro_txt = self.filtro_objeto.get()
+        self.label_estado.config(text=f"Filtro: {filtro_txt} | Detectados: {total_detectados}")
         cv2.putText(
             frame,
             f"Filtro: {filtro_txt} | Detectados: {total_detectados}",
@@ -165,6 +178,23 @@ class AplicacionDetector:
         ultimo_guardado = 0
 
         while self.ejecutando:
+            # Indice de las camaras 
+            nuevo_idx = self.indice_camara_var.get()
+            if nuevo_idx != self.indice_camara:
+                self.indice_camara = nuevo_idx
+                cap.release()
+                cap = cv2.VideoCapture(self.indice_camara, cv2.CAP_DSHOW)
+                if not cap.isOpened():
+                    cap.release()
+                    cap = cv2.VideoCapture(self.indice_camara, cv2.CAP_ANY)
+                if not cap.isOpened():
+                    with self.lock_frame:
+                        self.frame_mostrado = self.crear_frame_mensaje(
+                            f"Camara {self.indice_camara} no disponible"
+                        )
+                    time.sleep(1)
+                    continue
+
             ret, frame = cap.read()
 
             if not ret:

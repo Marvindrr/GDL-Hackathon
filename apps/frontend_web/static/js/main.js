@@ -13,6 +13,8 @@ document.addEventListener('DOMContentLoaded', function () {
     var allMarkers = [];
     var allCircles = [];
     var routingControl = null;  
+    var routeControls = [];
+    var directionsPanel = document.getElementById('directions_panel');
 
 
     function clearMap() {
@@ -33,6 +35,15 @@ document.addEventListener('DOMContentLoaded', function () {
         if (routingControl) {
             map.removeControl(routingControl); 
             routingControl = null;  
+        }
+
+        if (routeControls.length) {
+            routeControls.forEach(rc => map.removeControl(rc));
+            routeControls = [];
+        }
+
+        if (directionsPanel) {
+            directionsPanel.querySelector('.directions-body').innerHTML = 'Calcula una ruta para ver los pasos aquí.';
         }
     
         
@@ -162,54 +173,62 @@ document.addEventListener('DOMContentLoaded', function () {
 
     
     function generateRoute(latlng, destino, mapIndex) {
-        var mapDivId = "map" + mapIndex;
-        var directionsDivId = "directions" + mapIndex;
-        
-        var mapDiv = document.getElementById(mapDivId);
-        var directionsDiv = document.getElementById(directionsDivId);
-        var tabla = document.getElementById('mapTable');
-    
-           
-        mapDiv.innerHTML = '';
-        directionsDiv.innerHTML = '';
-    
-        var newMap = L.map(mapDivId).setView([latlng.lat, latlng.lng], 13);
-    
-        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-            attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
-        }).addTo(newMap);
-    
-        var routingControl = L.Routing.control({
+        var colores = ['#00b894', '#d63031', '#0984e3', '#e17055'];
+        var color = colores[(mapIndex - 1) % colores.length];
+
+        var rc = L.Routing.control({
             waypoints: [
                 L.latLng(latlng.lat, latlng.lng), 
                 L.latLng(destino.lat, destino.lng) 
             ],
-            routeWhileDragging: true,
+            addWaypoints: false,
+            draggableWaypoints: false,
+            lineOptions: { styles: [{ color: color, weight: 5, opacity: 0.8 }] },
+            fitSelectedRoutes: mapIndex === 1,
+            show: false,
             createMarker: function() { return null; }, 
-        }).addTo(newMap);
-    
-        routingControl.on('routesfound', function (e) {
+        }).addTo(map);
+
+        routeControls.push(rc);
+
+        // Oculta el panel de indicaciones del control, dejamos solo la línea en el mapa
+        const rcContainer = rc.getContainer();
+        if (rcContainer) {
+            rcContainer.style.display = 'none';
+        }
+
+        rc.on('routesfound', function (e) {
             var routes = e.routes;
-            var instructions = routes[0].instructions;
-                
-    
-            directionsDiv.innerHTML = '';
-    
-            instructions.forEach(instruction => {
-                var directionItem = document.createElement('div');
-                directionItem.innerText = instruction.text;
-                directionsDiv.appendChild(directionItem);
-            });
-    
             var summary = routes[0].summary;
-            
-            
+
             socket.emit('ruta_cambiada', {
-                distancia: summary.totalDistance,  
-                duracion: summary.totalTime,  
-                waypoints: routes[0].coordinates, 
-                calles: routes[0].instructions.map(instruction => instruction.text) 
+                distancia: summary.totalDistance,
+                duracion: summary.totalTime,
+                waypoints: routes[0].coordinates
             });
+
+            if (directionsPanel) {
+                renderDirections(mapIndex, color, routes[0].instructions);
+            }
+        });
+    }
+
+    function renderDirections(mapIndex, color, instructions) {
+        if (!directionsPanel) return;
+        var body = directionsPanel.querySelector('.directions-body');
+        if (mapIndex === 1) body.innerHTML = ''; // primera ruta limpia panel
+
+        var title = document.createElement('div');
+        title.className = 'direction-route-title';
+        title.style.color = color;
+        title.textContent = `Ruta ${mapIndex}`;
+        body.appendChild(title);
+
+        instructions.forEach(instr => {
+            var step = document.createElement('div');
+            step.className = 'direction-step';
+            step.textContent = instr.text;
+            body.appendChild(step);
         });
     }
     

@@ -18,6 +18,11 @@
 
         <div id="search_results"></div>
 
+        <div id="directions_panel" class="directions-panel">
+            <h3>Indicaciones</h3>
+            <div class="directions-body">Calcula una ruta para ver los pasos aquí.</div>
+        </div>
+
         <div class="legend">
             <div><span class="dot green"></span> Bajo (0–25)</div>
             <div><span class="dot yellow"></span> Moderado (26–50)</div>
@@ -26,33 +31,6 @@
         </div>
     </div>
 </div>
-
-<table id="mapTable" class="maping">
-    <tr>
-        <td id="mapCell1">
-            <div class="texto-verde">Ruta por menor riesgo reportado</div>
-            <div class="minimap" id="map1" style="width: 100%; height: 200px;"></div>
-            <div id="directions1" class="directions"></div>
-        </td>
-        <td id="mapCell2">
-            <div class="texto-rojo">Ruta de escape más rápida</div>
-            <div class="minimap" id="map2" style="width: 100%; height: 200px;"></div>
-            <div id="directions2" class="directions"></div>
-        </td>
-    </tr>
-    <tr>
-        <td id="mapCell3">
-            <div class="texto-azul">Datos de referencia</div>
-            <div class="minimap" id="map3" style="width: 100%; height: 200px;"></div>
-            <div id="directions3" class="directions"></div>
-        </td>
-        <td id="mapCell4">
-            <div class="texto-naranja">Sitios de información</div>
-            <div class="minimap" id="map4" style="width: 100%; height: 200px;"></div>
-            <div id="directions4" class="directions"></div>
-        </td>
-    </tr>
-</table>
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.0.0/socket.io.js"></script>
 <script src="https://unpkg.com/leaflet@1.7.1/dist/leaflet.js"></script>
@@ -107,6 +85,19 @@
     #route_button:hover { background-color: #0056b3; }
     #show_risk_areas_button { background-color: #28a745; }
     #show_risk_areas_button:hover { background-color: #218838; }
+    .directions-panel {
+        margin-top: 12px;
+        padding: 10px;
+        background: #f8fafc;
+        border: 1px solid #e2e8f0;
+        border-radius: 8px;
+        max-height: 260px;
+        overflow-y: auto;
+    }
+    .directions-panel h3 { margin: 0 0 8px; font-size: 15px; }
+    .directions-body { font-size: 13px; line-height: 1.4; }
+    .direction-route-title { font-weight: 600; margin-top: 6px; }
+    .direction-step { margin-left: 8px; }
     .legend { margin-top: 12px; font-size: 14px; }
     .legend .dot {
         display: inline-block;
