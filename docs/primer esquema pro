@@ -1,43 +1,54 @@
 GDL-HACKATHON/
-├── backend_api/
-│   ├── main.py
-│   ├── db/
-│   │   └── conexion.py
-│   ├── services/
-│   │   ├── mapa_gdl.py
-│   │   └── colonias_loader.py
-│   └── routes/
-│
-├── frontend_web/
-│   ├── static/
-│   │   ├── css/
-│   │   ├── data/
-│   │   ├── img/
-│   │   └── js/
-│   └── templates/
+├── apps/
+│   ├── backend_api/
+│   │   ├── app/
+│   │   │   ├── api/
+│   │   │   │   └── routes/
+│   │   │   ├── application/
+│   │   │   │   └── services/
+│   │   │   ├── core/
+│   │   │   ├── domain/
+│   │   │   │   ├── entities/
+│   │   │   │   └── repositories/
+│   │   │   ├── infrastructure/
+│   │   │   │   ├── clients/
+│   │   │   │   └── db/
+│   │   │   ├── schemas/
+│   │   │   ├── __init__.py
+│   │   │   └── main.py
+│   │   └── __init__.py
+│   │
+│   └── frontend_web/
+│       ├── static/
+│       ├── templates/
+│       └── readme.md
 │
 ├── services/
-│   ├── vision_engine/
-│   │   ├── main.py
-│   │   └── detector_camaras.py
+│   ├── camaras_ingestion_service/
+│   │   └── app/
+│   │       ├── streams/
+│   │       └── main.py
 │   ├── risk_engine/
-│   │   ├── main.py
-│   │   ├── analisis_de_riesgo_guadalajara.py
-│   │   └── analisis_riesgo_v2.py
-│   └── camera_ingestion_service/
-│       └── main.py
+│   │   └── app/
+│   │       ├── pipelines/
+│   │       ├── __init__.py
+│   │       └── main.py
+│   └── vision_engine/
+│       └── app/
+│           ├── detectors/
+│           ├── __init__.py
+│           └── main.py
 │
 ├── data/
 │   ├── geo/
 │   ├── processed/
 │   └── samples/
 │
+├── docs/
+├── examples/
 ├── infra/
 │   ├── nginx/
 │   └── scripts/
-│
-├── docs/
-├── examples/
-├── requirements.txt
 ├── .gitignore
-└── .venv/
+├── README.md
+└── requirements.txt

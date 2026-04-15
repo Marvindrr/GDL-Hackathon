@@ -1,7 +1,8 @@
 import json
 from pathlib import Path
 
-DATA_DIR = Path(__file__).resolve().parent.parent
+PROJECT_ROOT = Path(__file__).resolve().parents[5]
+DATA_DIR = PROJECT_ROOT / "data" / "geo"
 
 
 def cargar_colonias_desde_json(nombre_archivo: str, estado: str | None = None, municipio: str | None = None):

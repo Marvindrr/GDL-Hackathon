@@ -5,11 +5,11 @@ import re
 import math
 from pathlib import Path
 
-from apps.backend_api.app.applications.services import cargar_colonias_desde_json
+from apps.backend_api.app.applications.services.colonias_loader import cargar_colonias_desde_json
 
-PROJECT_ROOT = Path(__file__).resolve().parent.parent
-FRONTEND_DIR = PROJECT_ROOT / "frontend"
-DATA_DIR = PROJECT_ROOT / "data"
+PROJECT_ROOT = Path(__file__).resolve().parents[3]
+FRONTEND_DIR = PROJECT_ROOT / "apps" / "frontend_web"
+DATA_DIR = PROJECT_ROOT / "data" / "geo"
 
 app = Flask(
     __name__,
