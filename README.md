@@ -1,55 +1,27 @@
-Nuestro proyecto trata de un sistema inteligente de monitoreo para prevencion del delito, su funcion de este es mostar zonas de riesgo con su probabilidad de riesgo, tambien muestra rutas de escape, tambien muestra en graficas el numero de delitos que pasaron en cada mes y muestra si estas cantidades pueden disminuir, aumentar o establecerse con el mismo número de delitos,tambien cuenta con deteccion de ropa (calcetines, playeras y sueteres), todas estas virtudes de nuestro proyecto estan hechas con inteligencias artificiales las culaes nos dan una probabilidad de 95.7%.
-Todo lo mencionado anteriormente lo hicimos con la finalidad de que sea un metodo más eficas, eficiente y efectivo para la prevencion de los delitos y asi tener en cuenta las rutas mas epecificas por las cuales los delincuentes suelen escapar, cabe mencionar que contamos con un factor sorpresa el cual es el que los delincuentes no sepan en que momento y por ruta seran interceptados por la policia, asi mismo con este metodo estamos evitando el daños a terceros, ya que suele pasar que en alguna persecución automovilistco suelen provocar un accidente y con nuestro proyecto prevee eso mismo.
-Cabe mencionar que nuestro objetivo principal es darselo al C5 ya que si lo dejamos al publico puede llegar a manos equivocadas en este caso a los delincuentes.
+# SeguryTech's
 
+## Descripción del proyecto
 
-Pasos para la ejecucion del sistema.
-Paso 1: Clonar el repositorio desde GitHub
-Abre la terminal y navega al directorio donde quieres clonar el proyecto.
+**SeguryTech's** es un sistema inteligente de monitoreo orientado a la **prevención del delito**. Su propósito es apoyar la toma de decisiones estratégicas mediante el análisis de zonas de riesgo, rutas de escape y patrones delictivos, con el fin de mejorar la respuesta operativa y reducir riesgos para la ciudadanía.
 
-Clona el repositorio usando el comando:
+El sistema permite:
 
+- Mostrar **zonas de riesgo** junto con su **probabilidad de riesgo**.
+- Visualizar **rutas de escape** potenciales utilizadas por delincuentes.
+- Presentar **gráficas estadísticas** sobre la cantidad de delitos ocurridos por mes.
+- Analizar tendencias para estimar si los incidentes pueden **disminuir, aumentar o mantenerse**.
+- Realizar **detección de prendas de vestir** como calcetines, playeras y suéteres mediante inteligencia artificial.
 
-Copiar código
-"git clone https://github.com/Domovan/SeguryTechs"
+Estas funcionalidades están respaldadas por modelos de **inteligencia artificial**, con un rendimiento estimado de **95.7%** en nuestras pruebas.
 
-Navega al directorio del proyecto clonado:
+## Objetivo
 
-bash
-Copiar código
-cd nombre-repositorio
-Paso 2: Crear un entorno virtual (opcional pero recomendado)
-Crea el entorno virtual:
+El objetivo principal del proyecto es ofrecer un método más **eficaz, eficiente y efectivo** para la prevención del delito. Además de identificar zonas de mayor riesgo, el sistema busca anticipar las rutas más probables de escape utilizadas por delincuentes, permitiendo una mejor planeación de la intervención policial.
 
-bash
-Copiar código
-"python -m venv venv"
-Activa el entorno virtual:
+Uno de los factores clave del sistema es el **factor sorpresa**, ya que los delincuentes no sabrán con precisión en qué momento o en qué ruta podrían ser interceptados. Esto ayuda a reducir persecuciones improvisadas y, en consecuencia, contribuye a **evitar daños a terceros**, como accidentes automovilísticos derivados de persecuciones.
 
-Windows:
-bash
-Copiar código
-venv\Scripts\activate
+## Alcance del proyecto
 
-macOS/Linux:
-bash
-Copiar código
-source venv/bin/activate
-Paso 3: Instalar las dependencias
-El repositorio puede tener un archivo llamado requirements.txt que contiene las dependencias del proyecto. Para instalarlas, ejecuta:
+Este sistema está pensado principalmente para ser implementado por instituciones de seguridad, especialmente el **C5**, ya que su liberación al público podría representar un riesgo al poner información sensible en manos equivocadas.
 
-bash
-Copiar código
-pip install -r requirements.txt
-Esto instalará Flask y cualquier otra dependencia necesaria para el proyecto.
-
-Paso 4: Ejecutar la aplicación Flask
-Busca el archivo principal del proyecto, generalmente llamado app.py, run.py, o algo similar. Asegúrate de estar en el directorio del proyecto.
-
-Ejecuta la aplicación desde la terminal:
-
-bash
-Copiar código
-python app.py
-
-Accede a la aplicación en el navegador: Abre un navegador web y ve a http://127.0.0.1:5000/ (o la dirección y puerto que se indiquen en la terminal).
+---
