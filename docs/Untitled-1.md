@@ -1,0 +1,85 @@
+```
+└── 📁GDL-Hackathon
+    └── 📁apps
+        └── 📁backend_api
+            └── 📁__pycache__
+                ├── __init__.cpython-313.pyc
+            └── 📁app
+                └── 📁__pycache__
+                    ├── __init__.cpython-313.pyc
+                    ├── main.cpython-313.pyc
+                └── 📁api
+                └── 📁applications
+                    └── 📁__pycache__
+                        ├── __init__.cpython-313.pyc
+                    └── 📁services
+                        └── 📁__pycache__
+                            ├── __init__.cpython-313.pyc
+                            ├── colonias_loader.cpython-313.pyc
+                        ├── __init__.py
+                        ├── colonias_loader.py
+                        ├── mapa_gdl.py
+                    ├── __init__.py
+                └── 📁core
+                └── 📁domain
+                    └── 📁entities
+                    └── 📁repositories
+                    ├── __init__.py
+                └── 📁infrastructure
+                    └── 📁clients
+                    └── 📁db
+                    ├── __init__.py
+                └── 📁schemas
+                ├── main.py
+            ├── __init__.py
+        └── 📁frontend_web
+            └── 📁static
+                └── 📁css
+                    ├── style2.css
+                    ├── styles.css
+                └── 📁data
+                    ├── puntos_turisticos_ruta.json
+                    ├── zonas_turisticas_normalizadas.json
+                └── 📁img
+                    ├── logo-white.png
+                    ├── logo.png
+                └── 📁js
+                    ├── main.js
+            └── 📁templates
+                ├── index.html
+            ├── readme.md
+    └── 📁data
+        └── 📁geo
+            ├── colonias_jalisco.json
+            ├── COLONIAS.geojson
+            ├── map.osm
+            ├── ubicaciones_camaras.json
+            ├── ubicaciones.json
+        └── 📁processed
+        └── 📁samples
+    └── 📁docs
+        ├── esquema nuevo.md
+        ├── esquema recomendado
+        ├── Presentacion Pitches SeguriTech's.pdf
+        ├── Presentacion Pitches SeguriTech's.pptx
+        ├── primer esquema pro
+    └── 📁examples
+        ├── colonias_jalisco_formato_unificado_heuristico.json
+        ├── colonias_jalisco_formato_unificado_heuristico.txt
+        ├── colonias_jalisco_formato_unificado.json
+        ├── colonias_jalisco_formato_unificado.txt
+    └── 📁infra
+        └── 📁nginx
+        └── 📁scripts
+            ├── __init__.py
+            ├── cargar_zonas_bd.py
+    └── 📁services
+        └── 📁camaras_ingestion_service
+        └── 📁risk_engine
+            └── 📁app
+                ├── __init__.py
+        └── 📁vision_engine
+            └── 📁app
+                └── 📁detectors
+                    ├── __init__.py
+                ├── __init__.py
