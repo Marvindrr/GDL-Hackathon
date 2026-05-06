@@ -1,55 +1,42 @@
-Nuestro proyecto trata de un sistema inteligente de monitoreo para prevencion del delito, su funcion de este es mostar zonas de riesgo con su probabilidad de riesgo, tambien muestra rutas de escape, tambien muestra en graficas el numero de delitos que pasaron en cada mes y muestra si estas cantidades pueden disminuir, aumentar o establecerse con el mismo número de delitos,tambien cuenta con deteccion de ropa (calcetines, playeras y sueteres), todas estas virtudes de nuestro proyecto estan hechas con inteligencias artificiales las culaes nos dan una probabilidad de 95.7%.
-Todo lo mencionado anteriormente lo hicimos con la finalidad de que sea un metodo más eficas, eficiente y efectivo para la prevencion de los delitos y asi tener en cuenta las rutas mas epecificas por las cuales los delincuentes suelen escapar, cabe mencionar que contamos con un factor sorpresa el cual es el que los delincuentes no sepan en que momento y por ruta seran interceptados por la policia, asi mismo con este metodo estamos evitando el daños a terceros, ya que suele pasar que en alguna persecución automovilistco suelen provocar un accidente y con nuestro proyecto prevee eso mismo.
-Cabe mencionar que nuestro objetivo principal es darselo al C5 ya que si lo dejamos al publico puede llegar a manos equivocadas en este caso a los delincuentes.
+# RutaSegura GDL
 
+Aplicacion web para visualizar zonas de riesgo en Guadalajara y calcular una ruta demo entre colonias o puntos turisticos.
 
-Pasos para la ejecucion del sistema.
-Paso 1: Clonar el repositorio desde GitHub
-Abre la terminal y navega al directorio donde quieres clonar el proyecto.
+## Flujo principal
 
-Clona el repositorio usando el comando:
+El proyecto que funciona actualmente esta conectado asi:
 
+1. `apps/backend_api/app/main.py` levanta Flask, sirve la pagina principal y expone los endpoints `/api/colonias` y `/api/ruta`.
+2. `apps/frontend_web/templates/index.html` carga la interfaz, `static/css/styles.css` y `static/js/main.js`.
+3. `apps/frontend_web/static/js/main.js` pinta el mapa con Leaflet/Turf, consulta `/api/colonias`, carga los JSON turisticos estaticos y pide el calculo de ruta a `/api/ruta`.
+4. `apps/backend_api/app/applications/services/colonias_loader.py` lee `data/geo/colonias_jalisco.json`.
+5. `apps/backend_api/app/applications/services/mapa_gdl.py` calcula distancia, tiempo estimado, riesgo y colonias criticas cercanas.
 
-Copiar código
-"git clone https://github.com/Domovan/SeguryTechs"
+## Datos usados por la pantalla
 
-Navega al directorio del proyecto clonado:
+- `data/geo/colonias_jalisco.json`
+- `apps/frontend_web/static/data/puntos_turisticos_ruta.json`
+- `apps/frontend_web/static/data/zonas_turisticas_normalizadas.json`
 
-bash
-Copiar código
-cd nombre-repositorio
-Paso 2: Crear un entorno virtual (opcional pero recomendado)
-Crea el entorno virtual:
+## Archivos no conectados al flujo actual
 
-bash
-Copiar código
-"python -m venv venv"
-Activa el entorno virtual:
+Estos archivos pueden servir como insumos futuros, pero la app principal no los usa hoy:
 
-Windows:
-bash
-Copiar código
+- `data/geo/COLONIAS.geojson`
+- `data/geo/map.osm`
+- `data/geo/ubicaciones.json`
+- `examples/*`
+- `docs/*`
+- `services/*`
+- `infra/scripts/cargar_zonas_bd.py`
+
+## Ejecutar
+
+```bash
+python -m venv venv
 venv\Scripts\activate
-
-macOS/Linux:
-bash
-Copiar código
-source venv/bin/activate
-Paso 3: Instalar las dependencias
-El repositorio puede tener un archivo llamado requirements.txt que contiene las dependencias del proyecto. Para instalarlas, ejecuta:
-
-bash
-Copiar código
 pip install -r requirements.txt
-Esto instalará Flask y cualquier otra dependencia necesaria para el proyecto.
+python -m apps.backend_api.app.main
+```
 
-Paso 4: Ejecutar la aplicación Flask
-Busca el archivo principal del proyecto, generalmente llamado app.py, run.py, o algo similar. Asegúrate de estar en el directorio del proyecto.
-
-Ejecuta la aplicación desde la terminal:
-
-bash
-Copiar código
-python app.py
-
-Accede a la aplicación en el navegador: Abre un navegador web y ve a http://127.0.0.1:5000/ (o la dirección y puerto que se indiquen en la terminal).
+Despues abre `http://127.0.0.1:5000/`.

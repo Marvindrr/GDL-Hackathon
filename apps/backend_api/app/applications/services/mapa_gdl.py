@@ -1,124 +1,174 @@
-import pandas as pd
-import numpy as np
-import folium
-import webbrowser
-from sklearn.model_selection import train_test_split
-from sklearn.metrics import mean_squared_error
-from keras.models import Sequential
-from keras.layers import Dense
-from sklearn.linear_model import LogisticRegression
+import math
+from typing import Any
 
-# Coordenadas de las zonas de interés en Aguascalientes
-puntos_zonas = {
-    "Centro": (21.8853, -102.2920),
-    "San Marcos Barrio": (21.8785, -102.2920),
-    "Américas Las Fracc.": (21.8838, -102.2880),
-    "Municipio Libre Fracc.": (21.8950, -102.3090),
-    "Haciendas de Aguascalientes Fracc.": (21.8670, -102.3050),
-    "Morelos I Fracc.": (21.8900, -102.2840),
-    "Gremial Col.": (21.8840, -102.3070),
-    "Ojocaliente I Fracc.": (21.8735, -102.2970),
-    "Flores Las Col.": (21.8830, -102.2750),
-    "Pilar Blanco Infonavit": (21.8930, -102.2920),
-    "San Cayetano Fracc.": (21.8790, -102.2980),
-    "Insurgentes Col. (Las Huertas)": (21.8795, -102.3080),
-    "Guadalupe de Barrio": (21.8820, -102.3010),
-    "Morelos Infonavit": (21.8890, -102.2900),
-    "Circunvalación Norte Fracc.": (21.8955, -102.3055),
-    "San Marcos Col.": (21.8770, -102.2870),
-    "Rodolfo Landeros Fracc.": (21.8630, -102.3070),
-    "Obraje Col.": (21.8845, -102.2760),
-    "Santa Anita 1era Secc. Fracc.": (21.8820, -102.3030),
-    "Trabajo del Col.": (21.8885, -102.2960),
-    "José Guadalupe Peralta Fracc.": (21.8615, -102.3080),
-    "Dorado El 1era Secc. Fracc.": (21.8620, -102.2950),
-    "Purísima La Barrio": (21.8650, -102.3000),
-    "Ojocaliente III Fracc.": (21.8730, -102.3075),
-    "Colinas del Río Fracc.": (21.8690, -102.2875),
-    "España Fracc.": (21.8850, -102.2950),
-    "Industrial Col.": (21.8700, -102.2950),
-    "Arboledas Las Fracc.": (21.8820, -102.2880),
-    "Villas de Ntra. Sra. de la Asunción Sec Estacion Fracc.": (21.8920, -102.3095),
-    "Bosques del Prado Sur Fracc.": (21.8925, -102.3010)
-}
 
-# Datos de riesgo
-datos_riesgo = {
-    "Centro": 60,
-    "San Marcos Barrio": 50,
-    "Américas Las Fracc.": 45,
-    "Municipio Libre Fracc.": 70,
-    "Haciendas de Aguascalientes Fracc.": 30,
-    "Morelos I Fracc.": 40,
-    "Gremial Col.": 35,
-    "Ojocaliente I Fracc.": 65,
-    "Flores Las Col.": 25,
-    "Pilar Blanco Infonavit": 50,
-    "San Cayetano Fracc.": 40,
-    "Insurgentes Col. (Las Huertas)": 60,
-    "Guadalupe de Barrio": 35,
-    "Morelos Infonavit": 55,
-    "Circunvalación Norte Fracc.": 50,
-    "San Marcos Col.": 45,
-    "Rodolfo Landeros Fracc.": 70,
-    "Obraje Col.": 40,
-    "Santa Anita 1era Secc. Fracc.": 55,
-    "Trabajo del Col.": 35,
-    "José Guadalupe Peralta Fracc.": 65,
-    "Dorado El 1era Secc. Fracc.": 45,
-    "Purísima La Barrio": 25,
-    "Ojocaliente III Fracc.": 55,
-    "Colinas del Río Fracc.": 30,
-    "España Fracc.": 60,
-    "Industrial Col.": 50,
-    "Arboledas Las Fracc.": 55,
-    "Villas de Ntra. Sra. de la Asunción Sec Estacion Fracc.": 50,
-    "Bosques del Prado Sur Fracc.": 35
-}
+Coord = tuple[float, float]
 
-# Crear dataframe
-data = pd.DataFrame(list(datos_riesgo.items()), columns=['Zona', 'Riesgo'])
 
-# Asegurar que Riesgo sea numérico
-data['Riesgo'] = pd.to_numeric(data['Riesgo'], errors='coerce')
+def calcular_distancia_km(coord1: Coord, coord2: Coord) -> float:
+    radio_tierra_km = 6371
+    lat1, lon1 = coord1
+    lat2, lon2 = coord2
 
-# Variables para red neuronal
-X = data['Riesgo'].to_numpy(dtype=float).reshape(-1, 1)
-y = np.random.rand(len(X)) * 100
+    dlat = math.radians(lat2 - lat1)
+    dlon = math.radians(lon2 - lon1)
 
-X_train, X_test, y_train, y_test = train_test_split(
-    X, y, test_size=0.2, random_state=42
-)
+    a = (
+        math.sin(dlat / 2) ** 2
+        + math.cos(math.radians(lat1))
+        * math.cos(math.radians(lat2))
+        * math.sin(dlon / 2) ** 2
+    )
+    c = 2 * math.asin(math.sqrt(a))
 
-# RED NEURONAL
-modelo = Sequential()
-modelo.add(Dense(10, input_dim=1, activation='relu'))
-modelo.add(Dense(1))
-modelo.compile(loss='mean_squared_error', optimizer='adam')
-modelo.fit(X_train, y_train, epochs=100, verbose="1")
+    return radio_tierra_km * c
 
-y_pred = modelo.predict(X_test)
-mse = mean_squared_error(y_test, y_pred)
-print(f'Error cuadrático medio: {mse:.2f}')
 
-# Regresión logística
-zonas = data['Zona'].to_numpy()
-X_logistic = data['Riesgo'].to_numpy(dtype=float).reshape(-1, 1)
-y_logistic = (data['Riesgo'].to_numpy(dtype=float) > 50).astype(int)
+def calcular_ruta(
+    origen: dict[str, Any] | None,
+    destino: dict[str, Any] | None,
+    tipo_ruta: str,
+    colonias: list[dict[str, Any]],
+) -> dict[str, Any]:
+    punto_origen = _normalizar_punto(origen, "origen")
+    punto_destino = _normalizar_punto(destino, "destino")
+    tipo = _normalizar_tipo_ruta(tipo_ruta)
 
-X_train_logistic, X_test_logistic, y_train_logistic, y_test_logistic, zonas_train, zonas_test = train_test_split(
-    X_logistic, y_logistic, zonas, test_size=0.2, random_state=42
-)
+    ruta = _construir_ruta_demo(punto_origen, punto_destino, tipo)
+    distancia = calcular_distancia_km(
+        (punto_origen["lat"], punto_origen["lon"]),
+        (punto_destino["lat"], punto_destino["lon"]),
+    )
+    tiempo_min = _estimar_tiempo_min(distancia, tipo)
+    riesgo = _estimar_riesgo(punto_origen, punto_destino, tipo)
+    colonias_criticas = _colonias_criticas_cercanas(ruta, colonias)
 
-modelo_logistico = LogisticRegression()
-modelo_logistico.fit(X_train_logistic, y_train_logistic)
+    return {
+        "origen": punto_origen["nombre"],
+        "destino": punto_destino["nombre"],
+        "tipo_ruta": tipo,
+        "riesgo_total": _etiqueta_riesgo(riesgo),
+        "riesgo_valor": round(riesgo, 1),
+        "distancia": f"{distancia:.2f} km",
+        "distancia_km": round(distancia, 2),
+        "tiempo": f"{tiempo_min} min",
+        "tiempo_min": tiempo_min,
+        "colonias_criticas": colonias_criticas,
+        "ruta": ruta,
+    }
 
-probabilidades = modelo_logistico.predict_proba(X_test_logistic)[:, 1]
 
-resultados = pd.DataFrame({
-    'Zona': zonas_test,
-    'Probabilidad': probabilidades
-}).sort_values(by='Probabilidad', ascending=False)
+def _normalizar_punto(punto: dict[str, Any] | None, campo: str) -> dict[str, Any]:
+    if not isinstance(punto, dict):
+        raise ValueError(f"Falta el punto de {campo}.")
 
-for _, fila in resultados.iterrows():
-    print(f"Zona: {fila['Zona']}, Probabilidad de riesgo alto: {fila['Probabilidad']:.2f}")
+    try:
+        lat = float(punto["lat"])
+        lon_valor = punto.get("lon")
+        if lon_valor is None:
+            lon_valor = punto.get("lng")
+        lon = float(lon_valor)
+    except (KeyError, TypeError, ValueError) as exc:
+        raise ValueError(f"El punto de {campo} no tiene coordenadas validas.") from exc
+
+    nombre = str(punto.get("nombre") or punto.get("nombre_colonia") or campo).strip()
+    if not nombre:
+        nombre = campo
+
+    return {
+        "nombre": nombre,
+        "lat": lat,
+        "lon": lon,
+        "riesgo": _numero_o_none(punto.get("riesgo")),
+    }
+
+
+def _normalizar_tipo_ruta(tipo_ruta: str | None) -> str:
+    tipo = (tipo_ruta or "segura").strip().lower()
+    if tipo not in {"segura", "rapida"}:
+        raise ValueError("El tipo de ruta debe ser 'segura' o 'rapida'.")
+    return tipo
+
+
+def _construir_ruta_demo(origen: dict[str, Any], destino: dict[str, Any], tipo: str):
+    mid_lat = (origen["lat"] + destino["lat"]) / 2
+    mid_lon = (origen["lon"] + destino["lon"]) / 2
+    offset = 0.015 if tipo == "segura" else -0.008
+
+    return [
+        [origen["lat"], origen["lon"]],
+        [mid_lat + offset, mid_lon - offset],
+        [destino["lat"], destino["lon"]],
+    ]
+
+
+def _estimar_tiempo_min(distancia_km: float, tipo: str) -> int:
+    factor = 3.9 if tipo == "segura" else 3.2
+    return max(5, round(distancia_km * factor))
+
+
+def _estimar_riesgo(origen: dict[str, Any], destino: dict[str, Any], tipo: str) -> float:
+    riesgos = [
+        riesgo
+        for riesgo in (origen.get("riesgo"), destino.get("riesgo"))
+        if riesgo is not None
+    ]
+    base = sum(riesgos) / len(riesgos) if riesgos else 45.0
+
+    if tipo == "segura":
+        return max(0.0, base * 0.85)
+
+    return min(100.0, base * 1.08)
+
+
+def _etiqueta_riesgo(riesgo: float) -> str:
+    if riesgo <= 25:
+        return "Bajo"
+    if riesgo <= 50:
+        return "Moderado"
+    if riesgo <= 75:
+        return "Alto"
+    return "Muy alto"
+
+
+def _colonias_criticas_cercanas(
+    ruta: list[list[float]],
+    colonias: list[dict[str, Any]],
+    radio_km: float = 1.5,
+):
+    candidatas = []
+
+    for colonia in colonias:
+        riesgo = _numero_o_none(colonia.get("riesgo"))
+        if riesgo is None or riesgo < 51:
+            continue
+
+        try:
+            coord_colonia = (float(colonia["lat"]), float(colonia["lon"]))
+        except (KeyError, TypeError, ValueError):
+            continue
+
+        distancia_minima = min(
+            calcular_distancia_km((float(lat), float(lon)), coord_colonia)
+            for lat, lon in ruta
+        )
+
+        if distancia_minima <= radio_km:
+            candidatas.append(
+                {
+                    "nombre": colonia["nombre_colonia"],
+                    "riesgo": riesgo,
+                    "distancia": distancia_minima,
+                }
+            )
+
+    candidatas.sort(key=lambda item: (-item["riesgo"], item["distancia"]))
+
+    return [item["nombre"] for item in candidatas[:3]]
+
+
+def _numero_o_none(valor: Any) -> float | None:
+    try:
+        return float(valor)
+    except (TypeError, ValueError):
+        return None

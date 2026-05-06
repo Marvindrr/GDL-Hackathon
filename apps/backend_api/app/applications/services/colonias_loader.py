@@ -7,6 +7,8 @@ DATA_DIR = PROJECT_ROOT / "data" / "geo"
 
 def cargar_colonias_desde_json(nombre_archivo: str, estado: str | None = None, municipio: str | None = None):
     ruta_json = DATA_DIR / nombre_archivo
+    if not ruta_json.exists():
+        raise FileNotFoundError(f"No existe el archivo de colonias: {ruta_json}")
 
     with open(ruta_json, "r", encoding="utf-8") as f:
         colonias = json.load(f)
@@ -41,7 +43,7 @@ def cargar_colonias_desde_json(nombre_archivo: str, estado: str | None = None, m
 def cargar_todas_las_colonias():
     colonias_totales = []
 
-    for archivo in DATA_DIR.glob("*.json"):
+    for archivo in DATA_DIR.glob("colonias_*.json"):
         try:
             colonias_totales.extend(cargar_colonias_desde_json(archivo.name))
         except Exception:

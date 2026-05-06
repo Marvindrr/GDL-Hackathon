@@ -51,18 +51,15 @@ document.addEventListener("DOMContentLoaded", async function () {
   const riesgoRuta = document.getElementById("riesgoRuta");
   const distanciaRuta = document.getElementById("distanciaRuta");
   const tiempoRuta = document.getElementById("tiempoRuta");
-  const camarasRuta = document.getElementById("camarasRuta");
   const coloniasCriticas = document.getElementById("coloniasCriticas");
 
   const toggleHex = document.getElementById("toggleHex");
   const togglePuntos = document.getElementById("togglePuntos");
-  const toggleCamaras = document.getElementById("toggleCamaras");
   const toggleTurismo = document.getElementById("toggleTurismo");
 
   const hexLayer = L.geoJSON(null).addTo(map);
   const puntosLayer = L.featureGroup().addTo(map);
   const rutaLayer = L.featureGroup().addTo(map);
-  const camarasLayer = L.featureGroup().addTo(map);
   const turismoHexLayer = L.featureGroup().addTo(map);
 
   let coloniasActuales = [];
@@ -81,13 +78,11 @@ document.addEventListener("DOMContentLoaded", async function () {
     riesgoRuta.textContent = "--";
     distanciaRuta.textContent = "--";
     tiempoRuta.textContent = "--";
-    camarasRuta.textContent = "--";
     coloniasCriticas.textContent = "--";
   }
 
   function limpiarCapasRuta() {
     rutaLayer.clearLayers();
-    camarasLayer.clearLayers();
   }
 
   function limpiarCapasDatos() {
@@ -383,46 +378,6 @@ document.addEventListener("DOMContentLoaded", async function () {
     };
   }
 
-  function generarCamarasDemoCercaRuta(origen, destino) {
-    camarasLayer.clearLayers();
-
-    if (!toggleCamaras.checked) return 0;
-
-    const camaras = [
-      { id: "CAM-001", lat: origen.lat + 0.01, lon: origen.lon + 0.01 },
-      { id: "CAM-002", lat: (origen.lat + destino.lat) / 2, lon: (origen.lon + destino.lon) / 2 },
-      { id: "CAM-003", lat: destino.lat - 0.01, lon: destino.lon - 0.01 }
-    ];
-
-    camaras.forEach((cam) => {
-      L.marker([cam.lat, cam.lon])
-        .bindPopup(`Cámara ${cam.id}`)
-        .addTo(camarasLayer);
-    });
-
-    return camaras.length;
-  }
-
-  function construirRutaDemo(origen, destino, tipoRuta) {
-    const midLat = (origen.lat + destino.lat) / 2;
-    const midLon = (origen.lon + destino.lon) / 2;
-    const offset = tipoRuta === "segura" ? 0.015 : -0.008;
-
-    return [
-      [origen.lat, origen.lon],
-      [midLat + offset, midLon - offset],
-      [destino.lat, destino.lon]
-    ];
-  }
-
-  function calcularResumenRuta(origen, destino) {
-    const distancia = distanciaEnKm(origen.lat, origen.lon, destino.lat, destino.lon);
-    return {
-      distanciaKm: distancia,
-      tiempoMin: Math.max(5, Math.round(distancia * 3.5))
-    };
-  }
-
   function actualizarCamposSegunTipo() {
     const origenEsTuristico = origenTipo.value === "turistico";
     const destinoEsTuristico = destinoTipo.value === "turistico";
@@ -440,7 +395,7 @@ document.addEventListener("DOMContentLoaded", async function () {
     zoomAPunto(colonia.lat, colonia.lon, `${prefijo}: ${colonia.nombre_colonia}`);
   }
 
-  btnCalcular.addEventListener("click", function () {
+  btnCalcular.addEventListener("click", async function () {
     const tipoRuta = document.querySelector('input[name="tipoRuta"]:checked')?.value || "segura";
 
     const origen = obtenerPuntoDesdeUI(origenTipo, origenInput, origenTuristico);
@@ -453,32 +408,61 @@ document.addEventListener("DOMContentLoaded", async function () {
 
     limpiarCapasRuta();
 
-    const ruta = construirRutaDemo(origen, destino, tipoRuta);
-    const resumen = calcularResumenRuta(origen, destino);
-    const totalCamaras = generarCamarasDemoCercaRuta(origen, destino);
+    btnCalcular.disabled = true;
 
-    const colorRuta = tipoRuta === "segura" ? "#2563eb" : "#7c3aed";
+    try {
+      const response = await fetch("/api/ruta", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify({
+          origen,
+          destino,
+          municipio: municipioSelect.value,
+          tipo_ruta: tipoRuta
+        })
+      });
 
-    const polyline = L.polyline(ruta, {
-      color: colorRuta,
-      weight: 5
-    }).addTo(rutaLayer);
+      const resultado = await response.json();
+      if (!response.ok) {
+        throw new Error(resultado.error || `HTTP ${response.status}`);
+      }
 
-    L.marker([origen.lat, origen.lon])
-      .bindPopup(`Origen: ${origen.nombre}`)
-      .addTo(rutaLayer);
+      const ruta = resultado.ruta || [];
+      if (ruta.length < 2) {
+        throw new Error("La ruta calculada no tiene puntos suficientes.");
+      }
 
-    L.marker([destino.lat, destino.lon])
-      .bindPopup(`Destino: ${destino.nombre}`)
-      .addTo(rutaLayer);
+      const colorRuta = tipoRuta === "segura" ? "#2563eb" : "#7c3aed";
 
-    riesgoRuta.textContent = tipoRuta === "segura" ? "Medio-Bajo" : "Medio";
-    distanciaRuta.textContent = `${resumen.distanciaKm.toFixed(2)} km`;
-    tiempoRuta.textContent = `${resumen.tiempoMin} min`;
-    camarasRuta.textContent = totalCamaras;
-    coloniasCriticas.textContent = "Demo";
+      const polyline = L.polyline(ruta, {
+        color: colorRuta,
+        weight: 5
+      }).addTo(rutaLayer);
 
-    map.fitBounds(polyline.getBounds(), { padding: [30, 30] });
+      L.marker([origen.lat, origen.lon])
+        .bindPopup(`Origen: ${resultado.origen || origen.nombre}`)
+        .addTo(rutaLayer);
+
+      L.marker([destino.lat, destino.lon])
+        .bindPopup(`Destino: ${resultado.destino || destino.nombre}`)
+        .addTo(rutaLayer);
+
+      const colonias = resultado.colonias_criticas || [];
+
+      riesgoRuta.textContent = resultado.riesgo_total || "--";
+      distanciaRuta.textContent = resultado.distancia || "--";
+      tiempoRuta.textContent = resultado.tiempo || "--";
+      coloniasCriticas.textContent = colonias.length ? colonias.join(", ") : "Sin alertas";
+
+      map.fitBounds(polyline.getBounds(), { padding: [30, 30] });
+    } catch (error) {
+      console.warn("No se pudo calcular la ruta", error);
+      alert("No se pudo calcular la ruta. Intenta con otro origen o destino.");
+    } finally {
+      btnCalcular.disabled = false;
+    }
   });
 
   btnReiniciar.addEventListener("click", async function () {
@@ -515,12 +499,6 @@ document.addEventListener("DOMContentLoaded", async function () {
   togglePuntos.addEventListener("change", () => renderPuntos(coloniasActuales));
   toggleTurismo.addEventListener("change", async () => {
     await cargarZonasTuristicas();
-  });
-
-  toggleCamaras.addEventListener("change", function () {
-    if (!toggleCamaras.checked) {
-      camarasLayer.clearLayers();
-    }
   });
 
   origenTipo.addEventListener("change", function () {
