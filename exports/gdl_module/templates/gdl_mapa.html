@@ -1,0 +1,224 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>RutaSegura GDL</title>
+
+  <link rel="stylesheet" href="{{ url_for('gdl.static', filename='css/gdl_styles.css') }}">
+  <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
+</head>
+<body>
+  <header class="topbar">
+    <div class="brand-wrap">
+      <div class="brand-badge">
+        <i class="fa-solid fa-shield-halved"></i>
+      </div>
+
+      <div class="brand-text">
+        <h1>RutaSegura GDL</h1>
+        <p>Movilidad más segura para turistas, visitantes y aficionados en Guadalajara</p>
+      </div>
+    </div>
+
+    <div class="topbar-actions">
+      <div class="match-pill">
+        <i class="fa-solid fa-futbol"></i>
+        Modo partido activo
+      </div>
+
+      <button id="btnReiniciar" type="button">
+        <i class="fa-solid fa-rotate-left"></i>
+        Reiniciar
+      </button>
+    </div>
+  </header>
+
+  <main class="layout">
+    <aside class="sidebar">
+      <section class="card card-highlight">
+        <div class="card-title-row">
+          <h2><i class="fa-solid fa-route"></i> Planear ruta</h2>
+          <span class="card-chip">Demo segura</span>
+        </div>
+
+        <p class="section-help">
+          Selecciona un municipio, elige origen y destino, y compara una ruta más segura frente a una más rápida.
+        </p>
+
+        <div class="field">
+          <label for="municipio"><i class="fa-solid fa-location-dot"></i> Municipio</label>
+          <select id="municipio">
+            <option value="Guadalajara" selected>Guadalajara</option>
+            <option value="Zapopan">Zapopan</option>
+            <option value="Tequila">Tequila</option>
+            <option value="El Salto">El Salto</option>
+            <option value="Acatlán de Juárez">Acatlán de Juárez</option>
+          </select>
+        </div>
+
+        <div class="divider"></div>
+
+        <div class="journey-block">
+          <h3><i class="fa-solid fa-play"></i> Origen</h3>
+
+          <div class="field">
+            <label for="origenTipo">Tipo de origen</label>
+            <select id="origenTipo">
+              <option value="colonia" selected>Colonia</option>
+              <option value="turistico">Zona turística / hotel</option>
+            </select>
+          </div>
+
+          <div class="field">
+            <label for="origen">Origen por colonia</label>
+            <input
+              type="text"
+              id="origen"
+              list="coloniasList"
+              placeholder="Ej. Centro Guadalajara"
+              autocomplete="off"
+            >
+          </div>
+
+          <div class="field">
+            <label for="origenTuristico">Origen turístico / hotel</label>
+            <select id="origenTuristico">
+              <option value="">Selecciona un punto</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="journey-block">
+          <h3><i class="fa-solid fa-flag-checkered"></i> Destino</h3>
+
+          <div class="field">
+            <label for="destinoTipo">Tipo de destino</label>
+            <select id="destinoTipo">
+              <option value="colonia" selected>Colonia</option>
+              <option value="turistico">Zona turística / hotel</option>
+            </select>
+          </div>
+
+          <div class="field">
+            <label for="destino">Destino por colonia</label>
+            <input
+              type="text"
+              id="destino"
+              list="coloniasList"
+              placeholder="Ej. Chapalita"
+              autocomplete="off"
+            >
+          </div>
+
+          <div class="field">
+            <label for="destinoTuristico">Destino turístico / hotel</label>
+            <select id="destinoTuristico">
+              <option value="">Selecciona un punto</option>
+            </select>
+          </div>
+        </div>
+
+        <datalist id="coloniasList"></datalist>
+
+        <div class="divider"></div>
+
+        <div class="mode-box">
+          <h3><i class="fa-solid fa-layer-group"></i> Visualización del mapa</h3>
+          <div class="checks">
+            <label><input type="checkbox" id="toggleHex" checked> Mostrar malla de riesgo</label>
+            <label><input type="checkbox" id="togglePuntos"> Mostrar centros de colonias</label>
+            <label><input type="checkbox" id="toggleTurismo" checked> Mostrar zonas turísticas</label>
+          </div>
+        </div>
+
+        <div class="mode-box">
+          <h3><i class="fa-solid fa-road"></i> Estrategia de ruta</h3>
+          <div class="checks">
+            <label><input type="radio" name="tipoRuta" value="segura" checked> Ruta más segura</label>
+            <label><input type="radio" name="tipoRuta" value="rapida"> Ruta más rápida</label>
+          </div>
+        </div>
+
+        <button id="btnCalcular" class="primary-btn" type="button">
+          <i class="fa-solid fa-map-location-dot"></i>
+          Calcular ruta
+        </button>
+      </section>
+
+      <section class="card score-card">
+        <div class="card-title-row">
+          <h2><i class="fa-solid fa-table-list"></i> Resumen de la jugada</h2>
+          <span class="card-chip chip-dark">Marcador</span>
+        </div>
+
+        <div class="summary-grid">
+          <div class="summary-box">
+            <span>Riesgo estimado</span>
+            <strong id="riesgoRuta">--</strong>
+          </div>
+
+          <div class="summary-box">
+            <span>Distancia</span>
+            <strong id="distanciaRuta">--</strong>
+          </div>
+
+          <div class="summary-box">
+            <span>Tiempo</span>
+            <strong id="tiempoRuta">--</strong>
+          </div>
+
+        </div>
+
+        <div class="summary-alert">
+          <span>Colonias críticas</span>
+          <strong id="coloniasCriticas">--</strong>
+        </div>
+      </section>
+
+      <section class="card legend-card">
+        <div class="card-title-row">
+          <h2><i class="fa-solid fa-map"></i> Leyenda</h2>
+          <span class="card-chip">Mapa</span>
+        </div>
+
+        <div class="legend-item"><span class="dot bajo"></span> Bajo (0 - 25)</div>
+        <div class="legend-item"><span class="dot moderado"></span> Moderado (26 - 50)</div>
+        <div class="legend-item"><span class="dot alto"></span> Alto (51 - 75)</div>
+        <div class="legend-item"><span class="dot muy-alto"></span> Muy alto (76 - 100)</div>
+        <div class="legend-item"><span class="dot sin-dato"></span> Sin dato</div>
+        <div class="legend-item"><span class="dot turismo"></span> Zona turística</div>
+      </section>
+    </aside>
+
+    <section class="map-panel">
+      <div class="map-panel-header">
+        <div>
+          <h2><i class="fa-solid fa-chess-board"></i> Vista táctica del mapa</h2>
+          <p>Riesgo por hexágonos, zonas turísticas y ruta sugerida.</p>
+        </div>
+
+        <div class="stadium-tag">
+          <i class="fa-solid fa-trophy"></i>
+          Estadio de decisión
+        </div>
+      </div>
+
+      <div id="map"></div>
+    </section>
+  </main>
+
+  <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
+  <script src="https://unpkg.com/@turf/turf@6/turf.min.js"></script>
+  <script>
+    window.GDL_CONFIG = {
+      apiColonias: "{{ url_for('gdl.api_gdl_colonias') }}",
+      apiRuta: "{{ url_for('gdl.api_gdl_ruta') }}",
+      puntosTuristicosUrl: "{{ url_for('gdl.static', filename='data/gdl_puntos_turisticos_ruta.json') }}",
+      zonasTuristicasUrl: "{{ url_for('gdl.static', filename='data/gdl_zonas_turisticas_normalizadas.json') }}"
+    };
+  </script>
+  <script src="{{ url_for('gdl.static', filename='js/gdl_main.js') }}"></script>
+</body>
+</html>
