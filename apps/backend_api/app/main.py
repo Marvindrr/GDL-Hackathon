@@ -5,6 +5,7 @@ import math
 
 from flask import Flask, render_template
 from flask_socketio import SocketIO
+from app.modules.gdl_turismo.backend.gdl_routes import gdl_turismo_bp
 
 BASE_DIR = Path(__file__).resolve().parents[3]
 FRONTEND_DIR = BASE_DIR / "apps" / "frontend_web"
@@ -15,7 +16,7 @@ app = Flask(
     static_folder=str(FRONTEND_DIR / "static"),
 )
 app.config["SECRET_KEY"] = "mysecret"
-
+app.register_blueprint(gdl_turismo_bp)
 socketio = SocketIO(app)
 
 
