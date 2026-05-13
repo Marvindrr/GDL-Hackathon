@@ -10,13 +10,13 @@ class GdlMapaService:
     @staticmethod
     def obtener_puntos_turisticos():
         return load_json_file(
-            "apps/frontend_web/static/modules/gdl_turismo/data/gdl_puntos_turisticos_ruta.json"
+            "apps/frontend_legacy/static/modules/gdl_turismo/data/gdl_puntos_turisticos_ruta.json"
         )
 
     @staticmethod
     def obtener_zonas_turisticas():
         return load_json_file(
-            "apps/frontend_web/static/modules/gdl_turismo/data/gdl_zonas_turisticas_normalizadas.json"
+            "apps/frontend_legacy/static/modules/gdl_turismo/data/gdl_zonas_turisticas_normalizadas.json"
         )
 
     @staticmethod
