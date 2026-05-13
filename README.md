@@ -3,53 +3,6 @@ Todo lo mencionado anteriormente lo hicimos con la finalidad de que sea un metod
 Cabe mencionar que nuestro objetivo principal es darselo al C5 ya que si lo dejamos al publico puede llegar a manos equivocadas en este caso a los delincuentes.
 
 
-Pasos para la ejecucion del sistema.
-Paso 1: Clonar el repositorio desde GitHub
-Abre la terminal y navega al directorio donde quieres clonar el proyecto.
-
-Clona el repositorio usando el comando:
-
-
-Copiar código
-"git clone https://github.com/Domovan/SeguryTechs"
-
-Navega al directorio del proyecto clonado:
-
-bash
-Copiar código
-cd nombre-repositorio
-Paso 2: Crear un entorno virtual (opcional pero recomendado)
-Crea el entorno virtual:
-
-bash
-Copiar código
-"python -m venv venv"
-Activa el entorno virtual:
-
-Windows:
-bash
-Copiar código
-venv\Scripts\activate
-
-macOS/Linux:
-bash
-Copiar código
-source venv/bin/activate
-Paso 3: Instalar las dependencias
-El repositorio puede tener un archivo llamado requirements.txt que contiene las dependencias del proyecto. Para instalarlas, ejecuta:
-
-bash
-Copiar código
-pip install -r requirements.txt
-Esto instalará Flask y cualquier otra dependencia necesaria para el proyecto.
-
-Paso 4: Ejecutar la aplicación Flask
-Busca el archivo principal del proyecto, generalmente llamado app.py, run.py, o algo similar. Asegúrate de estar en el directorio del proyecto.
-
-Ejecuta la aplicación desde la terminal:
-
-bash
-Copiar código
-python app.py
-
-Accede a la aplicación en el navegador: Abre un navegador web y ve a http://127.0.0.1:5000/ (o la dirección y puerto que se indiquen en la terminal).
+Versión local recomendada: Python 3.13
+Driver PostgreSQL: psycopg 3
+Docker backend: Python 3.11 temporalmente

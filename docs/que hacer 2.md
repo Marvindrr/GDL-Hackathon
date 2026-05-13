@@ -34,3 +34,30 @@ GDL-Hackathon/
 ├─ docker-compose.yml            # Nuevo
 ├─ .gitignore                    # Modificar
 └─ requirements.txt              # Puedes dejarlo, pero mejor dividirlo
+
+Día 1:
+- Crear tablas base en PostGIS.
+- Cargar colonias y cámaras desde JSON.
+- Consultar zona por lat/lon.
+- Consultar cámaras cercanas.
+
+Día 2:
+- Crear risk_score_service.
+- Calcular riesgo por zona.
+- Guardar riesgo_total.
+- Exponer endpoint desde backend_api.
+
+Día 3:
+- Crear eventos_seguridad y detecciones_camara.
+- Simular detección YOLO.
+- Crear evento de robo/persona sospechosa.
+- Calcular cámaras cercanas siguientes.
+
+Día 4:
+- Crear primera ruta probable de desplazamiento.
+- No con IA todavía, sino con distancia + cámaras + zona.
+
+Día 5:
+- Crear ruta segura turista.
+- Primero por zonas y puntos turísticos.
+- Luego con calles reales.

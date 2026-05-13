@@ -1,0 +1,37 @@
+flowchart TD
+
+Flujo para posible robo
+    A[Camara detecta movimiento] --> B[camaras_ingestion_service]
+    B --> C[vision_engine YOLO]
+    C --> D[detecciones_camara]
+    D --> E[comportamientos_detectados]
+    E --> F{Es posible robo o agresion?}
+    F -- Si --> G[eventos_seguridad]
+    G --> H[alertas_seguridad]
+    G --> I[risk_engine]
+    I --> J[rutas_calculadas]
+    J --> K[ruta probable de desplazamiento]
+    I --> L[camaras cercanas siguientes]
+    L --> M[frontend mapa operativo]
+
+Flujo para ruta segura turística
+
+flowchart TD
+    A[Turista elige origen y destino] --> B[backend_api]
+    B --> C[risk_engine]
+    C --> D[Consultar zonas]
+    C --> E[Consultar calles_edges]
+    C --> F[Consultar reportes recientes]
+    C --> G[Consultar camaras cercanas]
+    C --> H[Consultar factores de riesgo]
+    D --> I[Calcular costo de ruta]
+    E --> I
+    F --> I
+    G --> I
+    H --> I
+    I --> J[rutas_calculadas]
+    J --> K[frontend muestra ruta segura]
+
+
+
+    
