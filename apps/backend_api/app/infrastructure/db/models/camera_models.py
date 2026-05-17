@@ -5,7 +5,7 @@ from geoalchemy2 import Geometry
 from app.infrastructure.db.base import Base
 
 
-class Camara(Base):
+class Camara(Base):       
     __tablename__ = "camaras"
 
     id_camara: Mapped[int] = mapped_column(Integer, primary_key=True, autoincrement=True)
