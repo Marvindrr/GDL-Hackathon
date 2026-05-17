@@ -2,10 +2,13 @@ from pathlib import Path
 import json
 import re
 import math
-
 from flask import Flask, render_template
 from flask_socketio import SocketIO
 from app.modules.gdl_turismo.backend.gdl_routes import gdl_turismo_bp
+from app.api.routes.camaras_rutas import camaras_bp
+from pathlib import Path
+from flask import send_from_directory
+from app.api.routes.mapa_rutas import mapa_bp
 
 BASE_DIR = Path(__file__).resolve().parents[3]
 FRONTEND_DIR = BASE_DIR / "apps" / "frontend_web"
@@ -15,6 +18,17 @@ app = Flask(
     template_folder=str(FRONTEND_DIR / "templates"),
     static_folder=str(FRONTEND_DIR / "static"),
 )
+
+REACT_BUILD_DIR = Path(__file__).resolve().parents[2] / "frontend_web" / "static" / "react"
+
+@app.route("/nuevo")
+@app.route("/nuevo/<path:path>")
+def nuevo_frontend(path=""):
+    return send_from_directory(REACT_BUILD_DIR, "index.html")
+
+app.register_blueprint(camaras_bp)
+app.register_blueprint(mapa_bp)
+
 app.config["SECRET_KEY"] = "mysecret"
 app.register_blueprint(gdl_turismo_bp)
 socketio = SocketIO(app)
@@ -29,7 +43,7 @@ def cargar_puntos_zonas():
 def ubicaciones_camaras():
     ruta = BASE_DIR / "data" / "geo" / "ubicaciones_camaras.json"
     with open(ruta, "r", encoding="utf-8") as archivo:
-        return json.load(archivo)
+        return json.load(archivo)   
 
 
 def clasificar_por_riesgo(colonias):

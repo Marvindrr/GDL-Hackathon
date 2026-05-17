@@ -1,0 +1,18 @@
+{
+    "cam_001": {
+        "camara_id": "cam_001",
+        "nombre": "Webcam local",
+        "zona": "Prueba local",
+        "timestamp": 1778376037.9171968,
+        "detecciones": [
+            {
+                "clase": "person",
+                "confianza": 0.91
+            }
+        ],
+        "frame_url": "/api/camaras/cam_001/ultimo-frame",
+        "stream_url": "/api/camaras/cam_001/stream-vivo",
+        "latitud": 20.6736,
+        "longitud": -103.344
+    }
+}
