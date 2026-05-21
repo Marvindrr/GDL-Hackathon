@@ -1,7 +1,7 @@
 from onvif import ONVIFCamera
 from onvif.exceptions import ONVIFError
 
-IP = "192.168.100.241"
+IP = "192.168.22.208"
 PORT = 8000
 
 PASSWORD = "Uriel115"

@@ -3,7 +3,7 @@ from pathlib import Path
 import json
 import re
 import math
-
+from app.api.routes.rutas_ia_routes import rutas_ia_bp
 from flask import Flask, render_template, send_from_directory
 from flask_socketio import SocketIO
 from app.modules.gdl_turismo.backend.gdl_routes import gdl_turismo_bp
@@ -19,6 +19,7 @@ app = Flask(
 )
 app.config["SECRET_KEY"] = "mysecret"
 app.register_blueprint(gdl_turismo_bp)
+app.register_blueprint(rutas_ia_bp)
 socketio = SocketIO(app)
 
 @app.route("/gdl_static/data/<path:filename>")
@@ -42,6 +43,10 @@ def cargar_puntos_zonas():
 
 def ubicaciones_camaras():
     ruta = DATA_DIR / "geo" / "ubicaciones_camaras.json"
+    if not ruta.exists():
+        print(f"No se encontro el archivo de camaras: {ruta}")
+        return []
+
     with open(ruta, "r", encoding="utf-8") as archivo:
         return json.load(archivo)
 

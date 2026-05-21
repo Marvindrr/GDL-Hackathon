@@ -99,6 +99,48 @@ FUENTES_INICIALES = [
         "descripcion": "Fuente futura para clima, lluvia, visibilidad y contexto ambiental.",
         "activa": False,
     },
+    {
+    "nombre": "INEGI_DENUE",
+    "tipo": "negocios",
+    "descripcion": "Fuente oficial para establecimientos, comercios, tiendas y servicios cercanos.",
+    "activa": True,
+    },
+    {
+        "nombre": "SIMULACION_PUNTOS_SEGUROS",
+        "tipo": "simulacion",
+        "descripcion": "Puntos seguros simulados para pruebas y demostraciones.",
+        "activa": True,
+    },
+    {
+        "nombre": "C5_ZAPOPAN",
+        "tipo": "institucional",
+        "descripcion": "Fuente futura para puntos seguros, cámaras, botones de pánico y eventos del C5 Zapopan.",
+        "activa": False,
+    },
+    {
+        "nombre": "C5_JALISCO",
+        "tipo": "institucional",
+        "descripcion": "Fuente futura para botones de pánico e infraestructura de seguridad estatal.",
+        "activa": False,
+    },
+    {
+        "nombre": "CADENA_OXXO",
+        "tipo": "cadena_comercial",
+        "descripcion": "Fuente futura directa de tiendas OXXO consideradas puntos seguros.",
+        "activa": False,
+    },
+    {
+        "nombre": "CADENA_FARMACIAS_GUADALAJARA",
+        "tipo": "cadena_comercial",
+        "descripcion": "Fuente futura directa de Farmacias Guadalajara consideradas puntos seguros.",
+        "activa": False,
+    },
+    {
+        "nombre": "CADENA_7ELEVEN",
+        "tipo": "cadena_comercial",
+        "descripcion": "Fuente futura directa de 7-Eleven considerados puntos seguros.",
+        "activa": False,
+    },
 ]
 
 

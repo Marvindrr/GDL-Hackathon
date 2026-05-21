@@ -1,121 +1,155 @@
-{% extends "layout2.html" %}
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>GDL Vive el Mundial | Mapa Legacy</title>
 
-{% block title %}Mapa GDL{% endblock %}
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
+    <link rel="stylesheet" href="https://unpkg.com/leaflet-routing-machine@3.2.12/dist/leaflet-routing-machine.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body class="legacy-worldcup">
+    <div id="map" aria-label="Mapa interactivo de Guadalajara"></div>
 
-{% block content %}
-<div class="container">
-    <div id="map"></div>
-    <div class="search-section">
-    <a href="/gdl-turismo/" class="btn-gdl-module">
-    Módulo turístico GDL
-</a>
-        <h1>Mapa de Riesgo · GDL</h1>
-        <p>Busca una colonia, visualiza su riesgo y traza rutas de salida.</p>
+    <header class="top-overlay map-overlay">
+        <a class="brand-card interactive-element" href="/" aria-label="Inicio">
+            <span class="brand-mark"><i class="fa-solid fa-futbol"></i></span>
+            <span>
+                <strong>GDL Vive el Mundial</strong>
+                <small>Guia de sede, riesgo urbano y rutas</small>
+            </span>
+        </a>
 
-        <div class="search_bar">
-            <input type="text" id="search_input" placeholder="Colonia o código postal">
+        <div class="top-actions interactive-element">
+            <a class="icon-action" href="/gdl-turismo/" title="Modulo turistico GDL" aria-label="Modulo turistico GDL">
+                <i class="fa-solid fa-map-location-dot"></i>
+            </a>
+            <button id="open-fifa-modal" class="fifa-action" type="button">
+                <i class="fa-solid fa-trophy"></i>
+                Bitacora FIFA 2026
+            </button>
+        </div>
+    </header>
+
+    <aside class="search-panel map-overlay interactive-element" aria-label="Herramientas del mapa">
+        <div class="panel-kicker">Operador legacy</div>
+        <h1>Mapa de Riesgo GDL</h1>
+        <p>Busca colonias, revisa zonas de riesgo y calcula rutas de salida desde el punto seleccionado.</p>
+
+        <label class="field-label" for="search_input">Colonia o codigo postal</label>
+        <div class="search-box">
+            <i class="fa-solid fa-magnifying-glass"></i>
+            <input type="text" id="search_input" placeholder="Ej. Centro, Americana, Chapalita" autocomplete="off">
         </div>
 
-        <button id="show_risk_areas_button">Mostrar zonas de riesgo</button>
-        <button id="route_button">Calcular ruta</button>
+        <div id="search_results" class="search-results" aria-live="polite">
+            <p>Escribe para buscar colonias.</p>
+        </div>
 
-        <div id="search_results"></div>
+        <div class="actions-grid">
+            <button id="show_risk_areas_button" type="button" class="command-button command-risk">
+                <i class="fa-solid fa-layer-group"></i>
+                Zonas de riesgo
+            </button>
+            <button id="route_button" type="button" class="command-button command-route" disabled>
+                <i class="fa-solid fa-route"></i>
+                Calcular ruta
+            </button>
+        </div>
 
         <div id="directions_panel" class="directions-panel">
-            <h3>Indicaciones</h3>
-            <div class="directions-body">Calcula una ruta para ver los pasos aquí.</div>
+            <div class="panel-title-row">
+                <h2>Indicaciones</h2>
+                <span>Rutas</span>
+            </div>
+            <div class="directions-body">Selecciona un pin o una colonia para calcular ruta.</div>
         </div>
 
         <div class="legend">
-            <div><span class="dot green"></span> Bajo (0–25)</div>
-            <div><span class="dot yellow"></span> Moderado (26–50)</div>
-            <div><span class="dot orange"></span> Alto (51–75)</div>
-            <div><span class="dot red"></span> Muy alto (76–100)</div>
+            <span><i class="legend-dot low"></i>Bajo</span>
+            <span><i class="legend-dot mid"></i>Moderado</span>
+            <span><i class="legend-dot high"></i>Alto</span>
+            <span><i class="legend-dot severe"></i>Muy alto</span>
         </div>
+    </aside>
+
+    <nav class="category-dock map-overlay interactive-element" aria-label="Filtros de puntos FIFA y ciudad">
+        <button type="button" class="category-card active" data-filter="all">
+            <span><i class="fa-solid fa-earth-americas"></i></span>
+            <strong>Todo GDL</strong>
+            <small>Sedes, cultura y plazas</small>
+        </button>
+        <button type="button" class="category-card" data-filter="futbol">
+            <span><i class="fa-solid fa-person-running"></i></span>
+            <strong>Sedes FIFA</strong>
+            <small>Estadio y entrenamientos</small>
+        </button>
+        <button type="button" class="category-card" data-filter="turistico">
+            <span><i class="fa-solid fa-landmark"></i></span>
+            <strong>Cultura y arte</strong>
+            <small>Centro historico y visitas</small>
+        </button>
+        <button type="button" class="category-card" data-filter="comercial">
+            <span><i class="fa-solid fa-bag-shopping"></i></span>
+            <strong>Shopping</strong>
+            <small>Plazas y corredores</small>
+        </button>
+    </nav>
+
+    <div id="info-modal-centro" class="modal-backdrop hidden" role="dialog" aria-modal="true" aria-labelledby="modal-title">
+        <article class="place-modal">
+            <button id="modal-close-button" class="modal-close" type="button" aria-label="Cerrar">
+                <i class="fa-solid fa-xmark"></i>
+            </button>
+            <div class="modal-media">
+                <img id="modal-img" src="" alt="">
+                <span id="modal-badge" class="modal-badge"></span>
+            </div>
+            <div class="modal-content">
+                <h2 id="modal-title"></h2>
+                <p id="modal-desc"></p>
+                <div class="modal-actions">
+                    <button id="modal-explore-button" type="button" class="secondary-action">Explorar mapa</button>
+                    <button id="modal-route-button" type="button" class="primary-action">
+                        <i class="fa-solid fa-route"></i>
+                        Trazar ruta
+                    </button>
+                </div>
+            </div>
+        </article>
     </div>
-</div>
 
-<script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.0.0/socket.io.js"></script>
-<script src="https://unpkg.com/leaflet@1.7.1/dist/leaflet.js"></script>
-<script src="https://unpkg.com/leaflet-routing-machine/dist/leaflet-routing-machine.js"></script>
-<script src="{{ url_for('static', filename='js/main.js') }}"></script>
+    <div id="fifa-modal" class="modal-backdrop hidden" role="dialog" aria-modal="true" aria-labelledby="fifa-title">
+        <article class="fifa-modal">
+            <button id="close-fifa-modal" class="modal-close" type="button" aria-label="Cerrar">
+                <i class="fa-solid fa-xmark"></i>
+            </button>
+            <div class="fifa-header">
+                <i class="fa-solid fa-trophy"></i>
+                <h2 id="fifa-title">Mexico 2026: Operacion Tapatia</h2>
+                <p>Infraestructura, fiesta urbana y movilidad para visitantes.</p>
+            </div>
 
-<style>
-    .container {
-        display: flex;
-        justify-content: space-between;
-        align-items: flex-start;
-        margin-top: 10px;
-        gap: 16px;
-    }
-    #map {
-        flex: 1;
-        height: 600px;
-        border: 2px solid #ccc;
-        border-radius: 10px;
-    }
-    .search-section {
-        width: 32%;
-        font-family: 'Arial', sans-serif;
-    }
-    #search_results {
-        margin-top: 10px;
-        padding: 10px;
-        background-color: #f8f9fa;
-        border: 1px solid #ddd;
-        border-radius: 5px;
-        max-height: 400px;
-        overflow-y: auto;
-        box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
-    }
-    #search_results div {
-        padding: 8px;
-        border-bottom: 1px solid #ddd;
-        cursor: pointer;
-    }
-    #search_results div:last-child { border-bottom: none; }
-    #search_results div:hover { background-color: #e9ecef; }
-    #route_button, #show_risk_areas_button {
-        margin-top: 10px;
-        padding: 10px;
-        color: white;
-        border: none;
-        border-radius: 5px;
-        cursor: pointer;
-        width: 100%;
-    }
-    #route_button { background-color: #007bff; display: none; }
-    #route_button:hover { background-color: #0056b3; }
-    #show_risk_areas_button { background-color: #28a745; }
-    #show_risk_areas_button:hover { background-color: #218838; }
-    .directions-panel {
-        margin-top: 12px;
-        padding: 10px;
-        background: #f8fafc;
-        border: 1px solid #e2e8f0;
-        border-radius: 8px;
-        max-height: 260px;
-        overflow-y: auto;
-    }
-    .directions-panel h3 { margin: 0 0 8px; font-size: 15px; }
-    .directions-body { font-size: 13px; line-height: 1.4; }
-    .direction-route-title { font-weight: 600; margin-top: 6px; }
-    .direction-step { margin-left: 8px; }
-    .legend { margin-top: 12px; font-size: 14px; }
-    .legend .dot {
-        display: inline-block;
-        width: 12px; height: 12px;
-        border-radius: 50%;
-        margin-right: 8px;
-    }
-    .legend .green { background: green; }
-    .legend .yellow { background: yellow; }
-    .legend .orange { background: orange; }
-    .legend .red { background: red; }
-    @media (max-width: 768px) {
-        .container { flex-direction: column; }
-        #map { width: 100%; height: 400px; }
-        .search-section { width: 100%; }
-    }
-</style>
-{% endblock %}
+            <section class="fifa-note fifa-purple">
+                <h3><i class="fa-solid fa-futbol"></i> Estadio Akron</h3>
+                <p>Base de la sede mundialista en Guadalajara, con accesos, prensa y superficie preparados para operacion internacional.</p>
+            </section>
+            <section class="fifa-note fifa-rose">
+                <h3><i class="fa-solid fa-music"></i> Fan Festival</h3>
+                <p>Puntos de encuentro para aficionados con cultura local, gastronomia tapatia y actividades previas a los partidos.</p>
+            </section>
+            <section class="fifa-note fifa-green">
+                <h3><i class="fa-solid fa-calendar-days"></i> Calendario de sede</h3>
+                <p>La ciudad articula rutas, turismo y seguridad alrededor de los partidos oficiales y dias de mayor afluencia.</p>
+            </section>
+        </article>
+    </div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.0.0/socket.io.js"></script>
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    <script src="https://unpkg.com/leaflet-routing-machine@3.2.12/dist/leaflet-routing-machine.js"></script>
+    <script src="{{ url_for('static', filename='js/main.js') }}"></script>
+</body>
+</html>
