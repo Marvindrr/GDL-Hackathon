@@ -7,6 +7,7 @@
 
   <link rel="stylesheet" href="{{ url_for('static', filename='modules/gdl_turismo/css/gdl_styles.css') }}">
   <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
+  <link rel="stylesheet" href="https://unpkg.com/leaflet-routing-machine@3.2.12/dist/leaflet-routing-machine.css">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
 </head>
 <body>
@@ -214,6 +215,7 @@
   </main>
 
   <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
+  <script src="https://unpkg.com/leaflet-routing-machine@3.2.12/dist/leaflet-routing-machine.js"></script>
   <script src="https://unpkg.com/@turf/turf@6/turf.min.js"></script>
   <script>
     window.GDL_CONFIG = {
@@ -224,5 +226,6 @@
     };
 </script>
   <script src="{{ url_for('static', filename='modules/gdl_turismo/js/gdl_main.js') }}"></script>
+  <script src="{{ url_for('static', filename='js/rutas_ia_demo.js') }}"></script>
 </body>
 </html>

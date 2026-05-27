@@ -7,6 +7,7 @@ from app.api.routes.rutas_ia_routes import rutas_ia_bp
 from flask import Flask, render_template, send_from_directory
 from flask_socketio import SocketIO
 from app.modules.gdl_turismo.backend.gdl_routes import gdl_turismo_bp
+from app.api.routes.detecciones_routes import detecciones_bp
 
 BASE_DIR = Path(os.getenv("PROJECT_ROOT", "/workspace"))
 FRONTEND_DIR = Path(os.getenv("FRONTEND_LEGACY_DIR", "/workspace/apps/frontend_legacy"))
@@ -20,6 +21,7 @@ app = Flask(
 app.config["SECRET_KEY"] = "mysecret"
 app.register_blueprint(gdl_turismo_bp)
 app.register_blueprint(rutas_ia_bp)
+app.register_blueprint(detecciones_bp)
 socketio = SocketIO(app)
 
 @app.route("/gdl_static/data/<path:filename>")

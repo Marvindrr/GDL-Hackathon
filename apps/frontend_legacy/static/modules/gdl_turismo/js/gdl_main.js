@@ -6,6 +6,7 @@ document.addEventListener("DOMContentLoaded", async function () {
   const zonasTuristicasUrl = gdlConfig.zonasTuristicasUrl || "/gdl_static/data/gdl_zonas_turisticas_normalizadas.json";
 
   const map = L.map("map").setView([20.6736, -103.3440], 11);
+  window.map = map;
 
   L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
     attribution: "&copy; OpenStreetMap contributors"
