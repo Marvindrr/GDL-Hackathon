@@ -5,7 +5,7 @@ from sqlalchemy import func
 from app.infrastructure.db.models.geo_models import Zona
 from app.infrastructure.db.models.security_point_models import PuntoSeguridad
 from app.infrastructure.db.models.route_models import RutaCalculada, RutaPuntoControl
-from app.application.services.route_geo_utils import (
+from apps.backend_api.app.services.route_geo_utils import (
     distance_point_to_route_m,
     haversine_m,
     linestring_wkt,

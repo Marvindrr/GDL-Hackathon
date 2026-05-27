@@ -1,10 +1,15 @@
-import ast
-import math
+import json
 import unicodedata
 from difflib import get_close_matches
 from pathlib import Path
 
 from flask import Blueprint, jsonify, request
+
+from app.services.mapa_service import (
+    listar_zonas_riesgo,
+    listar_puntos_escape as listar_puntos_escape_service,
+)
+from app.services.route_geo_utils import distancia_haversine
 
 
 mapa_bp = Blueprint("mapa", __name__, url_prefix="/api/mapa")
@@ -20,46 +25,6 @@ def get_project_root():
     raise RuntimeError("No se encontró la raíz del proyecto.")
 
 
-def get_mapa_service_path():
-    root = get_project_root()
-
-    path = (
-        root
-        / "apps"
-        / "backend_api"
-        / "app"
-        / "services"
-        / "mapa_service.py"
-    )
-
-    if not path.exists():
-        raise FileNotFoundError(f"No existe mapa_service.py en: {path}")
-
-    return path
-
-
-def leer_diccionario_desde_mapa_service(nombre_variable):
-    """
-    Lee variables tipo diccionario desde mapa_service.py sin importar/ejecutar el archivo.
-    Esto evita que se ejecuten Keras, Folium o webbrowser.
-    """
-    path = get_mapa_service_path()
-
-    if not path.exists():
-        raise FileNotFoundError(f"No existe mapa_service.py en: {path}")
-
-    source = path.read_text(encoding="utf-8")
-    tree = ast.parse(source)
-
-    for node in tree.body:
-        if isinstance(node, ast.Assign):
-            for target in node.targets:
-                if isinstance(target, ast.Name) and target.id == nombre_variable:
-                    return ast.literal_eval(node.value)
-
-    return {}
-
-
 def normalizar_texto(texto):
     texto = str(texto).strip().lower()
     texto = unicodedata.normalize("NFD", texto)
@@ -71,104 +36,46 @@ def crear_id(texto):
     return normalizar_texto(texto).replace(" ", "_")
 
 
-def obtener_nivel_riesgo(riesgo):
-    if riesgo >= 60:
-        return "alto"
-
-    if riesgo >= 40:
-        return "medio"
-
-    return "bajo"
-
-
-def obtener_color_riesgo(riesgo):
-    nivel = obtener_nivel_riesgo(riesgo)
-
-    if nivel == "alto":
-        return "red"
-
-    if nivel == "medio":
-        return "orange"
-
-    return "green"
-
-
-def obtener_radio_riesgo(riesgo):
-    nivel = obtener_nivel_riesgo(riesgo)
-
-    if nivel == "alto":
-        return 450
-
-    if nivel == "medio":
-        return 350
-
-    return 250
-
-
-def distancia_haversine(lat1, lon1, lat2, lon2):
-    radio_tierra_km = 6371
-
-    lat1_rad = math.radians(lat1)
-    lat2_rad = math.radians(lat2)
-    delta_lat = math.radians(lat2 - lat1)
-    delta_lon = math.radians(lon2 - lon1)
-
-    a = (
-        math.sin(delta_lat / 2) ** 2
-        + math.cos(lat1_rad)
-        * math.cos(lat2_rad)
-        * math.sin(delta_lon / 2) ** 2
-    )
-
-    c = 2 * math.atan2(math.sqrt(a), math.sqrt(1 - a))
-
-    return radio_tierra_km * c
-
-
-def obtener_datos_mapa_service():
-    puntos_zonas = leer_diccionario_desde_mapa_service("puntos_zonas")
-    datos_riesgo = leer_diccionario_desde_mapa_service("datos_riesgo")
-    puntos_escape = leer_diccionario_desde_mapa_service("puntos_escape")
-
-    return puntos_zonas, datos_riesgo, puntos_escape
-
-
 def listar_zonas():
-    puntos_zonas, datos_riesgo, _ = obtener_datos_mapa_service()
-
+    """
+    Adapta la respuesta del nuevo mapa_service al formato que ya usaba el frontend.
+    """
+    zonas_service = listar_zonas_riesgo()
     zonas = []
 
-    for nombre, coords in puntos_zonas.items():
-        latitud, longitud = coords
-        riesgo = int(datos_riesgo.get(nombre, 0))
+    for zona in zonas_service:
+        nombre = zona.get("zona") or zona.get("nombre")
 
         zonas.append({
             "id": crear_id(nombre),
             "nombre": nombre,
-            "latitud": float(latitud),
-            "longitud": float(longitud),
-            "riesgo": riesgo,
-            "nivel_riesgo": obtener_nivel_riesgo(riesgo),
-            "color": obtener_color_riesgo(riesgo),
-            "radio": obtener_radio_riesgo(riesgo),
+            "latitud": float(zona["latitud"]),
+            "longitud": float(zona["longitud"]),
+            "riesgo": int(zona["riesgo"]),
+            "nivel_riesgo": zona.get("nivel") or zona.get("nivel_riesgo"),
+            "color": zona["color"],
+            "radio": zona["radio"],
+            "escape_sugerido": zona.get("escape_sugerido"),
         })
 
     return zonas
 
 
 def listar_puntos_escape():
-    _, _, puntos_escape = obtener_datos_mapa_service()
-
+    """
+    Adapta los puntos de escape al formato que ya usaba el frontend.
+    """
+    puntos_service = listar_puntos_escape_service()
     puntos = []
 
-    for nombre, coords in puntos_escape.items():
-        latitud, longitud = coords
+    for punto in puntos_service:
+        nombre = punto["nombre"]
 
         puntos.append({
             "id": crear_id(nombre),
             "nombre": nombre,
-            "latitud": float(latitud),
-            "longitud": float(longitud),
+            "latitud": float(punto["latitud"]),
+            "longitud": float(punto["longitud"]),
         })
 
     return puntos
@@ -195,7 +102,7 @@ def buscar_zona_por_nombre(nombre):
         nombre,
         nombres,
         n=1,
-        cutoff=0.45
+        cutoff=0.45,
     )
 
     if coincidencias:
@@ -236,8 +143,14 @@ def obtener_escape_mas_cercano(latitud, longitud):
 
 
 def calcular_ruta_escape(origen):
-    latitud = float(origen.get("latitud") or origen.get("lat"))
-    longitud = float(origen.get("longitud") or origen.get("lng"))
+    latitud = origen.get("latitud") or origen.get("lat")
+    longitud = origen.get("longitud") or origen.get("lng") or origen.get("lon")
+
+    if latitud is None or longitud is None:
+        return None
+
+    latitud = float(latitud)
+    longitud = float(longitud)
 
     escape = obtener_escape_mas_cercano(latitud, longitud)
 
@@ -298,8 +211,6 @@ def cargar_json(path):
     if not path.exists():
         return None
 
-    import json
-
     with open(path, "r", encoding="utf-8") as file:
         return json.load(file)
 
@@ -340,7 +251,7 @@ def calcular_ruta_escape_endpoint():
 
         if not zona:
             return jsonify({
-                "message": "No se encontró la zona para calcular ruta"
+                "message": "No se encontró la zona para calcular ruta",
             }), 404
 
         resultado = calcular_ruta_escape({
@@ -353,7 +264,7 @@ def calcular_ruta_escape_endpoint():
 
     if not resultado:
         return jsonify({
-            "message": "No se pudo calcular la ruta de escape"
+            "message": "No se pudo calcular la ruta de escape",
         }), 400
 
     return jsonify(resultado)
@@ -373,4 +284,5 @@ def obtener_camaras_mapa():
         return jsonify(camaras_normalizadas)
 
     camaras_geo = cargar_json(camaras_geo_path) or []
+
     return jsonify(normalizar_camaras(camaras_geo))

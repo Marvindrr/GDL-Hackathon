@@ -14,7 +14,7 @@ from app.infrastructure.db.models.ai_models import (
     TrackObservacion,
 )
 from app.infrastructure.db.models.event_models import EventoSeguridad
-from app.application.services.rutas_ia_service import RutasIAService
+from apps.backend_api.app.services.rutas_ia_service import RutasIAService
 
 
 detecciones_bp = Blueprint("detecciones", __name__, url_prefix="/api/detecciones")

@@ -1,5 +1,6 @@
 import math
 from geoalchemy2 import WKTElement
+from math import radians, sin, cos, sqrt, atan2
 
 # aqui van utilidades para calcular distancias, offsets, etc entre puntos geograficos y rutas
 EARTH_RADIUS_M = 6371000
@@ -123,4 +124,62 @@ def point_to_geojson_feature(point: dict, properties: dict | None = None) -> dic
             "coordinates": [point["lon"], point["lat"]],
         },
         "properties": properties or {},
+    }
+
+## Funciones específicas para el mapa de Guadalajara (demo) ##
+
+def distancia_haversine(lat1: float, lon1: float, lat2: float, lon2: float) -> float:
+    """
+    Devuelve la distancia aproximada en kilómetros entre dos coordenadas.
+    """
+    radio_tierra_km = 6371
+
+    lat1_rad = radians(lat1)
+    lat2_rad = radians(lat2)
+
+    delta_lat = radians(lat2 - lat1)
+    delta_lon = radians(lon2 - lon1)
+
+    a = (
+        sin(delta_lat / 2) ** 2
+        + cos(lat1_rad) * cos(lat2_rad) * sin(delta_lon / 2) ** 2
+    )
+
+    c = 2 * atan2(sqrt(a), sqrt(1 - a))
+
+    return radio_tierra_km * c
+
+
+def obtener_punto_escape_mas_cercano(
+    coordenadas_origen: tuple[float, float],
+    puntos_escape: dict[str, tuple[float, float]],
+):
+    """
+    Busca el punto de escape más cercano a una coordenada.
+    """
+    lat_origen, lon_origen = coordenadas_origen
+
+    mejor_nombre = None
+    mejor_coordenadas = None
+    mejor_distancia = float("inf")
+
+    for nombre, coordenadas_escape in puntos_escape.items():
+        lat_escape, lon_escape = coordenadas_escape
+
+        distancia = distancia_haversine(
+            lat_origen,
+            lon_origen,
+            lat_escape,
+            lon_escape,
+        )
+
+        if distancia < mejor_distancia:
+            mejor_nombre = nombre
+            mejor_coordenadas = coordenadas_escape
+            mejor_distancia = distancia
+
+    return {
+        "nombre": mejor_nombre,
+        "coordenadas": mejor_coordenadas,
+        "distancia_km": round(mejor_distancia, 2),
     }
