@@ -1,0 +1,308 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SecureVision - Sistema de Seguridad</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <!-- Sidebar -->
+    <aside class="sidebar">
+        <!-- Logo -->
+        <div class="sidebar-header">
+            <div class="logo">
+                <svg class="logo-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
+                </svg>
+                <div>
+                    <h1 class="logo-title">SecureVision</h1>
+                    <p class="logo-subtitle">Guadalajara, México</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Navigation Menu -->
+        <nav class="sidebar-nav">
+            <button class="nav-item active" data-section="mapa">
+                <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/>
+                    <polyline points="9 22 9 12 15 12 15 22"/>
+                </svg>
+                <span>Mapa Principal</span>
+            </button>
+
+            <button class="nav-item" data-section="zonas">
+                <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/>
+                    <line x1="12" y1="9" x2="12" y2="13"/>
+                    <line x1="12" y1="17" x2="12.01" y2="17"/>
+                </svg>
+                <span>Zonas de Riesgo</span>
+            </button>
+
+            <button class="nav-item" data-section="graficas">
+                <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <polyline points="23 6 13.5 15.5 8.5 10.5 1 18"/>
+                    <polyline points="17 6 23 6 23 12"/>
+                </svg>
+                <span>Gráficas</span>
+            </button>
+
+            <button class="nav-item" data-section="reportes">
+                <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
+                    <polyline points="14 2 14 8 20 8"/>
+                    <line x1="16" y1="13" x2="8" y2="13"/>
+                    <line x1="16" y1="17" x2="8" y2="17"/>
+                </svg>
+                <span>Reportes</span>
+            </button>
+
+            <button class="nav-item" data-section="camaras">
+                <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <rect x="2" y="3" width="20" height="14" rx="2" ry="2"/>
+                    <line x1="8" y1="21" x2="16" y2="21"/>
+                    <line x1="12" y1="17" x2="12" y2="21"/>
+                </svg>
+                <span>Cámaras</span>
+            </button>
+        </nav>
+
+        <!-- System Status -->
+        <div class="sidebar-footer">
+            <div class="system-status">
+                <div class="status-header">
+                    <span class="status-label">Estado del Sistema</span>
+                    <span class="status-indicator active"></span>
+                </div>
+                <p class="status-text">Operacional</p>
+            </div>
+        </div>
+    </aside>
+
+    <!-- Main Content Area -->
+    <div class="main-content">
+        <!-- Top Header -->
+        <header class="top-header">
+            <h2 class="header-title" id="sectionTitle">Panel de Control - Mapa Principal</h2>
+
+            <div class="header-actions">
+                <div class="search-box">
+                    <svg class="search-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <circle cx="11" cy="11" r="8"/>
+                        <path d="m21 21-4.35-4.35"/>
+                    </svg>
+                    <input type="text" id="searchInput" placeholder="Buscar zona o cámara..." class="search-input">
+                </div>
+
+                <button class="notification-btn">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/>
+                        <path d="M13.73 21a2 2 0 0 1-3.46 0"/>
+                    </svg>
+                    <span class="notification-badge"></span>
+                </button>
+            </div>
+        </header>
+
+        <!-- Main Grid -->
+        <div class="content-grid">
+            <!-- LEFT SIDE - MAP -->
+            <div class="map-section">
+                <!-- Large Map -->
+                <div class="map-container">
+                    <!-- Map Header -->
+                    <div class="map-header">
+                        <h3 class="map-title">
+                            <svg class="map-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/>
+                                <circle cx="12" cy="10" r="3"/>
+                            </svg>
+                            Mapa de Seguridad
+                        </h3>
+                    </div>
+
+                    <!-- Calculate Route Button -->
+                    <div class="map-route-btn">
+                        <button id="calculateRouteBtn" class="route-btn">
+                            <svg class="route-icon" id="routeIcon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <circle cx="6" cy="19" r="3"/>
+                                <path d="M9 19h8.5a3.5 3.5 0 0 0 0-7h-11a3.5 3.5 0 0 1 0-7H15"/>
+                                <polyline points="18 5 21 8 18 11"/>
+                            </svg>
+                            <span id="routeBtnText">Calcular Ruta de Escape</span>
+                        </button>
+                    </div>
+
+                    <!-- Map Display Area -->
+                    <div class="map-display">
+                        <div class="map-placeholder">
+                            <svg class="map-placeholder-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/>
+                                <circle cx="12" cy="10" r="3"/>
+                            </svg>
+                            <p class="map-placeholder-title">Área de Monitoreo</p>
+                            <p class="map-placeholder-subtitle">Guadalajara - Zona Metropolitana</p>
+                        </div>
+                    </div>
+
+                    <!-- Risk Zone Pins -->
+                    <div class="risk-pin red-zone" style="top: 33%; left: 25%;">
+                        <div class="pin-dot"></div>
+                        <div class="pin-label">Centro - Alto</div>
+                    </div>
+
+                    <div class="risk-pin yellow-zone" style="top: 50%; right: 33%;">
+                        <div class="pin-dot"></div>
+                        <div class="pin-label">Norte - Medio</div>
+                    </div>
+
+                    <div class="risk-pin green-zone" style="bottom: 25%; left: 50%;">
+                        <div class="pin-dot"></div>
+                        <div class="pin-label">Sur - Bajo</div>
+                    </div>
+
+                    <!-- Escape Route Path -->
+                    <svg class="route-path" id="routePath" style="display: none;">
+                        <defs>
+                            <marker id="arrowhead" markerWidth="10" markerHeight="10" refX="9" refY="3" orient="auto">
+                                <polygon points="0 0, 10 3, 0 6" fill="#f97316"/>
+                            </marker>
+                        </defs>
+                        <path d="M 25% 33% L 35% 25% L 50% 20% L 65% 15% L 80% 10%" stroke="#f97316" stroke-width="3" fill="none" stroke-dasharray="10,5" marker-end="url(#arrowhead)"/>
+                    </svg>
+
+                    <!-- Map Controls -->
+                    <div class="map-controls">
+                        <button class="map-control-btn">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <line x1="12" y1="6" x2="12" y2="12"/>
+                                <line x1="12" y1="12" x2="12" y2="18"/>
+                                <line x1="12" y1="12" x2="18" y2="12"/>
+                                <line x1="12" y1="12" x2="6" y2="12"/>
+                            </svg>
+                        </button>
+                        <button class="map-control-btn">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <line x1="20" y1="12" x2="4" y2="12"/>
+                            </svg>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Risk Zones Info -->
+                <div class="risk-zones-info">
+                    <h4 class="info-title">Niveles de Riesgo</h4>
+                    <div class="zones-list">
+                        <div class="zone-item">
+                            <div class="zone-dot red"></div>
+                            <span class="zone-name">Centro</span>
+                            <span class="zone-level">(Alto)</span>
+                        </div>
+                        <div class="zone-item">
+                            <div class="zone-dot yellow"></div>
+                            <span class="zone-name">Norte</span>
+                            <span class="zone-level">(Medio)</span>
+                        </div>
+                        <div class="zone-item">
+                            <div class="zone-dot green"></div>
+                            <span class="zone-name">Sur</span>
+                            <span class="zone-level">(Bajo)</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- RIGHT SIDE - CAMERA -->
+            <div class="camera-section">
+                <!-- Large Camera Feed -->
+                <div class="camera-container">
+                    <!-- Camera Header -->
+                    <div class="camera-header">
+                        <h3 class="camera-title">
+                            <svg class="camera-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <path d="m23 7-7 5 7 5V7z"/>
+                                <rect x="1" y="5" width="15" height="14" rx="2" ry="2"/>
+                            </svg>
+                            Transmisión en Vivo
+                        </h3>
+
+                        <div class="live-indicator" id="liveIndicator">
+                            <span class="live-dot"></span>
+                            EN VIVO
+                        </div>
+                    </div>
+
+                    <!-- Camera Display Area -->
+                    <div class="camera-display">
+                        <div class="camera-feed" id="cameraFeed">
+                            <svg class="camera-placeholder-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <path d="m23 7-7 5 7 5V7z"/>
+                                <rect x="1" y="5" width="15" height="14" rx="2" ry="2"/>
+                            </svg>
+                            <p class="camera-placeholder-title">Stream Activo</p>
+                            <p class="camera-placeholder-subtitle" id="cameraName">Entrada Principal</p>
+                        </div>
+
+                        <div class="camera-offline" id="cameraOffline" style="display: none;">
+                            <svg class="camera-offline-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/>
+                                <circle cx="12" cy="13" r="4"/>
+                            </svg>
+                        </div>
+
+                        <!-- Camera Info Overlay -->
+                        <div class="camera-info" id="cameraInfo">
+                            <p class="camera-info-name" id="cameraInfoName">Entrada Principal</p>
+                            <p class="camera-info-specs">1920x1080 • 30fps</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Camera Controls -->
+                <div class="camera-controls">
+                    <select id="cameraSelect" class="camera-select">
+                        <option value="cam-001">Entrada Principal ●</option>
+                        <option value="cam-002">Estacionamiento A ●</option>
+                        <option value="cam-003">Perímetro Norte ●</option>
+                        <option value="cam-004">Salida Sur ○</option>
+                    </select>
+
+                    <button id="streamToggleBtn" class="stream-btn stream-stop">
+                        <svg class="stream-icon" id="streamIcon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <rect x="6" y="4" width="4" height="16"/>
+                            <rect x="14" y="4" width="4" height="16"/>
+                        </svg>
+                        <span id="streamBtnText">Detener</span>
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Escape Route Alert -->
+        <div class="escape-alert" id="escapeAlert" style="display: none;">
+            <button class="escape-close" id="escapeCloseBtn">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <line x1="18" y1="6" x2="6" y2="18"/>
+                    <line x1="6" y1="6" x2="18" y2="18"/>
+                </svg>
+            </button>
+            <div class="escape-content">
+                <svg class="escape-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <polygon points="3 11 22 2 13 21 11 13 3 11"/>
+                </svg>
+                <div class="escape-text">
+                    <h3 class="escape-title">RUTA DE EVACUACIÓN ACTIVADA</h3>
+                    <p class="escape-description">
+                        Dirigirse a la <strong>Salida Norte</strong> • Distancia: 150 metros • Tiempo estimado: 2 minutos • Evitar Zona Centro
+                    </p>
+                </div>
+                <button class="escape-btn">Ver Instrucciones</button>
+            </div>
+        </div>
+    </div>
+
+    <script src="app.js"></script>
+</body>
+</html>

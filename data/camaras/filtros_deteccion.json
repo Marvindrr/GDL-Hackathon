@@ -1,0 +1,6 @@
+{
+  "activo": false,
+  "tipo_ropa": "cualquiera",
+  "color_ropa": "cualquiera",
+  "confianza_color_minima": 0.08
+}

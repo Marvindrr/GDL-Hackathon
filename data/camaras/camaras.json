@@ -1,0 +1,20 @@
+[
+  {
+    "id": "cam_001",
+    "nombre": "DVR Canal 1",
+    "activa": true,
+    "zona": "Centro",
+    "latitud": 20.6767,
+    "longitud": -103.3467,
+
+    "url_deteccion": "",
+    "url_stream": "",
+
+    "clases": ["person", "car", "motorcycle"],
+    "confianza_minima": 0.35,
+    "cooldown_evento": 10,
+    "intervalo_inferencia": 0.7,
+    "detectar_ropa": true,
+    "detectar_color_ropa": true
+  }
+]

@@ -8,6 +8,10 @@ from flask import Flask, render_template, send_from_directory
 from flask_socketio import SocketIO
 from app.modules.gdl_turismo.backend.gdl_routes import gdl_turismo_bp
 from app.api.routes.detecciones_routes import detecciones_bp
+from app.api.routes.camaras_rutas import camaras_bp
+from pathlib import Path
+from flask import send_from_directory
+from app.api.routes.mapa_rutas import mapa_bp
 
 BASE_DIR = Path(os.getenv("PROJECT_ROOT", "/workspace"))
 FRONTEND_DIR = Path(os.getenv("FRONTEND_LEGACY_DIR", "/workspace/apps/frontend_legacy"))
@@ -18,6 +22,17 @@ app = Flask(
     template_folder=str(FRONTEND_DIR / "templates"),
     static_folder=str(FRONTEND_DIR / "static"),
 )
+
+REACT_BUILD_DIR = Path(__file__).resolve().parents[2] / "frontend_web" / "static" / "react"
+
+@app.route("/nuevo")
+@app.route("/nuevo/<path:path>")
+def nuevo_frontend(path=""):
+    return send_from_directory(REACT_BUILD_DIR, "index.html")
+
+app.register_blueprint(camaras_bp)
+app.register_blueprint(mapa_bp)
+
 app.config["SECRET_KEY"] = "mysecret"
 app.register_blueprint(gdl_turismo_bp)
 app.register_blueprint(rutas_ia_bp)
@@ -50,7 +65,7 @@ def ubicaciones_camaras():
         return []
 
     with open(ruta, "r", encoding="utf-8") as archivo:
-        return json.load(archivo)
+        return json.load(archivo)   
 
 
 def clasificar_por_riesgo(colonias):
