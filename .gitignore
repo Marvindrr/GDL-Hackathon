@@ -9,7 +9,6 @@ __pycache__/
 *.pt
 
 node_modules/
-apps/frontend_web/dist/
 
 .DS_Store
 Thumbs.db

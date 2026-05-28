@@ -4,7 +4,7 @@ from flask import Blueprint, jsonify, request
 from sqlalchemy import func
 
 from app.infrastructure.db.session import SessionLocal
-from apps.backend_api.app.services.rutas_ia_service import RutasIAService
+from app.services.rutas_ia_service import RutasIAService
 from app.infrastructure.db.models.route_models import RutaCalculada
 
 

@@ -2,7 +2,7 @@ import json
 import unicodedata
 from difflib import get_close_matches
 from pathlib import Path
-
+import os
 from flask import Blueprint, jsonify, request
 
 from app.services.mapa_service import (
@@ -16,6 +16,11 @@ mapa_bp = Blueprint("mapa", __name__, url_prefix="/api/mapa")
 
 
 def get_project_root():
+    project_root = os.getenv("PROJECT_ROOT")
+
+    if project_root:
+        return Path(project_root)
+
     current_path = Path(__file__).resolve()
 
     for parent in current_path.parents:
@@ -272,10 +277,10 @@ def calcular_ruta_escape_endpoint():
 
 @mapa_bp.route("/camaras", methods=["GET"])
 def obtener_camaras_mapa():
-    root = get_project_root()
+    data_dir = Path(os.getenv("DATA_DIR", get_project_root() / "data"))
 
-    camaras_sistema_path = root / "data" / "camaras" / "camaras.json"
-    camaras_geo_path = root / "data" / "geo" / "ubicaciones_camaras.json"
+    camaras_sistema_path = data_dir / "camaras" / "camaras.json"
+    camaras_geo_path = data_dir / "geo" / "ubicaciones_camaras.json"
 
     camaras_sistema = cargar_json(camaras_sistema_path) or []
     camaras_normalizadas = normalizar_camaras(camaras_sistema)

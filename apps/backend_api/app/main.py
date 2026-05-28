@@ -3,7 +3,7 @@ from pathlib import Path
 import json
 import re
 import math
-from apps.backend_api.app.api.routes.rutas_ia_routes import rutas_ia_bp
+from app.api.routes.rutas_ia_routes import rutas_ia_bp
 from flask import Flask, render_template, send_from_directory
 from flask_socketio import SocketIO
 from app.modules.gdl_turismo.backend.gdl_routes import gdl_turismo_bp
@@ -11,7 +11,7 @@ from app.api.routes.detecciones_routes import detecciones_bp
 from app.api.routes.camaras_rutas import camaras_bp
 from pathlib import Path
 from flask import send_from_directory
-from apps.backend_api.app.api.routes.mapa_rutas import mapa_bp
+from app.api.routes.mapa_rutas import mapa_bp
 
 BASE_DIR = Path(os.getenv("PROJECT_ROOT", "/workspace"))
 FRONTEND_DIR = Path(os.getenv("FRONTEND_LEGACY_DIR", "/workspace/apps/frontend_legacy"))
