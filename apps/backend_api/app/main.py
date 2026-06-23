@@ -205,26 +205,12 @@ def handle_waypoint_dragged(data):
 
 @app.route("/estadisticas/<int:opcion>")
 def estadisticas(opcion):
-    # Aquí todavía te faltan estos imports/funciones reales:
-    # from apps.backend_api.app.infrastructure.db.conexion import obtener_conexion
-    # from ... import graficar_datos
-    try:
-        conexion = obtener_conexion()
-        cursor = conexion.cursor()
-        cursor.execute("SELECT nombre, riesgo FROM zonas order by riesgo desc;")
-        bd = cursor.fetchall()
-        cursor.close()
-        conexion.close()
-    except Exception as e:
-        print(f"Error al consultar BD: {e}")
-        bd = []
-
-    nombres1 = [c[0] for c in bd]
-    riesgos1 = [c[1] for c in bd]
-    combinados = list(zip(nombres1, riesgos1))
-    img1 = graficar_datos(opcion)
-
-    return render_template("estadisticas.html", img=img1, combinados=combinados)
+    return render_template(
+        "estadisticas.html",
+        img=None,
+        combinados=[],
+        mensaje="Módulo de estadísticas pendiente de implementación."
+    )
 
 
 @socketio.on("enviar_coordenadas")

@@ -14,17 +14,15 @@ export default defineConfig(({ command }) => ({
   server: {
     port: 5173,
     proxy: {
-      "/api": {
-        target: "http://localhost:5000",
-        changeOrigin: true,
-      },
-      "/gdl-turismo": {
-        target: "http://localhost:5000",
-        changeOrigin: true,
-      },
-      "/static": {
-        target: "http://localhost:5000",
-        changeOrigin: true,
+  "/api": {
+    target: "http://backend_api:5000",
+    changeOrigin: true,
+    secure: false,
+  },
+  "/gdl-turismo": {
+    target: "http://backend_api:5000",
+    changeOrigin: true,
+    secure: false,
       },
     },
   },

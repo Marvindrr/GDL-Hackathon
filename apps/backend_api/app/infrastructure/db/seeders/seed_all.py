@@ -1,5 +1,6 @@
 import os
 
+from app.infrastructure.db.seeders.seed_camaras_prueba import seed_camaras_prueba
 from app.infrastructure.db.seeders.seed_fuentes import seed_fuentes
 from app.infrastructure.db.seeders.seed_modelos_ia import seed_modelos_ia
 from app.infrastructure.db.seeders.seed_municipios import seed_municipios
@@ -23,6 +24,7 @@ def seed_all():
 
     if os.getenv("RUN_DENUE_SEED", "0") == "1":
         seed_puntos_seguridad_denue()
+        seed_camaras_prueba()
     else:
         print("Seed DENUE omitido. Para correrlo usa RUN_DENUE_SEED=1.")
 

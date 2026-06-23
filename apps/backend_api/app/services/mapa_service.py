@@ -2,9 +2,13 @@
 # puntos de escape y resúmenes relacionados al mapa.
 # No debe contener lógica de entrenamiento, generación de HTML o apertura de navegador.
 
-from app.data.mapa_demo_data import PUNTOS_ZONAS, DATOS_RIESGO, PUNTOS_ESCAPE
-from app.services.route_geo_utils import obtener_punto_escape_mas_cercano
+from sqlalchemy import func
 
+from app.data.mapa_demo_data import PUNTOS_ZONAS, DATOS_RIESGO, PUNTOS_ESCAPE
+from app.infrastructure.db.session import SessionLocal
+from app.infrastructure.db.models.geo_models import Zona, Municipio
+from app.infrastructure.db.models.security_point_models import PuntoSeguridad
+from app.services.route_geo_utils import obtener_punto_escape_mas_cercano
 
 def obtener_color_y_radio_por_riesgo(riesgo: int):
     """
@@ -30,13 +34,62 @@ def obtener_color_y_radio_por_riesgo(riesgo: int):
         "radio": 250,
     }
 
+def listar_zonas_riesgo_desde_bd():
+    db = None
 
-def listar_zonas_riesgo():
-    """
-    Regresa las zonas con coordenadas, riesgo, nivel, color y ruta de escape sugerida.
-    Esta función es segura para usarse desde FastAPI.
-    No entrena modelos, no genera HTML y no abre navegador.
-    """
+    try:
+        db = SessionLocal()
+
+        rows = (
+            db.query(
+                Zona.id_zona,
+                Zona.nombre,
+                Zona.tipo,
+                Zona.riesgo_base,
+                Municipio.nombre.label("municipio"),
+                func.ST_Y(Zona.centro).label("latitud"),
+                func.ST_X(Zona.centro).label("longitud"),
+            )
+            .outerjoin(Municipio, Municipio.id_municipio == Zona.id_municipio)
+            .filter(Zona.centro.isnot(None))
+            .order_by(Zona.nombre.asc())
+            .all()
+        )
+
+        zonas = []
+
+        for row in rows:
+            riesgo = int(float(row.riesgo_base or 0))
+            estilo = obtener_color_y_radio_por_riesgo(riesgo)
+
+            zonas.append({
+                "id_zona": row.id_zona,
+                "zona": row.nombre,
+                "nombre": row.nombre,
+                "municipio": row.municipio,
+                "tipo": row.tipo,
+                "latitud": float(row.latitud),
+                "longitud": float(row.longitud),
+                "riesgo": riesgo,
+                "nivel": estilo["nivel"],
+                "nivel_riesgo": estilo["nivel"],
+                "color": estilo["color"],
+                "radio": estilo["radio"],
+                "escape_sugerido": None,
+                "fuente": "bd",
+            })
+
+        return zonas
+
+    except Exception as error:
+        print(f"[mapa_service] Error cargando zonas desde BD: {error}")
+        return []
+
+    finally:
+        if db:
+            db.close()
+
+def listar_zonas_riesgo_demo():
     zonas = []
 
     for nombre_zona, coordenadas in PUNTOS_ZONAS.items():
@@ -45,13 +98,16 @@ def listar_zonas_riesgo():
 
         zona = {
             "zona": nombre_zona,
+            "nombre": nombre_zona,
             "latitud": coordenadas[0],
             "longitud": coordenadas[1],
             "riesgo": riesgo,
             "nivel": estilo["nivel"],
+            "nivel_riesgo": estilo["nivel"],
             "color": estilo["color"],
             "radio": estilo["radio"],
             "escape_sugerido": None,
+            "fuente": "demo",
         }
 
         if riesgo >= 60:
@@ -63,6 +119,15 @@ def listar_zonas_riesgo():
         zonas.append(zona)
 
     return zonas
+
+
+def listar_zonas_riesgo():
+    zonas_bd = listar_zonas_riesgo_desde_bd()
+
+    if zonas_bd:
+        return zonas_bd
+
+    return listar_zonas_riesgo_demo()
 
 
 def listar_puntos_escape():

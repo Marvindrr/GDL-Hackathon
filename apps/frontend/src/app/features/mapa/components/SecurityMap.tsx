@@ -109,7 +109,16 @@ function textoNivelRiesgo(riesgo: number) {
   if (riesgo <= 50) return "Moderado";
   if (riesgo <= 75) return "Alto";
 
+
   return "Muy alto";
+}
+
+function normalizarTexto(texto?: string) {
+  return (texto || "")
+    .toLowerCase()
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "")
+    .trim();
 }
 
 function MapController({
@@ -261,6 +270,7 @@ function RoutingController({
 }
 
 export function SecurityMap({
+  activeSection,
   ultimaDeteccion,
   calcularRutaTrigger = 0,
   onCalculandoRutaChange,
@@ -351,6 +361,23 @@ export function SecurityMap({
     }
   }
 
+  const mostrarMapaCompleto = activeSection === "zonas";
+
+const zonasVisibles = mostrarMapaCompleto
+  ? zonas
+  : zonaSeleccionada
+    ? [zonaSeleccionada]
+    : [];
+
+const camarasVisibles = mostrarMapaCompleto
+  ? camaras
+  : zonaSeleccionada
+    ? camaras.filter(
+        (camara) =>
+          normalizarTexto(camara.zona) === normalizarTexto(zonaSeleccionada.nombre)
+      )
+    : [];
+
   return (
     <div className="absolute inset-0 bg-slate-950">
       <MapContainer
@@ -364,13 +391,13 @@ export function SecurityMap({
           url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
         />
 
-        {zonas.map((zona) => {
+        {zonasVisibles.map((zona, index) => {
           const selected = zonaSeleccionada?.id === zona.id;
           const color = colorPorRiesgoValor(zona.riesgo);
           const radio = zona.radio || radioPorRiesgo(zona.riesgo);
 
           return (
-            <Fragment key={zona.id}>
+            <Fragment key={`${zona.id}-${index}`}>
               <Circle
                 center={[zona.latitud, zona.longitud]}
                 radius={radio}
@@ -422,7 +449,7 @@ export function SecurityMap({
           );
         })}
 
-        {camaras.map((camara) => {
+        {camarasVisibles.map((camara) => {
           const esAlerta = ultimaDeteccion?.camara_id === camara.id;
 
           return (

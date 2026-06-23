@@ -11,18 +11,31 @@ import json
 import time
 from pathlib import Path
 
-from flask import Blueprint, jsonify, send_file, Response, abort
+from flask import Blueprint, jsonify, send_file, Response, abort, request
 
 
 camaras_bp = Blueprint("camaras", __name__, url_prefix="/api/camaras")
 
 
 def get_project_root():
+    project_root = os.getenv("PROJECT_ROOT")
+
+    if project_root:
+        path = Path(project_root)
+
+        if path.exists():
+            return path
+
     current_path = Path(__file__).resolve()
 
     for parent in current_path.parents:
         if (parent / "apps").exists() and (parent / "data").exists():
             return parent
+
+    docker_root = Path("/workspace")
+
+    if docker_root.exists():
+        return docker_root
 
     raise RuntimeError("No se encontró la raíz del proyecto.")
 
@@ -33,6 +46,50 @@ def cargar_json(path):
 
     with open(path, "r", encoding="utf-8") as file:
         return json.load(file)
+    
+FILTROS_DETECCION_DEFAULT = {
+    "activo": False,
+    "tipo_ropa": "cualquiera",
+    "color_ropa": "cualquiera",
+    "confianza_color_minima": 0.08,
+}
+
+
+def guardar_json(path, data):
+    path.parent.mkdir(parents=True, exist_ok=True)
+
+    with open(path, "w", encoding="utf-8") as file:
+        json.dump(data, file, ensure_ascii=False, indent=2)
+
+
+def obtener_ruta_filtros_deteccion():
+    root = get_project_root()
+    return root / "data" / "camaras" / "filtros_deteccion.json"
+
+
+def normalizar_filtros_deteccion(data):
+    if not isinstance(data, dict):
+        return FILTROS_DETECCION_DEFAULT.copy()
+
+    filtros = FILTROS_DETECCION_DEFAULT.copy()
+
+    filtros["activo"] = bool(data.get("activo", filtros["activo"]))
+    filtros["tipo_ropa"] = data.get("tipo_ropa") or filtros["tipo_ropa"]
+    filtros["color_ropa"] = data.get("color_ropa") or filtros["color_ropa"]
+
+    try:
+        filtros["confianza_color_minima"] = float(
+            data.get(
+                "confianza_color_minima",
+                filtros["confianza_color_minima"]
+            )
+        )
+    except (TypeError, ValueError):
+        filtros["confianza_color_minima"] = FILTROS_DETECCION_DEFAULT[
+            "confianza_color_minima"
+        ]
+
+    return filtros
 
 
 def normalizar_fuente_video(fuente):
@@ -84,6 +141,27 @@ def listar_camaras():
         })
 
     return jsonify(camaras_publicas)
+
+@camaras_bp.route("/filtros-deteccion", methods=["GET"])
+def obtener_filtros_deteccion():
+    path = obtener_ruta_filtros_deteccion()
+    filtros = cargar_json(path) or FILTROS_DETECCION_DEFAULT.copy()
+
+    return jsonify(normalizar_filtros_deteccion(filtros))
+
+
+@camaras_bp.route("/filtros-deteccion", methods=["POST"])
+def actualizar_filtros_deteccion():
+    data = request.get_json(silent=True) or {}
+    filtros = normalizar_filtros_deteccion(data)
+
+    path = obtener_ruta_filtros_deteccion()
+    guardar_json(path, filtros)
+
+    return jsonify({
+        "ok": True,
+        "filtros": filtros,
+    })
 
 
 @camaras_bp.route("/eventos")

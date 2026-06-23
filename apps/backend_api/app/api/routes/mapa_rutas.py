@@ -101,21 +101,20 @@ def buscar_zona_por_nombre(nombre):
         if query in normalizar_texto(zona["nombre"]):
             return zona
 
-    nombres = [zona["nombre"] for zona in zonas]
+    zonas_por_nombre_normalizado = {
+        normalizar_texto(zona["nombre"]): zona
+        for zona in zonas
+    }
 
     coincidencias = get_close_matches(
-        nombre,
-        nombres,
+        query,
+        list(zonas_por_nombre_normalizado.keys()),
         n=1,
         cutoff=0.45,
     )
 
     if coincidencias:
-        nombre_encontrado = coincidencias[0]
-
-        for zona in zonas:
-            if zona["nombre"] == nombre_encontrado:
-                return zona
+        return zonas_por_nombre_normalizado[coincidencias[0]]
 
     return None
 
