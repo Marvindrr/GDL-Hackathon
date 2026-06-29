@@ -24,11 +24,12 @@ import type {
   ZonaRiesgoMapa,
 } from "../types/mapa.types";
 
+
 type Props = {
-  activeSection: string;
-  ultimaDeteccion: EventoCamara | null;
+  activeSection?: string;
+  ultimaDeteccion?: any;
   calcularRutaTrigger?: number;
-  onCalculandoRutaChange?: (loading: boolean) => void;
+  onCalculandoRutaChange?: (calculando: boolean) => void;
   busquedaZonaTexto?: string;
   busquedaZonaTrigger?: number;
   onZonaSeleccionadaChange?: (zona: ZonaRiesgoMapa | null) => void;
@@ -361,7 +362,10 @@ export function SecurityMap({
     }
   }
 
-  const mostrarMapaCompleto = activeSection === "zonas";
+  const mostrarMapaCompleto =
+  activeSection === "zonas" ||
+  activeSection === "estadisticas" ||
+  activeSection === "stats";
 
 const zonasVisibles = mostrarMapaCompleto
   ? zonas
@@ -372,11 +376,59 @@ const zonasVisibles = mostrarMapaCompleto
 const camarasVisibles = mostrarMapaCompleto
   ? camaras
   : zonaSeleccionada
-    ? camaras.filter(
-        (camara) =>
-          normalizarTexto(camara.zona) === normalizarTexto(zonaSeleccionada.nombre)
-      )
-    : [];
+    ? camaras.filter((camara) => camaraPerteneceAZona(camara, zonaSeleccionada))
+    : [];;
+
+function distanciaKm(
+  puntoA: { latitud: number; longitud: number },
+  puntoB: { latitud: number; longitud: number }
+) {
+  const radioTierraKm = 6371;
+
+  const lat1 = puntoA.latitud * Math.PI / 180;
+  const lat2 = puntoB.latitud * Math.PI / 180;
+  const deltaLat = (puntoB.latitud - puntoA.latitud) * Math.PI / 180;
+  const deltaLon = (puntoB.longitud - puntoA.longitud) * Math.PI / 180;
+
+  const a =
+    Math.sin(deltaLat / 2) * Math.sin(deltaLat / 2) +
+    Math.cos(lat1) *
+      Math.cos(lat2) *
+      Math.sin(deltaLon / 2) *
+      Math.sin(deltaLon / 2);
+
+  const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+
+  return radioTierraKm * c;
+}
+
+function camaraPerteneceAZona(camara: MapaCamara, zona: ZonaRiesgoMapa) {
+  const zonaCamara = normalizarTexto(camara.zona);
+  const nombreZona = normalizarTexto(zona.nombre);
+
+  const coincidePorNombre =
+    zonaCamara.length > 0 &&
+    (
+      zonaCamara === nombreZona ||
+      zonaCamara.includes(nombreZona) ||
+      nombreZona.includes(zonaCamara)
+    );
+
+  const distancia = distanciaKm(
+    {
+      latitud: camara.latitud,
+      longitud: camara.longitud,
+    },
+    {
+      latitud: zona.latitud,
+      longitud: zona.longitud,
+    }
+  );
+
+  const radioBusquedaKm = Math.max((zona.radio || 500) / 1000 + 0.5, 1);
+
+  return coincidePorNombre || distancia <= radioBusquedaKm;
+}
 
   return (
     <div className="absolute inset-0 bg-slate-950">
