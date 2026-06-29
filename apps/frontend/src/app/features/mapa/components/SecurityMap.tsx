@@ -1,19 +1,19 @@
-import { Fragment, useEffect, useRef, useState } from "react";
+import { Fragment, useEffect, useState } from "react";
 import L from "leaflet";
-import "leaflet-routing-machine";
 import {
   Circle,
   CircleMarker,
   MapContainer,
   Marker,
   Popup,
+  Polyline,
   TileLayer,
   useMap,
 } from "react-leaflet";
 
-import type { EventoCamara } from "../../../types/camaras.types";
 import {
   buscarZonaMapa,
+  calcularRutaProbableAtacante,
   obtenerCamarasMapa,
   obtenerZonasMapa,
 } from "../services/mapa.service";
@@ -21,9 +21,9 @@ import type {
   MapaCamara,
   PuntoMapa,
   RutaEscapeMapa,
+  RutaProbableAtacanteFeature,
   ZonaRiesgoMapa,
 } from "../types/mapa.types";
-
 
 type Props = {
   activeSection?: string;
@@ -39,7 +39,7 @@ type Props = {
 
 const GDL_CENTER: [number, number] = [20.6736, -103.344];
 
-const COLORES_RUTA = ["#00b894", "#d63031", "#0984e3", "#e17055"];
+const COLORES_RUTA = ["#ef4444", "#f97316", "#eab308", "#38bdf8"];
 
 const cameraIcon = L.divIcon({
   className: "",
@@ -110,7 +110,6 @@ function textoNivelRiesgo(riesgo: number) {
   if (riesgo <= 50) return "Moderado";
   if (riesgo <= 75) return "Alto";
 
-
   return "Muy alto";
 }
 
@@ -120,6 +119,119 @@ function normalizarTexto(texto?: string) {
     .normalize("NFD")
     .replace(/[\u0300-\u036f]/g, "")
     .trim();
+}
+
+function distanciaKm(
+  puntoA: { latitud: number; longitud: number },
+  puntoB: { latitud: number; longitud: number }
+) {
+  const radioTierraKm = 6371;
+
+  const lat1 = (puntoA.latitud * Math.PI) / 180;
+  const lat2 = (puntoB.latitud * Math.PI) / 180;
+  const deltaLat = ((puntoB.latitud - puntoA.latitud) * Math.PI) / 180;
+  const deltaLon = ((puntoB.longitud - puntoA.longitud) * Math.PI) / 180;
+
+  const a =
+    Math.sin(deltaLat / 2) * Math.sin(deltaLat / 2) +
+    Math.cos(lat1) *
+      Math.cos(lat2) *
+      Math.sin(deltaLon / 2) *
+      Math.sin(deltaLon / 2);
+
+  const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+
+  return radioTierraKm * c;
+}
+
+function camaraPerteneceAZona(camara: MapaCamara, zona: ZonaRiesgoMapa) {
+  const zonaCamara = normalizarTexto(camara.zona);
+  const nombreZona = normalizarTexto(zona.nombre);
+
+  const coincidePorNombre =
+    zonaCamara.length > 0 &&
+    (zonaCamara === nombreZona ||
+      zonaCamara.includes(nombreZona) ||
+      nombreZona.includes(zonaCamara));
+
+  const distancia = distanciaKm(
+    {
+      latitud: camara.latitud,
+      longitud: camara.longitud,
+    },
+    {
+      latitud: zona.latitud,
+      longitud: zona.longitud,
+    }
+  );
+
+  const radioBusquedaKm = Math.max((zona.radio || 500) / 1000 + 0.5, 1);
+
+  return coincidePorNombre || distancia <= radioBusquedaKm;
+}
+
+function obtenerNumero(valor: unknown, fallback = 0) {
+  const numero = Number(valor);
+
+  return Number.isFinite(numero) ? numero : fallback;
+}
+
+function obtenerPropiedadNumerica(
+  ruta: RutaProbableAtacanteFeature,
+  propiedad: string,
+  fallback = 0
+) {
+  return obtenerNumero(ruta.properties?.[propiedad], fallback);
+}
+
+function obtenerPropiedadTexto(
+  ruta: RutaProbableAtacanteFeature,
+  propiedad: string,
+  fallback = "N/D"
+) {
+  const valor = ruta.properties?.[propiedad];
+
+  if (typeof valor === "string" && valor.trim().length > 0) {
+    return valor;
+  }
+
+  return fallback;
+}
+
+function convertirRutaAResumen(
+  ruta: RutaProbableAtacanteFeature,
+  index: number
+): RutaEscapeMapa {
+  const direccion = obtenerPropiedadTexto(ruta, "direccion", `Ruta ${index + 1}`);
+  const probabilidad = obtenerPropiedadNumerica(
+    ruta,
+    "probabilidad_operativa",
+    0
+  );
+  const riesgo = obtenerPropiedadNumerica(ruta, "riesgo_zonas", 0);
+  const distancia = obtenerPropiedadNumerica(ruta, "distancia_m", 0);
+  const color = COLORES_RUTA[index % COLORES_RUTA.length];
+
+  return {
+    id: index + 1,
+    color,
+    distancia,
+    duracion: 0,
+    instrucciones: [
+      {
+        texto: `Ruta probable hacia ${direccion}.`,
+      },
+      {
+        texto: `Score operativo: ${probabilidad.toFixed(2)}%.`,
+      },
+      {
+        texto: `Riesgo de zonas cercanas: ${riesgo.toFixed(2)}%.`,
+      },
+      {
+        texto: `Distancia estimada: ${Math.round(distancia)} m.`,
+      },
+    ],
+  };
 }
 
 function MapController({
@@ -140,132 +252,26 @@ function MapController({
   return null;
 }
 
-function RoutingController({
-  origen,
-  calcularRutaTrigger,
-  onCalculandoRutaChange,
-  onRutasEscapeChange,
+function RoutesFitController({
+  rutas,
 }: {
-  origen: PuntoMapa | null;
-  calcularRutaTrigger: number;
-  onCalculandoRutaChange?: (loading: boolean) => void;
-  onRutasEscapeChange?: (rutas: RutaEscapeMapa[]) => void;
+  rutas: RutaProbableAtacanteFeature[];
 }) {
   const map = useMap();
-  const routeControlsRef = useRef<any[]>([]);
-
-  function limpiarRutas() {
-    routeControlsRef.current.forEach((control) => {
-      try {
-        map.removeControl(control);
-      } catch {
-        // Ignorar si el control ya fue removido.
-      }
-    });
-
-    routeControlsRef.current = [];
-  }
 
   useEffect(() => {
-    return () => {
-      limpiarRutas();
-    };
-  }, []);
+    const puntos = rutas.flatMap((ruta) =>
+      ruta.geometry?.coordinates?.map(([lon, lat]) => [lat, lon] as [number, number]) || []
+    );
 
-  useEffect(() => {
-    limpiarRutas();
-    onRutasEscapeChange?.([]);
-    onCalculandoRutaChange?.(false);
-  }, [origen?.lat, origen?.lng]);
-
-  useEffect(() => {
-    if (calcularRutaTrigger <= 0 || !origen) {
+    if (puntos.length === 0) {
       return;
     }
 
-    limpiarRutas();
-    onRutasEscapeChange?.([]);
-    onCalculandoRutaChange?.(true);
-
-    const destinos = [
-      { lat: origen.lat + 0.01, lng: origen.lng + 0.01 },
-      { lat: origen.lat - 0.01, lng: origen.lng - 0.01 },
-      { lat: origen.lat + 0.01, lng: origen.lng - 0.01 },
-      { lat: origen.lat - 0.01, lng: origen.lng + 0.01 },
-    ];
-
-    let rutasTerminadas = 0;
-    const rutasResultado: RutaEscapeMapa[] = [];
-
-    destinos.forEach((destino, index) => {
-      const color = COLORES_RUTA[index % COLORES_RUTA.length];
-
-      const control = (L as any).Routing.control({
-        waypoints: [
-          L.latLng(origen.lat, origen.lng),
-          L.latLng(destino.lat, destino.lng),
-        ],
-        addWaypoints: false,
-        draggableWaypoints: false,
-        fitSelectedRoutes: index === 0,
-        show: false,
-        createMarker: () => null,
-        lineOptions: {
-          styles: [
-            {
-              color,
-              weight: 5,
-              opacity: 0.85,
-            },
-          ],
-        },
-      }).addTo(map);
-
-      routeControlsRef.current.push(control);
-
-      const container = control.getContainer?.();
-
-      if (container) {
-        container.style.display = "none";
-      }
-
-      control.on("routesfound", (event: any) => {
-        const route = event.routes?.[0];
-
-        if (route) {
-          rutasResultado.push({
-            id: index + 1,
-            color,
-            distancia: route.summary?.totalDistance || 0,
-            duracion: route.summary?.totalTime || 0,
-            instrucciones: (route.instructions || []).map(
-              (instruction: any) => ({
-                texto: instruction.text,
-              })
-            ),
-          });
-        }
-
-        rutasTerminadas += 1;
-
-        if (rutasTerminadas === destinos.length) {
-          rutasResultado.sort((a, b) => a.id - b.id);
-          onRutasEscapeChange?.(rutasResultado);
-          onCalculandoRutaChange?.(false);
-        }
-      });
-
-      control.on("routingerror", () => {
-        rutasTerminadas += 1;
-
-        if (rutasTerminadas === destinos.length) {
-          rutasResultado.sort((a, b) => a.id - b.id);
-          onRutasEscapeChange?.(rutasResultado);
-          onCalculandoRutaChange?.(false);
-        }
-      });
+    map.fitBounds(puntos, {
+      padding: [40, 40],
     });
-  }, [calcularRutaTrigger]);
+  }, [map, rutas]);
 
   return null;
 }
@@ -286,6 +292,28 @@ export function SecurityMap({
   const [selectedPoint, setSelectedPoint] = useState<PuntoMapa | null>(null);
   const [zonaSeleccionada, setZonaSeleccionada] =
     useState<ZonaRiesgoMapa | null>(null);
+  const [rutasAtacante, setRutasAtacante] = useState<
+    RutaProbableAtacanteFeature[]
+  >([]);
+
+  const mostrarMapaCompleto =
+    activeSection === "zonas" ||
+    activeSection === "estadisticas" ||
+    activeSection === "stats";
+
+  const zonasVisibles = mostrarMapaCompleto
+    ? zonas
+    : zonaSeleccionada
+      ? [zonaSeleccionada]
+      : [];
+
+  const camarasVisibles = mostrarMapaCompleto
+    ? camaras
+    : zonaSeleccionada
+      ? camaras.filter((camara) =>
+          camaraPerteneceAZona(camara, zonaSeleccionada)
+        )
+      : [];
 
   useEffect(() => {
     cargarDatosMapa();
@@ -300,15 +328,26 @@ export function SecurityMap({
   }, [busquedaZonaTrigger]);
 
   useEffect(() => {
-    if (!ultimaDeteccion?.latitud || !ultimaDeteccion?.longitud) {
+    if (!ultimaDeteccion) {
       return;
     }
 
-    setSelectedPoint({
-      lat: ultimaDeteccion.latitud,
-      lng: ultimaDeteccion.longitud,
-    });
+    const puntoDeteccion = obtenerPuntoDesdeDeteccion();
+
+    if (!puntoDeteccion) {
+      return;
+    }
+
+    setSelectedPoint(puntoDeteccion);
   }, [ultimaDeteccion]);
+
+  useEffect(() => {
+    if (calcularRutaTrigger <= 0) {
+      return;
+    }
+
+    calcularRutasProbablesAtacante();
+  }, [calcularRutaTrigger]);
 
   async function cargarDatosMapa() {
     try {
@@ -333,6 +372,7 @@ export function SecurityMap({
 
     setZonaSeleccionada(zona);
     setSelectedPoint(punto);
+    setRutasAtacante([]);
 
     onZonaSeleccionadaChange?.(zona);
     onRutasEscapeChange?.([]);
@@ -351,6 +391,10 @@ export function SecurityMap({
       const zona = await buscarZonaMapa(query);
 
       if (!zona) {
+        setZonaSeleccionada(null);
+        setRutasAtacante([]);
+        onZonaSeleccionadaChange?.(null);
+        onRutasEscapeChange?.([]);
         onMensajeBusquedaChange?.(`No se encontró una colonia con: ${query}`);
         return;
       }
@@ -362,73 +406,121 @@ export function SecurityMap({
     }
   }
 
-  const mostrarMapaCompleto =
-  activeSection === "zonas" ||
-  activeSection === "estadisticas" ||
-  activeSection === "stats";
+  function obtenerPuntoDesdeDeteccion(): PuntoMapa | null {
+    if (ultimaDeteccion?.latitud && ultimaDeteccion?.longitud) {
+      return {
+        lat: Number(ultimaDeteccion.latitud),
+        lng: Number(ultimaDeteccion.longitud),
+      };
+    }
 
-const zonasVisibles = mostrarMapaCompleto
-  ? zonas
-  : zonaSeleccionada
-    ? [zonaSeleccionada]
-    : [];
+    if (ultimaDeteccion?.lat && ultimaDeteccion?.lon) {
+      return {
+        lat: Number(ultimaDeteccion.lat),
+        lng: Number(ultimaDeteccion.lon),
+      };
+    }
 
-const camarasVisibles = mostrarMapaCompleto
-  ? camaras
-  : zonaSeleccionada
-    ? camaras.filter((camara) => camaraPerteneceAZona(camara, zonaSeleccionada))
-    : [];;
+    if (ultimaDeteccion?.lat && ultimaDeteccion?.lng) {
+      return {
+        lat: Number(ultimaDeteccion.lat),
+        lng: Number(ultimaDeteccion.lng),
+      };
+    }
 
-function distanciaKm(
-  puntoA: { latitud: number; longitud: number },
-  puntoB: { latitud: number; longitud: number }
-) {
-  const radioTierraKm = 6371;
-
-  const lat1 = puntoA.latitud * Math.PI / 180;
-  const lat2 = puntoB.latitud * Math.PI / 180;
-  const deltaLat = (puntoB.latitud - puntoA.latitud) * Math.PI / 180;
-  const deltaLon = (puntoB.longitud - puntoA.longitud) * Math.PI / 180;
-
-  const a =
-    Math.sin(deltaLat / 2) * Math.sin(deltaLat / 2) +
-    Math.cos(lat1) *
-      Math.cos(lat2) *
-      Math.sin(deltaLon / 2) *
-      Math.sin(deltaLon / 2);
-
-  const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
-
-  return radioTierraKm * c;
-}
-
-function camaraPerteneceAZona(camara: MapaCamara, zona: ZonaRiesgoMapa) {
-  const zonaCamara = normalizarTexto(camara.zona);
-  const nombreZona = normalizarTexto(zona.nombre);
-
-  const coincidePorNombre =
-    zonaCamara.length > 0 &&
-    (
-      zonaCamara === nombreZona ||
-      zonaCamara.includes(nombreZona) ||
-      nombreZona.includes(zonaCamara)
+    const camaraDetectada = camaras.find(
+      (camara) => camara.id === ultimaDeteccion?.camara_id
     );
 
-  const distancia = distanciaKm(
-    {
-      latitud: camara.latitud,
-      longitud: camara.longitud,
-    },
-    {
-      latitud: zona.latitud,
-      longitud: zona.longitud,
+    if (camaraDetectada) {
+      return {
+        lat: camaraDetectada.latitud,
+        lng: camaraDetectada.longitud,
+      };
     }
-  );
 
-  const radioBusquedaKm = Math.max((zona.radio || 500) / 1000 + 0.5, 1);
+    return null;
+  }
 
-  return coincidePorNombre || distancia <= radioBusquedaKm;
-}
+  function obtenerOrigenParaRutasAtacante() {
+    if (selectedPoint) {
+      return {
+        lat: selectedPoint.lat,
+        lon: selectedPoint.lng,
+      };
+    }
+
+    const puntoDeteccion = obtenerPuntoDesdeDeteccion();
+
+    if (puntoDeteccion) {
+      return {
+        lat: puntoDeteccion.lat,
+        lon: puntoDeteccion.lng,
+      };
+    }
+
+    if (zonaSeleccionada) {
+      return {
+        lat: zonaSeleccionada.latitud,
+        lon: zonaSeleccionada.longitud,
+      };
+    }
+
+    return null;
+  }
+
+  async function calcularRutasProbablesAtacante() {
+    const origen = obtenerOrigenParaRutasAtacante();
+
+    if (!origen) {
+      onMensajeBusquedaChange?.(
+        "Selecciona una zona, cámara o detección para calcular rutas probables del atacante."
+      );
+      return;
+    }
+
+    try {
+      onCalculandoRutaChange?.(true);
+      onRutasEscapeChange?.([]);
+      setRutasAtacante([]);
+
+      const respuesta = await calcularRutaProbableAtacante(origen);
+      const rutas = (respuesta.geojson?.features || []).filter(
+        (feature) =>
+          feature.geometry?.type === "LineString" &&
+          Array.isArray(feature.geometry.coordinates) &&
+          feature.geometry.coordinates.length >= 2
+      );
+      const primerasCuatroRutas = rutas.slice(0, 4);
+
+      setRutasAtacante(primerasCuatroRutas);
+      onRutasEscapeChange?.(
+        primerasCuatroRutas.map((ruta, index) =>
+          convertirRutaAResumen(ruta, index)
+        )
+      );
+
+      if (primerasCuatroRutas.length === 0) {
+        onMensajeBusquedaChange?.(
+          "La IA respondió, pero no regresó rutas trazables para el mapa."
+        );
+        return;
+      }
+
+      onMensajeBusquedaChange?.(
+        `Ruta probable: ${respuesta.direccion_probable}. Score operativo: ${Number(
+          respuesta.probabilidad_operativa || 0
+        ).toFixed(2)}%.`
+      );
+    } catch (error) {
+      console.error("Error calculando rutas probables del atacante:", error);
+      onMensajeBusquedaChange?.(
+        "No se pudieron calcular las rutas probables del atacante."
+      );
+    } finally {
+      onCalculandoRutaChange?.(false);
+    }
+  }
 
   return (
     <div className="absolute inset-0 bg-slate-950">
@@ -515,6 +607,8 @@ function camaraPerteneceAZona(camara: MapaCamara, zona: ZonaRiesgoMapa) {
                     lat: camara.latitud,
                     lng: camara.longitud,
                   });
+                  setRutasAtacante([]);
+                  onRutasEscapeChange?.([]);
                 },
               }}
             >
@@ -529,14 +623,74 @@ function camaraPerteneceAZona(camara: MapaCamara, zona: ZonaRiesgoMapa) {
           );
         })}
 
-        <MapController selectedPoint={selectedPoint} />
+        {selectedPoint && rutasAtacante.length > 0 && (
+          <CircleMarker
+            center={[selectedPoint.lat, selectedPoint.lng]}
+            radius={9}
+            pathOptions={{
+              color: "#ffffff",
+              weight: 2,
+              fillColor: "#dc2626",
+              fillOpacity: 1,
+            }}
+          >
+            <Popup>
+              <strong>Punto de detección</strong>
+              <br />
+              Origen usado para calcular rutas probables del atacante.
+            </Popup>
+          </CircleMarker>
+        )}
 
-        <RoutingController
-          origen={selectedPoint}
-          calcularRutaTrigger={calcularRutaTrigger}
-          onCalculandoRutaChange={onCalculandoRutaChange}
-          onRutasEscapeChange={onRutasEscapeChange}
-        />
+        {rutasAtacante.map((ruta, index) => {
+          const puntos = ruta.geometry.coordinates.map(([lon, lat]) => [
+            lat,
+            lon,
+          ]) as [number, number][];
+          const color = COLORES_RUTA[index % COLORES_RUTA.length];
+          const direccion = obtenerPropiedadTexto(
+            ruta,
+            "direccion",
+            `Ruta ${index + 1}`
+          );
+          const probabilidad = obtenerPropiedadNumerica(
+            ruta,
+            "probabilidad_operativa",
+            0
+          );
+          const riesgo = obtenerPropiedadNumerica(ruta, "riesgo_zonas", 0);
+          const distancia = obtenerPropiedadNumerica(ruta, "distancia_m", 0);
+
+          return (
+            <Polyline
+              key={`ruta-atacante-${index}`}
+              positions={puntos}
+              pathOptions={{
+                color,
+                weight: index === 0 ? 6 : 4,
+                opacity: index === 0 ? 0.95 : 0.7,
+                dashArray: index === 0 ? undefined : "8 8",
+              }}
+            >
+              <Popup>
+                <div style={{ minWidth: 210 }}>
+                  <strong>Ruta probable del atacante #{index + 1}</strong>
+                  <br />
+                  Dirección: <strong>{direccion}</strong>
+                  <br />
+                  Score operativo: <strong>{probabilidad.toFixed(2)}%</strong>
+                  <br />
+                  Riesgo de zonas: <strong>{riesgo.toFixed(2)}%</strong>
+                  <br />
+                  Distancia: <strong>{Math.round(distancia)} m</strong>
+                </div>
+              </Popup>
+            </Polyline>
+          );
+        })}
+
+        <MapController selectedPoint={selectedPoint} />
+        <RoutesFitController rutas={rutasAtacante} />
       </MapContainer>
     </div>
   );

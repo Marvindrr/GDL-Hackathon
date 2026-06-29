@@ -21,3 +21,7 @@ ia/*.html
 # OS
 .DS_Store
 Thumbs.db
+# Mapas viales generados / pesados
+data/geo/*.graphml
+data/geo/*.osm
+

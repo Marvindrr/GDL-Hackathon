@@ -16,5 +16,8 @@ export const API_ROUTES = {
 
   mapaCamaras: "/api/mapa/camaras",
 
+  iaRutaProbableDesplazamiento:
+    "/api/ia-rutas/ruta-probable-desplazamiento",
+
   gdlTurismo: "/gdl-turismo/",
 };

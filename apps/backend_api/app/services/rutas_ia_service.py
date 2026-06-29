@@ -5,6 +5,7 @@ from sqlalchemy import func
 from app.infrastructure.db.models.geo_models import Zona
 from app.infrastructure.db.models.security_point_models import PuntoSeguridad
 from app.infrastructure.db.models.route_models import RutaCalculada, RutaPuntoControl
+from app.services.road_routing_service import RoadRoutingService
 from app.services.route_geo_utils import (
     distance_point_to_route_m,
     haversine_m,
@@ -51,6 +52,70 @@ class RutasIAService:
 
     def __init__(self, db):
         self.db = db
+        self.road_routing_service = None
+
+    def obtener_road_routing_service(self):
+        if self.road_routing_service is None:
+            self.road_routing_service = RoadRoutingService()
+
+        return self.road_routing_service
+
+    def calcular_ruta_vial_o_directa(self, origen: dict, destino: dict) -> dict:
+        """
+        Intenta calcular la ruta sobre calles reales usando OpenStreetMap local.
+
+        Si el mapa vial no está disponible o no existe conexión vial,
+        cae a ruta directa para no romper la demo.
+        """
+        try:
+            return self.obtener_road_routing_service().calcular_ruta_vial(
+                origen=origen,
+                destino=destino,
+            )
+        except Exception as error:
+            print(f"[RutasIAService] Fallback a línea directa: {error}")
+
+            points = [origen, destino]
+
+            return {
+                "points": points,
+                "distancia_m": route_distance_m(points),
+                "modo_ruteo": "linea_directa_fallback",
+            }
+
+    def punto_intercepcion_ruta(self, points: list[dict], porcentaje: float = 0.7) -> dict | None:
+        if not points:
+            return None
+
+        indice = min(
+            len(points) - 1,
+            max(0, int((len(points) - 1) * porcentaje)),
+        )
+
+        punto = points[indice]
+
+        return {
+            "lat": punto["lat"],
+            "lon": punto["lon"],
+        }
+
+    def normalizar_probabilidades(self, candidatas: list[dict]) -> list[dict]:
+        """
+        Convierte scores operativos en porcentajes relativos entre candidatas.
+
+        Esto evita mostrar cuatro rutas con 52%, 51%, 50%, etc.
+        Ahora las rutas top se reparten una probabilidad relativa.
+        """
+        if not candidatas:
+            return candidatas
+
+        scores = [max(0.01, float(c.get("score_huida", 0.01))) for c in candidatas]
+        total = sum(scores)
+
+        for candidata, score in zip(candidatas, scores):
+            candidata["probabilidad_operativa"] = round((score / total) * 100, 2)
+
+        return candidatas
 
     def obtener_zonas_con_centro(self) -> list[ZonaRiesgo]:
         rows = (
@@ -571,6 +636,13 @@ class RutasIAService:
         radio_m: int = 500,
         guardar: bool = True,
     ) -> dict:
+        """
+        Calcula rutas probables de huida del atacante.
+
+        La IA genera varias direcciones candidatas alrededor del origen,
+        intenta adaptar cada una a la red vial real y devuelve las 4 rutas
+        operativamente más probables, junto con puntos sugeridos de interceptación.
+        """
         zonas = self.obtener_zonas_con_centro()
 
         direcciones = [
@@ -587,30 +659,92 @@ class RutasIAService:
         candidatas = []
 
         for nombre, north_m, east_m in direcciones:
-            destino = offset_point_m(origen["lat"], origen["lon"], north_m=north_m, east_m=east_m)
-            points = [origen, destino]
-            distancia = route_distance_m(points)
+            destino = offset_point_m(
+                origen["lat"],
+                origen["lon"],
+                north_m=north_m,
+                east_m=east_m,
+            )
 
-            riesgo = self.calcular_riesgo_zonas(points, zonas)
+            ruta_vial = self.calcular_ruta_vial_o_directa(
+                origen=origen,
+                destino=destino,
+            )
 
-            # En esta v1, menor riesgo = ruta de seguimiento más segura para operador/turista.
-            # Después para sospechoso podemos cambiarlo a baja cobertura de cámaras / baja seguridad.
-            probabilidad_operativa = max(5, 100 - riesgo["riesgo_zonas"])
+            puntos_ruta = (
+                ruta_vial.get("coordenadas")
+                or ruta_vial.get("points")
+                or [origen, destino]
+            )
 
-            candidatas.append({
-                "direccion": nombre,
-                "points": points,
-                "destino_estimado": destino,
-                "distancia_m": round(distancia, 2),
-                "riesgo_zonas": riesgo["riesgo_zonas"],
-                "probabilidad_operativa": round(probabilidad_operativa, 2),
-                "zonas_influyentes": riesgo["zonas_influyentes"],
-            })
+            points = [
+                {
+                    "lat": float(punto["lat"]),
+                    "lon": float(punto["lon"]),
+                }
+                for punto in puntos_ruta
+                if punto.get("lat") is not None and punto.get("lon") is not None
+            ]
 
-        candidatas.sort(key=lambda item: item["probabilidad_operativa"], reverse=True)
+            if len(points) < 2:
+                points = [
+                    {
+                        "lat": float(origen["lat"]),
+                        "lon": float(origen["lon"]),
+                    },
+                    {
+                        "lat": float(destino["lat"]),
+                        "lon": float(destino["lon"]),
+                    },
+                ]
 
-        mejor = candidatas[0]
+            distancia = float(
+                ruta_vial.get("distancia_m")
+                or route_distance_m(points)
+            )
 
+            riesgo = self.calcular_riesgo_zonas(
+                route_points=points,
+                zonas=zonas,
+            )
+
+            # V1 para huida:
+            # Menor fricción operativa = más probabilidad de desplazamiento.
+            # Por ahora usamos riesgo de zona y distancia como proxy.
+            # Después se puede sumar cobertura de cámaras, iluminación,
+            # puntos ciegos, flujo vial y dirección detectada por tracking.
+            facilidad_huida = max(1.0, 100.0 - float(riesgo["riesgo_zonas"]))
+            penalizacion_distancia = min(35.0, distancia / 100.0)
+            score_huida = max(1.0, facilidad_huida - penalizacion_distancia)
+
+            punto_intercepcion = self.punto_intercepcion_ruta(
+                points,
+                porcentaje=0.7,
+            )
+
+            candidatas.append(
+                {
+                    "direccion": nombre,
+                    "points": points,
+                    "destino_estimado": destino,
+                    "distancia_m": round(distancia, 2),
+                    "riesgo_zonas": riesgo["riesgo_zonas"],
+                    "zonas_influyentes": riesgo["zonas_influyentes"],
+                    "modo_ruteo": ruta_vial.get("modo_ruteo", "desconocido"),
+                    "error_ruteo": ruta_vial.get("error"),
+                    "score_huida": round(score_huida, 4),
+                    "punto_intercepcion": punto_intercepcion,
+                }
+            )
+
+        candidatas.sort(
+            key=lambda item: item["score_huida"],
+            reverse=True,
+        )
+
+        top_candidatas = self.normalizar_probabilidades(candidatas[:4])
+
+        mejor = top_candidatas[0]
         id_ruta = None
 
         if guardar:
@@ -626,32 +760,68 @@ class RutasIAService:
                     "direccion_probable": mejor["direccion"],
                     "probabilidad_operativa": mejor["probabilidad_operativa"],
                     "radio_m": radio_m,
+                    "modo_ruteo": mejor["modo_ruteo"],
+                    "punto_intercepcion": mejor["punto_intercepcion"],
                     "candidatas": [
                         {
-                            "direccion": c["direccion"],
-                            "probabilidad_operativa": c["probabilidad_operativa"],
-                            "riesgo_zonas": c["riesgo_zonas"],
+                            "direccion": item["direccion"],
+                            "probabilidad_operativa": item["probabilidad_operativa"],
+                            "riesgo_zonas": item["riesgo_zonas"],
+                            "distancia_m": item["distancia_m"],
+                            "modo_ruteo": item["modo_ruteo"],
+                            "punto_intercepcion": item["punto_intercepcion"],
                         }
-                        for c in candidatas
+                        for item in top_candidatas
                     ],
                 },
             )
 
+        features = []
+
+        for index, item in enumerate(top_candidatas):
+            features.append(
+                route_to_geojson_feature(
+                    item["points"],
+                    {
+                        "id_ruta": id_ruta if index == 0 else None,
+                        "tipo_ruta": "ruta_probable_desplazamiento",
+                        "direccion": item["direccion"],
+                        "probabilidad_operativa": item["probabilidad_operativa"],
+                        "riesgo_zonas": item["riesgo_zonas"],
+                        "distancia_m": item["distancia_m"],
+                        "modo_ruteo": item["modo_ruteo"],
+                        "ranking": index + 1,
+                        "punto_intercepcion": item["punto_intercepcion"],
+                    },
+                )
+            )
+
+        features.append(
+            point_to_geojson_feature(
+                origen,
+                {
+                    "tipo": "deteccion_origen",
+                },
+            )
+        )
+
+        for index, item in enumerate(top_candidatas):
+            if item["punto_intercepcion"]:
+                features.append(
+                    point_to_geojson_feature(
+                        item["punto_intercepcion"],
+                        {
+                            "tipo": "punto_intercepcion",
+                            "direccion": item["direccion"],
+                            "probabilidad_operativa": item["probabilidad_operativa"],
+                            "ranking": index + 1,
+                        },
+                    )
+                )
+
         geojson = {
             "type": "FeatureCollection",
-            "features": [
-                route_to_geojson_feature(
-                    mejor["points"],
-                    {
-                        "id_ruta": id_ruta,
-                        "tipo_ruta": "ruta_probable_desplazamiento",
-                        "direccion": mejor["direccion"],
-                        "probabilidad_operativa": mejor["probabilidad_operativa"],
-                        "riesgo_zonas": mejor["riesgo_zonas"],
-                    },
-                ),
-                point_to_geojson_feature(origen, {"tipo": "deteccion_origen"}),
-            ],
+            "features": features,
         }
 
         return {
@@ -662,6 +832,8 @@ class RutasIAService:
             "probabilidad_operativa": mejor["probabilidad_operativa"],
             "riesgo_zonas": mejor["riesgo_zonas"],
             "distancia_m": mejor["distancia_m"],
+            "modo_ruteo": mejor["modo_ruteo"],
+            "punto_intercepcion": mejor["punto_intercepcion"],
             "candidatas": [
                 {
                     "direccion": item["direccion"],
@@ -669,8 +841,12 @@ class RutasIAService:
                     "riesgo_zonas": item["riesgo_zonas"],
                     "distancia_m": item["distancia_m"],
                     "destino_estimado": item["destino_estimado"],
+                    "modo_ruteo": item["modo_ruteo"],
+                    "error_ruteo": item["error_ruteo"],
+                    "punto_intercepcion": item["punto_intercepcion"],
                 }
-                for item in candidatas
+                for item in top_candidatas
             ],
             "geojson": geojson,
         }
+
