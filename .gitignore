@@ -14,3 +14,10 @@ node_modules/
 Thumbs.db
 
 ia/*.html
+
+# Docker / local data
+*.log
+
+# OS
+.DS_Store
+Thumbs.db

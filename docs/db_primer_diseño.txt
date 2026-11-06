@@ -1,0 +1,365 @@
+La base se divide en módulos. No todo tiene que tener controller desde el día uno, pero sí conviene que las tablas estén pensadas para crecer.
+
+Módulo 1: geografía base
+
+Este módulo es el corazón espacial.
+
+Tablas:
+
+municipios
+zonas
+calles_nodes
+calles_edges
+puntos_turisticos
+
+Sirve para:
+
+Guardar Guadalajara, Zapopan, Tlaquepaque, etc.
+Guardar colonias o zonas de riesgo.
+Guardar calles como red vial.
+Guardar nodos e intersecciones.
+Guardar lugares turísticos o puntos importantes.
+Relaciones principales
+municipios 1 ─── N zonas
+municipios 1 ─── N puntos_turisticos
+zonas 1 ─── N calles_edges
+calles_nodes 1 ─── N calles_edges como source
+calles_nodes 1 ─── N calles_edges como target
+Qué puedes resolver con PostGIS aquí
+Qué colonia contiene una coordenada.
+Qué calles pasan por una zona.
+Qué punto turístico está cerca de una cámara.
+Qué zonas cruzan una ruta.
+Qué tan cerca está una cámara de una calle.
+Módulo 2: cámaras
+
+Tablas:
+
+camaras
+camara_streams
+camara_estados
+camara_cobertura
+
+Sirve para:
+
+Registrar cámaras.
+Guardar URL de stream.
+Saber si la cámara está activa.
+Saber si está caída.
+Saber qué zona cubre.
+Saber qué cámaras están cerca de una detección.
+Por qué separar camaras y camara_streams
+
+Porque una cámara puede tener más de un stream:
+
+stream principal
+stream baja calidad
+stream RTSP
+stream HTTP
+stream local webcam
+stream de prueba
+
+Además, por seguridad, el stream no debería mezclarse con la información pública de la cámara.
+
+Módulo 3: modelos de IA
+
+Tablas:
+
+modelos_ia
+ejecuciones_modelo
+
+Sirve para que tu compañero pueda registrar qué modelo generó cada detección.
+
+Ejemplos:
+
+YOLOv8 personas
+YOLOv11 vehículos
+YOLO26 agresividad
+Modelo de peleas
+Modelo de robo probable
+Modelo de movimiento anómalo
+
+En vez de guardar solo:
+
+"detectado por YOLO"
+
+guardas:
+
+id_modelo = 3
+nombre = YOLO26 Aggressive Movement
+version = 1.0.0
+tipo_modelo = comportamiento
+
+Esto es importante porque después pueden cambiar el modelo y comparar resultados.
+
+Módulo 4: detecciones de cámara
+
+Tablas:
+
+detecciones_camara
+track_objetos
+track_observaciones
+comportamientos_detectados
+evidencias_media
+
+Este es el módulo más importante para la parte de IA.
+
+detecciones_camara
+
+Guarda cada detección cruda del modelo.
+
+Ejemplos:
+
+person
+car
+motorcycle
+knife
+backpack
+crowd
+
+Campos importantes:
+
+id_camara
+id_modelo
+clase_detectada
+confianza
+bbox
+keypoints
+fecha_deteccion
+ubicacion
+metadata
+
+bbox guarda detalles de la persona y poses del cuerpo 
+{
+  "x": 120,
+  "y": 80,
+  "width": 60,
+  "height": 180
+}
+
+en track_observaciones:
+se guarda cada punto donde se vio ese track_objetos
+track 123 visto en cámara 5 a las 20:15
+track 123 visto en cámara 7 a las 20:17
+track 123 visto en cámara 9 a las 20:20
+
+Módulo 5: eventos de seguridad
+
+Tablas:
+
+eventos_seguridad
+evento_detecciones
+alertas_seguridad
+evidencias_media
+
+Aquí se agrupan detecciones.
+
+Ejemplo:
+
+Evento: posible_robo
+Zona: Centro
+Fecha inicio: 20:10
+Estado: activo
+Severidad: 4
+
+Ese evento puede tener muchas detecciones:
+
+detección de persona
+detección de movimiento agresivo
+detección de moto
+detección de persona corriendo
+
+Por eso existe:
+
+evento_detecciones
+Módulo 6: reportes de seguridad
+
+Tablas:
+
+reportes_seguridad
+fuentes_datos
+
+Esto es para datos externos o manuales.
+
+Ejemplos de fuentes:
+
+reporte ciudadano
+C5
+policía
+dataset histórico
+simulación
+operador manual
+turista
+
+Ejemplos de reportes:
+
+robo
+asalto
+zona oscura
+aglomeración
+violencia
+vandalismo
+persona sospechosa
+vehículo sospechoso
+
+Aunque ahorita no tengas datos reales, deja la tabla lista.
+
+Módulo 7: factores de riesgo
+
+Tablas:
+
+factores_riesgo_zona
+historial_riesgo_zona
+
+Este módulo existe para calcular riesgo con diferentes señales:
+
+reportes
+luz
+reputación
+hora
+cámaras
+flujo de personas
+comportamientos detectados
+
+Ejemplo:
+
+riesgo_total =
+  riesgo_base_colonia
++ reportes_score
++ hora_score
++ baja_luz_score
++ comportamiento_score
+- cobertura_camaras_score
+Diferencia entre ambas tablas
+factores_riesgo_zona
+
+Guarda los factores usados en una ventana de tiempo.
+
+Ejemplo:
+
+Zona Centro
+20:00 a 21:00
+reportes_score = 70
+luz_score = 40
+hora_score = 80
+camaras_score = 60
+riesgo_total = 75
+historial_riesgo_zona
+
+Guarda el resultado final de cada cálculo.
+
+Sirve para consultar:
+
+Cómo cambió el riesgo durante el día.
+Qué zonas suben de riesgo en la noche.
+Qué zonas fueron más seguras durante el evento.
+Módulo 8: rutas
+
+Tablas:
+
+rutas_calculadas
+rutas_segmentos
+ruta_puntos_control
+
+Aquí se guardan rutas generadas por el sistema.
+
+Tipos de ruta:
+
+ruta_segura_turista
+ruta_probable_desplazamiento
+ruta_cobertura_camaras
+ruta_respuesta_emergencia
+ruta_evacuacion
+rutas_calculadas
+
+Guarda la ruta general.
+
+Ejemplo:
+
+tipo_ruta = ruta_segura_turista
+origen = punto A
+destino = punto B
+score_riesgo = 24
+distancia_m = 1400
+algoritmo = risk_weighted_path_v1
+geom = LINESTRING(...)
+rutas_segmentos
+
+Guarda cada tramo de calle que compone la ruta.
+
+Esto permite explicar:
+
+Este tramo tiene riesgo 20.
+Este tramo tiene cámara cercana.
+Este tramo se evita por reportes recientes.
+ruta_puntos_control
+
+Sirve para marcar puntos importantes:
+
+cámara cercana
+zona segura
+punto turístico
+punto de alto riesgo evitado
+salida recomendada
+Módulo 9: turismo / Mundial
+
+Tablas principales:
+
+puntos_turisticos
+rutas_calculadas
+zonas
+camaras
+reportes_seguridad
+factores_riesgo_zona
+
+Para turistas del Mundial puedes calcular:
+
+Ruta segura desde hotel a estadio.
+Ruta segura desde estadio a zona turística.
+Ruta segura desde fan zone a transporte.
+Ruta segura evitando colonias de mayor riesgo.
+Ruta recomendada con mejor cobertura de cámaras.
+
+No necesitas una tabla separada llamada rutas_turisticas al inicio. Puedes manejarlo con:
+
+rutas_calculadas.tipo_ruta = 'ruta_segura_turista'
+Módulo 10: auditoría / fuentes
+
+Tablas:
+
+fuentes_datos
+
+Más adelante puedes agregar:
+
+usuarios
+roles
+auditoria_eventos
+
+Pero por ahora no lo pondría como prioridad, a menos que ya vayan a tener login/admin.
+
+¿Qué ocurrió?
+eventos_seguridad
+
+¿Dónde ocurrió?
+zonas + ubicacion geometry
+
+¿Qué cámara lo vio?
+detecciones_camara + camaras
+
+¿Qué detectó la IA?
+detecciones_camara + comportamientos_detectados
+
+¿Es una persona/vehículo que se está moviendo?
+track_objetos + track_observaciones
+
+¿Hacia dónde podría ir?
+rutas_calculadas tipo ruta_probable_desplazamiento
+
+¿Qué tan riesgosa es la zona?
+factores_riesgo_zona + historial_riesgo_zona
+
+¿Qué ruta es más segura para un turista?
+rutas_calculadas tipo ruta_segura_turista
+
+¿Por qué se eligió esa ruta?
+rutas_segmentos + ruta_puntos_control

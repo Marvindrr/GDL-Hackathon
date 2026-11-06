@@ -1,17 +1,21 @@
+import os
 from pathlib import Path
 import json
 import re
 import math
-from flask import Flask, render_template
+from app.api.routes.rutas_ia_routes import rutas_ia_bp
+from flask import Flask, render_template, send_from_directory
 from flask_socketio import SocketIO
 from app.modules.gdl_turismo.backend.gdl_routes import gdl_turismo_bp
+from app.api.routes.detecciones_routes import detecciones_bp
 from app.api.routes.camaras_rutas import camaras_bp
 from pathlib import Path
 from flask import send_from_directory
 from app.api.routes.mapa_rutas import mapa_bp
 
-BASE_DIR = Path(__file__).resolve().parents[3]
-FRONTEND_DIR = BASE_DIR / "apps" / "frontend_web"
+BASE_DIR = Path(os.getenv("PROJECT_ROOT", "/workspace"))
+FRONTEND_DIR = Path(os.getenv("FRONTEND_LEGACY_DIR", "/workspace/apps/frontend_legacy"))
+DATA_DIR = Path(os.getenv("DATA_DIR", "/workspace/data"))
 
 app = Flask(
     __name__,
@@ -31,17 +35,35 @@ app.register_blueprint(mapa_bp)
 
 app.config["SECRET_KEY"] = "mysecret"
 app.register_blueprint(gdl_turismo_bp)
+app.register_blueprint(rutas_ia_bp)
+app.register_blueprint(detecciones_bp)
 socketio = SocketIO(app)
+
+@app.route("/gdl_static/data/<path:filename>")
+def gdl_static_data(filename):
+    data_dir = FRONTEND_DIR / "static" / "modules" / "gdl_turismo" / "data"
+    return send_from_directory(data_dir, filename)
+
+@app.route("/health")
+def health():
+    return {
+        "status": "ok",
+        "message": "Backend API is running"
+    }
 
 
 def cargar_puntos_zonas():
-    ruta = BASE_DIR / "data" / "geo" / "colonias_gdl.json"
+    ruta = DATA_DIR / "geo" / "colonias_gdl.json"
     with open(ruta, "r", encoding="utf-8") as archivo:
         return json.load(archivo)
 
 
 def ubicaciones_camaras():
-    ruta = BASE_DIR / "data" / "geo" / "ubicaciones_camaras.json"
+    ruta = DATA_DIR / "geo" / "ubicaciones_camaras.json"
+    if not ruta.exists():
+        print(f"No se encontro el archivo de camaras: {ruta}")
+        return []
+
     with open(ruta, "r", encoding="utf-8") as archivo:
         return json.load(archivo)   
 
@@ -229,4 +251,11 @@ def handle_coordinates(data):
 
 
 if __name__ == "__main__":
-    socketio.run(app, debug=True, allow_unsafe_werkzeug=True)
+    port = int(os.getenv("BACKEND_PORT", 5000))
+    socketio.run(
+        app,
+        host="0.0.0.0",
+        port=port,
+        debug=os.getenv("FLASK_DEBUG", "0") == "1",
+        allow_unsafe_werkzeug=True
+    )

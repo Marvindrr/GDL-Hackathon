@@ -1,11 +1,9 @@
-import mysql.connector
+from app.infrastructure.db.session import SessionLocal
 
-db_config = {
-    "host": "localhost",
-    "user": "root",
-    "password": "Xoceandav12",
-    "database": "zona_de_riesgo"
-}
 
 def obtener_conexion():
-    return mysql.connector.connect(**db_config)
+    """
+    Compatibilidad temporal con código viejo.
+    Lo ideal es migrar poco a poco a repositories usando SQLAlchemy.
+    """
+    return SessionLocal()
