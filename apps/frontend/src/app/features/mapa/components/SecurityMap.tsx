@@ -261,6 +261,7 @@ function RoutingController({
 }
 
 export function SecurityMap({
+  activeSection,
   ultimaDeteccion,
   calcularRutaTrigger = 0,
   onCalculandoRutaChange,
@@ -275,6 +276,13 @@ export function SecurityMap({
   const [selectedPoint, setSelectedPoint] = useState<PuntoMapa | null>(null);
   const [zonaSeleccionada, setZonaSeleccionada] =
     useState<ZonaRiesgoMapa | null>(null);
+  // Controla las zonas visibles según el módulo activo.
+  const zonasVisibles =
+    activeSection === "zonas"
+      ? zonas
+      : activeSection === "mapa" && zonaSeleccionada
+        ? [zonaSeleccionada]
+        : [];
 
   useEffect(() => {
     cargarDatosMapa();
@@ -364,7 +372,7 @@ export function SecurityMap({
           url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
         />
 
-        {zonas.map((zona) => {
+        {zonasVisibles.map((zona) => {
           const selected = zonaSeleccionada?.id === zona.id;
           const color = colorPorRiesgoValor(zona.riesgo);
           const radio = zona.radio || radioPorRiesgo(zona.riesgo);

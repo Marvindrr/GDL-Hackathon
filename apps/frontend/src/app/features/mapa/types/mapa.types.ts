@@ -1,5 +1,11 @@
-export type NivelRiesgo = "alto" | "medio" | "bajo" | "desconocido";
-
+export type NivelRiesgo =
+  | "muy_alto"
+  | "alto"
+  | "moderado"
+  | "bajo"
+  | "desconocido";
+  
+  
 export type ZonaRiesgoMapa = {
   id: string;
   nombre: string;
@@ -7,7 +13,7 @@ export type ZonaRiesgoMapa = {
   longitud: number;
   riesgo: number;
   nivel_riesgo: NivelRiesgo;
-  color: "red" | "orange" | "green";
+  color: "red" | "orange" | "yellow" | "green";
   radio: number;
 };
 

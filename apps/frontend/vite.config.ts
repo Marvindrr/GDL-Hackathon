@@ -2,6 +2,9 @@ import { defineConfig } from "vite";
 import react from "@vitejs/plugin-react";
 import path from "path";
 
+const apiProxyTarget =
+  process.env.API_PROXY_TARGET ?? "http://localhost:5000";
+
 export default defineConfig(({ command }) => ({
   plugins: [react()],
 
@@ -15,15 +18,15 @@ export default defineConfig(({ command }) => ({
     port: 5173,
     proxy: {
       "/api": {
-        target: "http://localhost:5000",
+        target: apiProxyTarget,
         changeOrigin: true,
       },
       "/gdl-turismo": {
-        target: "http://localhost:5000",
+        target: apiProxyTarget,
         changeOrigin: true,
       },
       "/static": {
-        target: "http://localhost:5000",
+        target: apiProxyTarget,
         changeOrigin: true,
       },
     },
